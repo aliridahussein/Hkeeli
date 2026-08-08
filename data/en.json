@@ -112,6 +112,8 @@
     "useChoices": "Show me choices instead",
     "useTyping": "Let me type it instead",
     "flip": "Tap the card to flip it",
+    "flipBack": "Tap the card to flip it back",
+    "showAnswer": "Show answer",
     "gotIt": "Got it",
     "stillLearning": "Still learning",
     "flashcardFront": "Lebanese",

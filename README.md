@@ -10,6 +10,11 @@ two things at once:
 Static HTML, CSS and ES modules. **No build step, no dependencies, no backend.**
 Deploy the folder as-is to Netlify, Vercel, GitHub Pages or any static host.
 
+> **Vercel note:** `vercel.json` sets `"outputDirectory": "."` and must stay.
+> With the "Other" framework preset Vercel publishes `public/` when that folder
+> exists — and ours holds only audio, so without this file the whole site 404s.
+> See [Deploying](#deploying).
+
 ---
 
 ## Running it locally
@@ -211,7 +216,7 @@ flows into every game automatically.
 | **Listen & Choose** | Plays a phrase, offers four English meanings, checks the pick. |
 | **Match the Phrase** | Five Lebanese vs five English, shuffled; tap one then the other to pair. |
 | **Fill the Blank** | Type the missing word, or switch to multiple choice; lenient checking. |
-| **Daily Flashcards** | Flip Lebanese ↔ English, then "Got it" / "Still learning". |
+| **Daily Flashcards** | Show answer (or tap the card) to flip Lebanese ↔ English, then "Got it" / "Still learning". |
 
 Match uses **tap-to-pair rather than drag-and-drop** on purpose: it behaves
 identically with a finger and a mouse and stays keyboard-reachable, where drag
@@ -277,6 +282,30 @@ media queries only enhance upward (600 / 860 / 1000px).
   states instead, and all motion respects `prefers-reduced-motion`.
 
 ---
+
+## Deploying
+
+There is nothing to build. Point any static host at the repository root.
+
+**Vercel** needs one piece of configuration, supplied by `vercel.json`:
+
+```json
+{ "outputDirectory": "." }
+```
+
+Vercel's "Other" framework preset sets the output directory to `public` when
+that folder exists, and only that folder gets served. Our `public/` holds the
+audio files, not the site, so without this override Vercel publishes a folder
+with no `index.html` and every URL returns `404: NOT_FOUND`. Equivalent project
+settings: Framework Preset "Other", Build Command overridden and left empty,
+Output Directory `.`.
+
+**Netlify** — publish directory `.`, no build command.
+**GitHub Pages** — serve from the branch root; add an empty `.nojekyll` file so
+paths are left alone.
+
+If you ever move the audio out of `public/` (say to `media/`), this override
+stops being necessary — update `CONFIG.audioBase` in `js/config.js` to match.
 
 ## Known placeholders
 

@@ -499,6 +499,13 @@
   border: 2px solid transparent;
 }
 
+/* Safety net: a button that can't be pressed must never look pressable. */
+.btn-ok[disabled],
+.btn-again[disabled] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .btn-ok {
   background: var(--ok-bg);
   color: var(--ok);

@@ -76,20 +76,25 @@ export default {
 
       const gotIt = el('button', { class: 'btn-ok' }, t('game.gotIt'));
       const again = el('button', { class: 'btn-again' }, t('game.stillLearning'));
-      const setGradingVisible = (visible) => {
-        again.disabled = !visible;
-        gotIt.disabled = !visible;
+      const reveal = el('button', { class: 'btn-primary' }, t('game.showAnswer'));
+
+      /* You can only grade a card you've actually seen the answer to. Rather
+         than showing the two grading buttons in a disabled state — which reads
+         as "broken" more than "not yet" — the action bar swaps: reveal first,
+         then grade. */
+      const setFlipped = (next) => {
+        flipped = next;
+        card.dataset.flipped = String(next);
+        card.setAttribute('aria-label', t(next ? 'game.flipBack' : 'game.flip'));
+        if (next) shell.renderActions(again, gotIt);
+        else shell.renderActions(reveal);
       };
 
       card.addEventListener('click', () => {
-        flipped = !flipped;
-        card.dataset.flipped = String(flipped);
-        if (flipped) {
-          setGradingVisible(true);
-        } else {
-          playPhrase(phrase);
-        }
+        setFlipped(!flipped);
+        if (!flipped) playPhrase(phrase);
       });
+      reveal.addEventListener('click', () => setFlipped(true));
 
       const grade = (known) => {
         shell.record(phrase.id, known);
@@ -104,7 +109,6 @@ export default {
 
       gotIt.addEventListener('click', () => grade(true));
       again.addEventListener('click', () => grade(false));
-      setGradingVisible(false);
 
       shell.renderBoard(
         card,
@@ -121,7 +125,7 @@ export default {
           )
         )
       );
-      shell.renderActions(again, gotIt);
+      setFlipped(false);
       playPhrase(phrase);
     };
 
