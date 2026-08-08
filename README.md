@@ -222,6 +222,14 @@ Match uses **tap-to-pair rather than drag-and-drop** on purpose: it behaves
 identically with a finger and a mouse and stays keyboard-reachable, where drag
 would be a pointer-only path.
 
+**Flashcards deliberately show no score.** The first three games have right and
+wrong answers, so score and streak are meaningful. Flashcards are self-graded
+review: a visible score rewards pressing "Got it", and that judgement is the
+input the spaced-repetition scheduler runs on — inflate it and the scheduling
+degrades. The card HUD counts *Known* and *To review* instead. A game opts into
+this by setting `hudMode: 'review'` (see `js/games/flashcards.js`); everything
+else defaults to the quiz HUD.
+
 Round length, option count, pair count and SRS intervals are all in
 `CONFIG.games`.
 

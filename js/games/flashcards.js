@@ -19,6 +19,8 @@ export default {
   titleKey: 'games.cardsTitle',
   blurbKey: 'games.cardsBlurb',
   minPhrases: 1,
+  // Self-graded review, not a quiz — see GameShell's `mode`.
+  hudMode: 'review',
 
   start(shell) {
     const queue = progress.getDueCards(shell.phrases, CONFIG.games.flashcardSession);

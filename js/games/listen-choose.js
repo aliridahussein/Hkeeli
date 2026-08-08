@@ -84,10 +84,16 @@ export default {
 
       shell.renderBoard(prompt, el('div', { class: 'options' }, optionButtons));
       shell.renderActions(
+        // Short visible label so the action bar stays one row on a phone;
+        // the full wording lives in the accessible name.
         el(
           'button',
-          { class: 'btn-secondary', onClick: () => playPhrase(phrase, playBtn) },
-          t('game.replay')
+          {
+            class: 'btn-secondary',
+            'aria-label': t('game.replay'),
+            onClick: () => playPhrase(phrase, playBtn)
+          },
+          t('game.replayShort')
         ),
         nextBtn
       );

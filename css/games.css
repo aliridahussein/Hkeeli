@@ -124,18 +124,27 @@
   display: grid;
   align-content: start;
   gap: var(--space-5);
+  /* Room for the sticky action bar to rest over without ever hiding the last
+     answer — the bar floats above this content while the page scrolls. */
+  padding-block-end: var(--space-6);
 }
 
-/* Sticky action bar keeps Check/Next in thumb reach on phones. */
+/* Sticky action bar keeps Check/Next in thumb reach on phones.
+   The background must be fully opaque: a translucent one lets the answer
+   underneath show through the buttons. */
 .game-actions {
   position: sticky;
   inset-block-end: 0;
   display: flex;
   gap: var(--space-3);
   flex-wrap: wrap;
-  align-items: center;
-  padding-block-start: var(--space-3);
-  background: linear-gradient(to top, var(--card) 70%, transparent);
+  /* stretch, not center: when one label wraps to two lines the buttons must
+     still match height rather than sitting at different offsets. */
+  align-items: stretch;
+  padding-block: var(--space-3);
+  background: var(--card);
+  border-block-start: 1px solid var(--hairline);
+  box-shadow: 0 -10px 20px rgba(21, 53, 52, 0.07);
 }
 
 .game-actions .btn-primary,
@@ -143,10 +152,19 @@
   flex: 1 1 auto;
 }
 
+/* Full-width and thumb-reachable on phones; centred under the (centred) card
+   or prompt on wider screens, rather than stranded against the left edge. */
 @media (min-width: 700px) {
+  .game-actions {
+    justify-content: center;
+  }
+
   .game-actions .btn-primary,
-  .game-actions .btn-secondary {
+  .game-actions .btn-secondary,
+  .game-actions .btn-ok,
+  .game-actions .btn-again {
     flex: 0 0 auto;
+    min-width: 180px;
   }
 }
 

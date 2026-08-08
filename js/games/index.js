@@ -37,10 +37,18 @@ export class GameShell {
     this.cleanups = [];
     this.score = 0;
     this.streak = 0;
+    this.again = 0;
+    /* 'quiz' games have right and wrong answers, so a score and a streak mean
+       something. 'review' games (flashcards) are self-graded: showing a score
+       there rewards pressing "Got it", which is exactly the judgement the
+       spaced-repetition scheduler depends on being honest. So they count
+       what's known and what's coming back instead. */
+    this.mode = game.hudMode === 'review' ? 'review' : 'quiz';
     this.#build();
   }
 
   #build() {
+    const isReview = this.mode === 'review';
     this.titleEl = el('h2', {}, t(this.game.titleKey));
     this.scoreEl = el('b', {}, '0');
     this.streakEl = el('b', {}, '0');
@@ -60,9 +68,9 @@ export class GameShell {
       el(
         'div',
         { class: 'hud-stats' },
-        el('span', {}, `${t('game.question')} `, this.positionEl),
-        el('span', {}, `${t('game.score')} `, this.scoreEl),
-        el('span', {}, `${t('game.streak')} `, this.streakEl)
+        el('span', {}, `${t(isReview ? 'game.card' : 'game.question')} `, this.positionEl),
+        el('span', {}, `${t(isReview ? 'game.known' : 'game.score')} `, this.scoreEl),
+        el('span', {}, `${t(isReview ? 'game.toReview' : 'game.streak')} `, this.streakEl)
       )
     );
 
@@ -96,9 +104,11 @@ export class GameShell {
       this.streak += 1;
     } else {
       this.streak = 0;
+      this.again += 1;
     }
     this.scoreEl.textContent = String(this.score);
-    this.streakEl.textContent = String(this.streak);
+    // In review mode the second stat is "how many are coming back", not a streak.
+    this.streakEl.textContent = String(this.mode === 'review' ? this.again : this.streak);
   }
 
   /* ---- board / actions ---- */
@@ -139,6 +149,7 @@ export class GameShell {
     this.setProgress(1);
     this.positionEl.textContent = total ? `${total}/${total}` : '—';
 
+    const isReview = this.mode === 'review';
     const ratio = total ? score / total : 0;
     const remark =
       ratio === 1 ? 'game.summaryPerfect' : ratio >= 0.6 ? 'game.summaryGood' : 'game.summaryKeep';
@@ -148,8 +159,14 @@ export class GameShell {
         'div',
         { class: 'summary' },
         el('div', { class: 'score-ring' }, `${score}/${total}`),
-        el('h3', {}, t('game.summaryTitle')),
-        el('p', {}, t('game.summaryBody', { score, total })),
+        el('h3', {}, t(isReview ? 'game.summaryReviewTitle' : 'game.summaryTitle')),
+        el(
+          'p',
+          {},
+          isReview
+            ? t('game.summaryReviewBody', { known: score, again: this.again })
+            : t('game.summaryBody', { score, total })
+        ),
         el('p', {}, t(remark)),
         el('p', { class: 'prompt-hint' }, t('game.progressSaved'))
       )
@@ -163,6 +180,7 @@ export class GameShell {
     this.destroy();
     this.score = 0;
     this.streak = 0;
+    this.again = 0;
     this.#build();
     this.game.start(this);
   }
