@@ -1,0 +1,109 @@
+/* ==========================================================================
+   Hkeeli — Design tokens
+   Single source of truth for the visual language, extracted from the
+   approved mockup. Nothing below this file should hardcode a colour.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand palette (verbatim from the approved mock) ---- */
+  --sea: #1F4B4A;
+  --sea-deep: #153534;
+  --sand: #F3E9D4;
+  --sand-light: #FAF5E9;
+  --olive: #7C8B5C;
+  --citrus: #E8A33D;
+  --ink: #22302E;
+  --card: #FFFDF8;
+
+  /* ---- Derived tones (the mock inlined these as hex literals) ---- */
+  --ink-muted: #4a5754;
+  --ink-soft: #5b6864;
+  --on-dark: var(--sand-light);
+  --on-dark-muted: #c7d4d1;
+  --citrus-shadow: #b87c22;
+  --citrus-ink: #4a3a17;
+
+  /* ---- Semantic states ---- */
+  --ok: #4E8C5A;
+  --ok-bg: rgba(78, 140, 90, 0.14);
+  --bad: #B4553E;
+  --bad-bg: rgba(180, 85, 62, 0.14);
+
+  /* ---- Alpha helpers ---- */
+  --hairline: rgba(34, 48, 46, 0.08);
+  --hairline-strong: rgba(34, 48, 46, 0.16);
+  --hairline-on-dark: rgba(250, 245, 233, 0.18);
+  --wash-on-dark: rgba(250, 245, 233, 0.08);
+  --olive-wash: rgba(124, 139, 92, 0.12);
+
+  /* ---- Typography ---- */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-arabic: 'Markazi Text', 'Segoe UI', serif;
+  --font-body: 'Karla', system-ui, -apple-system, sans-serif;
+
+  --step--1: 0.85rem;
+  --step-0: 1rem;
+  --step-1: 1.12rem;
+  --step-2: clamp(1.25rem, 2vw, 1.4rem);
+  --step-3: clamp(1.6rem, 3vw, 2.1rem);
+  --step-4: clamp(1.9rem, 3.4vw, 2.6rem);
+  --step-5: clamp(2.3rem, 5vw, 4.1rem);
+
+  /* ---- Spacing ---- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 80px;
+
+  /* Page gutter — mock used 6%; clamped so it stays sane on phones/ultrawide */
+  --gutter: clamp(20px, 6%, 90px);
+  --measure: 1100px;
+
+  /* ---- Radii ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --radius-pill: 100px;
+
+  /* ---- Shadows ---- */
+  --shadow-card: 0 18px 40px rgba(21, 53, 52, 0.18);
+  --shadow-lift: 0 16px 32px rgba(21, 53, 52, 0.12);
+  --shadow-press: 0 6px 0 var(--citrus-shadow);
+  --shadow-press-sm: 0 4px 0 var(--citrus-shadow);
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t-fast: 0.18s;
+  --t-base: 0.25s;
+
+  /* ---- Layers ---- */
+  --z-base: 1;
+  --z-sticky: 50;
+  --z-drawer: 80;
+  --z-toast: 100;
+
+  /* ---- Touch ---- */
+  --tap: 44px;
+}
+
+/* Motion is decoration; honour the OS setting. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0.001s;
+    --t-base: 0.001s;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001s !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,781 @@
+/* ==========================================================================
+   Hkeeli — Reusable components
+   Every visual pattern from the approved mock lives here exactly once.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Nav + language switcher + mobile drawer
+   -------------------------------------------------------------------------- */
+.site-nav {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--gutter);
+  background: rgba(250, 245, 233, 0.9);
+  backdrop-filter: blur(8px);
+  border-block-end: 1px solid var(--hairline);
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.logo-en {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--sea-deep);
+}
+
+.logo-ar {
+  font-family: var(--font-arabic);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--citrus);
+  direction: rtl;
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-6);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--sea-deep);
+}
+
+.nav-links a {
+  position: relative;
+  padding-block-end: var(--space-1);
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 0;
+  width: 0;
+  height: 2px;
+  background: var(--citrus);
+  transition: width var(--t-base) var(--ease);
+}
+
+.nav-links a[aria-current='page']::after {
+  width: 100%;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.nav-cta {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: transform var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+/* Language switcher — segmented pill, works identically on touch */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  gap: 2px;
+  background: var(--olive-wash);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-pill);
+}
+
+.lang-switch button {
+  min-width: 44px;
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sea-deep);
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.lang-switch button[aria-pressed='true'] {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+.lang-switch button:last-child {
+  font-family: var(--font-arabic);
+  font-size: 1.05rem;
+}
+
+/* Hamburger — visible below the desktop breakpoint only */
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius-md);
+  color: var(--sea-deep);
+}
+
+.nav-toggle span,
+.nav-toggle span::before,
+.nav-toggle span::after {
+  content: '';
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform var(--t-base) var(--ease), opacity var(--t-fast) var(--ease);
+}
+
+.nav-toggle span {
+  position: relative;
+}
+
+.nav-toggle span::before {
+  position: absolute;
+  inset-block-start: -7px;
+}
+
+.nav-toggle span::after {
+  position: absolute;
+  inset-block-start: 7px;
+}
+
+.site-nav[data-open='true'] .nav-toggle span {
+  background: transparent;
+}
+
+.site-nav[data-open='true'] .nav-toggle span::before {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.site-nav[data-open='true'] .nav-toggle span::after {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Drawer panel: the mobile home for nav links. Nothing is dropped on mobile. */
+.nav-drawer {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 100%;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--gutter) var(--space-6);
+  background: var(--sand-light);
+  border-block-end: 1px solid var(--hairline);
+  box-shadow: var(--shadow-lift);
+  transform-origin: top;
+}
+
+.nav-drawer a {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  color: var(--sea-deep);
+  border-block-end: 1px solid var(--hairline);
+}
+
+.nav-drawer a[aria-current='page'] {
+  color: var(--citrus);
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 15px 30px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.98rem;
+  text-align: center;
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+
+.btn-primary {
+  background: var(--citrus);
+  color: var(--sea-deep);
+  box-shadow: var(--shadow-press);
+}
+
+.btn-secondary {
+  padding: 13px 26px;
+  border: 2px solid var(--sea-deep);
+  color: var(--sea-deep);
+}
+
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--citrus-shadow);
+}
+
+.btn-secondary:active {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+.btn-small {
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  box-shadow: var(--shadow-press-sm);
+}
+
+.btn-primary[disabled],
+.btn-secondary[disabled] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Hover lifts are a pointer affordance — never fire them on touch. */
+@media (hover: hover) {
+  .nav-links a:hover::after {
+    width: 100%;
+  }
+  .nav-cta:hover {
+    background: var(--citrus);
+    color: var(--sea-deep);
+    transform: translateY(-2px);
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 var(--citrus-shadow);
+  }
+  .btn-secondary:hover {
+    background: var(--sea-deep);
+    color: var(--sand-light);
+  }
+  .lang-switch button:hover {
+    background: var(--hairline);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Eyebrow + section heading
+   -------------------------------------------------------------------------- */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-block-end: var(--space-5);
+}
+
+.eyebrow .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--citrus);
+  flex-shrink: 0;
+}
+
+.eyebrow--light {
+  color: var(--citrus);
+}
+
+.section-head {
+  max-width: 640px;
+  margin-inline: auto;
+  margin-block-end: var(--space-7);
+  text-align: center;
+}
+
+.section-head .eyebrow {
+  justify-content: center;
+}
+
+.section-head h2 {
+  font-size: var(--step-4);
+}
+
+.section-head p {
+  color: var(--ink-muted);
+  margin-block-start: var(--space-3);
+  font-size: 1.05rem;
+}
+
+/* --------------------------------------------------------------------------
+   Postcard (signature hero element)
+   -------------------------------------------------------------------------- */
+.postcard {
+  position: relative;
+  width: 280px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5);
+  border: 1px solid var(--hairline);
+}
+
+.postcard .stamp {
+  position: absolute;
+  inset-block-start: var(--space-4);
+  inset-inline-end: var(--space-4);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--sea);
+  color: var(--sand-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-arabic);
+  font-size: 1.3rem;
+  font-weight: 700;
+  transform: rotate(6deg);
+}
+
+.postcard .word-ar {
+  font-size: 2.2rem;
+  color: var(--sea-deep);
+  margin-block-end: 2px;
+  min-height: 48px;
+  line-height: 1.2;
+}
+
+/* Reserve room for the stamp.
+   The stamp sits at the card's inline-end, but this line is always RTL
+   regardless of the page language — so its own inline-end points the opposite
+   way in an LTR page. Hence the explicit pair rather than one logical rule:
+   in an LTR page the stamp is on the right, which is the Arabic line's START;
+   in an RTL page it's on the left, which is the Arabic line's END. */
+.postcard .word-ar {
+  padding-inline-start: 56px;
+}
+
+[dir='rtl'] .postcard .word-ar {
+  padding-inline-start: 0;
+  padding-inline-end: 56px;
+}
+
+.postcard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block: var(--space-2);
+}
+
+.postcard .word-translit {
+  font-size: 0.95rem;
+}
+
+.postcard .word-en {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+/* Inverted variant */
+.postcard--dark {
+  background: var(--sea-deep);
+}
+
+.postcard--dark .word-ar {
+  color: var(--sand-light);
+}
+
+.postcard--dark .word-en {
+  color: var(--on-dark-muted);
+}
+
+.postcard--dark .word-translit {
+  color: var(--citrus);
+}
+
+.postcard--dark .stamp {
+  background: var(--citrus);
+  color: var(--sea-deep);
+}
+
+/* --------------------------------------------------------------------------
+   Coastline divider (signature motif)
+   -------------------------------------------------------------------------- */
+.coastline {
+  height: 70px;
+  width: 100%;
+  background: var(--sand-light);
+}
+
+.coastline svg {
+  width: 100%;
+  height: 100%;
+}
+
+.coastline--sand {
+  background: var(--sand);
+}
+
+/* Mirror the wave so the composition flips with the layout, not against it. */
+[dir='rtl'] .coastline svg {
+  transform: scaleX(-1);
+}
+
+/* --------------------------------------------------------------------------
+   Lesson card
+   -------------------------------------------------------------------------- */
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  border: 1px solid var(--hairline);
+  transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
+}
+
+.lesson-level {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--olive);
+  background: var(--olive-wash);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  margin-block-end: var(--space-4);
+}
+
+.lesson-card h3 {
+  font-size: 1.3rem;
+  margin-block-end: var(--space-3);
+}
+
+.lesson-card > p {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  margin-block-end: var(--space-5);
+}
+
+.lesson-card .lesson-phrase {
+  margin-block-start: auto;
+}
+
+@media (hover: hover) {
+  .lesson-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Phrase strip: Arabic + transliteration + play. Always trilingual. */
+.lesson-phrase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  background: var(--sand);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.lesson-phrase .arabic {
+  font-size: 1.4rem;
+  color: var(--sea-deep);
+}
+
+.lesson-phrase .phrase-en {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-block-start: 2px;
+}
+
+/* Play button — citrus circle with a CSS triangle, from the mock */
+.play {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  background: var(--citrus);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-press-sm);
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+
+.play::before {
+  content: '';
+  border-style: solid;
+  border-width: 7px 0 7px 12px;
+  border-color: transparent transparent transparent var(--sea-deep);
+  margin-inline-start: 3px;
+}
+
+/* The glyph points at the reading direction; mirror it in RTL. */
+[dir='rtl'] .play::before {
+  transform: scaleX(-1);
+}
+
+.play:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.play[data-state='playing'] {
+  animation: pulse 1s var(--ease) infinite;
+}
+
+@keyframes pulse {
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+@media (hover: hover) {
+  .play:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Game tile
+   -------------------------------------------------------------------------- */
+.game-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+  border: 1px solid var(--hairline);
+  color: inherit;
+  transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
+}
+
+.game-tile .icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  margin-block-end: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  background: var(--sea-deep);
+  color: var(--citrus);
+}
+
+.game-tile h3 {
+  font-size: 1rem;
+}
+
+.game-tile p {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.game-tile .tile-stat {
+  margin-block-start: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+@media (hover: hover) {
+  .game-tile:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Booking band
+   -------------------------------------------------------------------------- */
+.book-band {
+  background: var(--citrus);
+  border-radius: var(--radius-xl);
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: var(--space-8) var(--gutter);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.book-band h2 {
+  font-size: var(--step-3);
+  max-width: 420px;
+}
+
+.book-band p {
+  color: var(--citrus-ink);
+  margin-block-start: var(--space-3);
+  max-width: 420px;
+}
+
+/* --------------------------------------------------------------------------
+   Forms
+   -------------------------------------------------------------------------- */
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 640px;
+  margin-inline: auto;
+  margin-block-start: var(--space-7);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: var(--space-4);
+  min-width: 0;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+/* A <select> sizes itself to its longest option; without this the level
+   dropdown widens the whole form past the viewport on phones. */
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  font-size: var(--step-0);
+}
+
+.field textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--olive);
+}
+
+.form-note {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin-block-start: var(--space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.site-footer {
+  padding: var(--space-7) var(--gutter) var(--space-6);
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  border-block-start: 1px solid var(--hairline);
+}
+
+.site-footer .logo {
+  justify-content: center;
+  margin-block-end: var(--space-3);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  margin-block-start: var(--space-4);
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+/* --------------------------------------------------------------------------
+   Toast (audio fallbacks, save confirmations)
+   -------------------------------------------------------------------------- */
+.toast-region {
+  position: fixed;
+  inset-block-end: var(--space-5);
+  inset-inline: var(--space-4);
+  z-index: var(--z-toast);
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--sea-deep);
+  color: var(--on-dark);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lift);
+  max-width: min(92vw, 460px);
+  text-align: center;
+  animation: toast-in var(--t-base) var(--ease);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Chips / tags
+   -------------------------------------------------------------------------- */
+.chip-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-block-start: var(--space-5);
+}
+
+.chip {
+  background: var(--olive-wash);
+  border: 1px solid var(--hairline);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  color: var(--sea-deep);
+}
+
+.chip--on-dark {
+  background: var(--wash-on-dark);
+  border-color: var(--hairline-on-dark);
+  color: var(--sand-light);
+}

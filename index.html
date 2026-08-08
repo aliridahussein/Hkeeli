@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hkeeli — Learn Lebanese</title>
+  <meta name="description" content="Hkeeli (إحكيلي) — learn spoken Lebanese Arabic with a native teacher. Lessons, games, and audio for people who don't read Arabic yet.">
+  <meta name="theme-color" content="#153534">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Markazi+Text:wght@500;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main" data-i18n="nav.skip">Skip to main content</a>
+
+<!-- NAV ------------------------------------------------------------------ -->
+<nav class="site-nav" data-open="false">
+  <a class="logo" href="index.html">
+    <span class="logo-en">Hkeeli</span>
+    <span class="logo-ar">إحكيلي</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="index.html#about" data-i18n="nav.about">Meet the Teacher</a>
+    <a href="learn.html" data-i18n="nav.learn">Learn</a>
+    <a href="practice.html" data-i18n="nav.practice">Practice</a>
+  </div>
+
+  <div class="nav-actions">
+    <div class="lang-switch" role="group" data-i18n-attr="aria-label:nav.language">
+      <button type="button" data-lang="en" aria-pressed="true" data-i18n-attr="aria-label:nav.switchToEnglish">EN</button>
+      <button type="button" data-lang="ar" aria-pressed="false" data-i18n-attr="aria-label:nav.switchToArabic">ع</button>
+    </div>
+    <a href="index.html#book" class="nav-cta" data-i18n="nav.cta">Book a Class</a>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" data-i18n-attr="aria-label:nav.openMenu">
+      <span></span>
+    </button>
+  </div>
+
+  <div class="nav-drawer" id="nav-drawer" hidden>
+    <a href="index.html#about" data-i18n="nav.about">Meet the Teacher</a>
+    <a href="learn.html" data-i18n="nav.learn">Learn</a>
+    <a href="practice.html" data-i18n="nav.practice">Practice</a>
+    <a href="index.html#book" data-i18n="nav.book">Book a Class</a>
+  </div>
+</nav>
+
+<main id="main">
+
+  <!-- HERO --------------------------------------------------------------- -->
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Lebanese Arabic, taught by a native speaker</span></p>
+      <h1>
+        <span data-i18n="hero.titleBefore"></span>
+        <span class="arabic-word" lang="ar" dir="rtl" data-i18n="hero.titleArabic">إحكي</span>
+        <span data-i18n="hero.titleAfter"></span>
+      </h1>
+      <p data-i18n="hero.body"></p>
+      <div class="hero-ctas">
+        <a href="learn.html" class="btn-primary" data-i18n="hero.ctaPrimary">Start Learning Free</a>
+        <a href="#book" class="btn-secondary" data-i18n="hero.ctaSecondary">Book a 1-on-1</a>
+      </div>
+    </div>
+
+    <div>
+      <!-- Populated from lessons.json (see HERO_PHRASE_IDS in js/main.js) -->
+      <div class="postcard-stack" id="postcard-stack" data-i18n-attr="aria-label:hero.cardsLabel"></div>
+      <div class="postcard-dots" id="postcard-dots"></div>
+    </div>
+  </section>
+
+  <!-- COASTLINE ---------------------------------------------------------- -->
+  <div class="coastline" aria-hidden="true">
+    <svg viewBox="0 0 1200 70" preserveAspectRatio="none" focusable="false">
+      <path d="M0,35 C150,10 300,60 450,35 C600,10 750,60 900,35 C1050,10 1150,50 1200,35 L1200,70 L0,70 Z" fill="#1F4B4A" opacity="0.08"/>
+      <path d="M0,45 C150,20 300,68 450,45 C600,20 750,68 900,45 C1050,22 1150,58 1200,45 L1200,70 L0,70 Z" fill="#E8A33D" opacity="0.15"/>
+    </svg>
+  </div>
+
+  <!-- ABOUT -------------------------------------------------------------- -->
+  <section class="about" id="about">
+    <div class="about-grid">
+      <div class="about-portrait" role="img" data-i18n-attr="aria-label:about.portraitAlt">ز</div>
+      <div>
+        <p class="eyebrow eyebrow--light"><span data-i18n="about.eyebrow">Meet Your Teacher</span></p>
+        <h2 data-i18n="about.title"></h2>
+        <p data-i18n="about.p1"></p>
+        <p data-i18n="about.p2"></p>
+        <div class="chip-row">
+          <span class="chip chip--on-dark" data-i18n="about.tag1"></span>
+          <span class="chip chip--on-dark" data-i18n="about.tag2"></span>
+          <span class="chip chip--on-dark" data-i18n="about.tag3"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonials">
+      <figure class="testimonial">
+        <blockquote data-i18n="about.t1Quote"></blockquote>
+        <cite data-i18n="about.t1Name"></cite>
+      </figure>
+      <figure class="testimonial">
+        <blockquote data-i18n="about.t2Quote"></blockquote>
+        <cite data-i18n="about.t2Name"></cite>
+      </figure>
+      <figure class="testimonial">
+        <blockquote data-i18n="about.t3Quote"></blockquote>
+        <cite data-i18n="about.t3Name"></cite>
+      </figure>
+    </div>
+  </section>
+
+  <!-- LEARN -------------------------------------------------------------- -->
+  <section id="learn">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="learn.eyebrow">Learn</span></p>
+      <h2 data-i18n="learn.title"></h2>
+      <p data-i18n="learn.subtitle"></p>
+    </div>
+    <!-- Populated from lessons.json -->
+    <div class="learn-grid" id="learn-grid"></div>
+    <p class="center-text" style="margin-block-start: var(--space-6);">
+      <a href="learn.html" class="btn-secondary" data-i18n="learn.viewAll">See all lessons</a>
+    </p>
+  </section>
+
+  <!-- PRACTICE ----------------------------------------------------------- -->
+  <section class="games" id="games">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
+      <h2 data-i18n="games.title"></h2>
+      <p data-i18n="games.subtitle"></p>
+    </div>
+    <!-- Populated from the game registry -->
+    <div class="games-grid" id="games-grid"></div>
+  </section>
+
+  <!-- BOOK --------------------------------------------------------------- -->
+  <section id="book">
+    <div class="book-band">
+      <div>
+        <h2 data-i18n="book.bandTitle"></h2>
+        <p data-i18n="book.bandBody"></p>
+      </div>
+      <a href="#booking-form" class="btn-secondary" data-i18n="book.bandCta">Book Your First Class</a>
+    </div>
+
+    <!-- Placeholder submission: composes a mailto: draft until a real booking
+         backend exists. See CONFIG.formEndpoint in js/config.js. -->
+    <form class="form-card" id="booking-form" novalidate>
+      <h3 data-i18n="book.formTitle"></h3>
+      <p class="form-note" data-i18n="book.formBody"></p>
+
+      <div class="field">
+        <label for="bf-name" data-i18n="book.name">Your name</label>
+        <input id="bf-name" name="name" type="text" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <label for="bf-email" data-i18n="book.email">Email</label>
+        <input id="bf-email" name="email" type="email" autocomplete="email" required>
+      </div>
+
+      <div class="field">
+        <label for="bf-level" data-i18n="book.level">Your level</label>
+        <select id="bf-level" name="level">
+          <option value="beginner" data-i18n="book.levelBeginner"></option>
+          <option value="some" data-i18n="book.levelSome"></option>
+          <option value="heritage" data-i18n="book.levelHeritage"></option>
+          <option value="intermediate" data-i18n="book.levelIntermediate"></option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="bf-goals" data-i18n="book.goals">What do you want to be able to say?</label>
+        <textarea id="bf-goals" name="goals" data-i18n-attr="placeholder:book.goalsPlaceholder"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="bf-availability" data-i18n="book.availability">When are you usually free?</label>
+        <input id="bf-availability" name="availability" type="text" data-i18n-attr="placeholder:book.availabilityPlaceholder">
+      </div>
+
+      <button type="submit" class="btn-primary" data-i18n="book.submit">Send my request</button>
+      <p class="form-note" data-i18n="book.note"></p>
+    </form>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="logo">
+    <span class="logo-en">Hkeeli</span>
+    <span class="logo-ar">إحكيلي</span>
+  </div>
+  <p data-i18n="site.tagline"></p>
+  <nav class="footer-links" data-i18n-attr="aria-label:footer.nav">
+    <a href="index.html#about" data-i18n="nav.about"></a>
+    <a href="learn.html" data-i18n="nav.learn"></a>
+    <a href="practice.html" data-i18n="nav.practice"></a>
+    <a href="index.html#book" data-i18n="nav.book"></a>
+  </nav>
+  <p class="form-note" data-i18n="footer.rights"></p>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

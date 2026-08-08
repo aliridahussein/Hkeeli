@@ -1,0 +1,555 @@
+/* ==========================================================================
+   Hkeeli — Practice / game UI
+   Loaded by practice.html only. Mobile-first: every interaction here is
+   tap-first, with pointer niceties layered on top.
+   ========================================================================== */
+
+.practice-layout {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding-block-end: var(--space-8);
+}
+
+/* --------------------------------------------------------------------------
+   Game picker — horizontal scroll rail on phones, full row on desktop
+   -------------------------------------------------------------------------- */
+.game-picker {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-block-end: var(--space-3);
+  margin-block-end: var(--space-5);
+  scrollbar-width: none;
+}
+
+.game-picker::-webkit-scrollbar {
+  display: none;
+}
+
+.game-picker button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline-strong);
+  background: var(--card);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--sea-deep);
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease),
+    border-color var(--t-fast) var(--ease);
+}
+
+.game-picker button[aria-selected='true'] {
+  background: var(--sea-deep);
+  border-color: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+@media (min-width: 860px) {
+  .game-picker {
+    justify-content: center;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Game shell
+   -------------------------------------------------------------------------- */
+.game-shell {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+  min-height: 420px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--space-5);
+}
+
+@media (min-width: 700px) {
+  .game-shell {
+    padding: var(--space-6);
+  }
+}
+
+.game-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.game-hud h2 {
+  font-size: 1.15rem;
+}
+
+.hud-stats {
+  display: flex;
+  gap: var(--space-4);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.hud-stats b {
+  color: var(--sea-deep);
+  font-size: 0.95rem;
+}
+
+.progress-track {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--olive-wash);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--citrus);
+  border-radius: var(--radius-pill);
+  transition: width var(--t-base) var(--ease);
+}
+
+.game-board {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+}
+
+/* Sticky action bar keeps Check/Next in thumb reach on phones. */
+.game-actions {
+  position: sticky;
+  inset-block-end: 0;
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+  padding-block-start: var(--space-3);
+  background: linear-gradient(to top, var(--card) 70%, transparent);
+}
+
+.game-actions .btn-primary,
+.game-actions .btn-secondary {
+  flex: 1 1 auto;
+}
+
+@media (min-width: 700px) {
+  .game-actions .btn-primary,
+  .game-actions .btn-secondary {
+    flex: 0 0 auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Prompt (the phrase under test)
+   -------------------------------------------------------------------------- */
+.prompt {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  background: var(--sand);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-4);
+}
+
+.prompt .arabic {
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  color: var(--sea-deep);
+}
+
+.prompt .translit {
+  font-size: 1rem;
+}
+
+.prompt .play {
+  width: 64px;
+  height: 64px;
+}
+
+.prompt .play::before {
+  border-width: 10px 0 10px 17px;
+}
+
+.prompt-hint {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Multiple-choice options
+   -------------------------------------------------------------------------- */
+.options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 700px) {
+  .options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  font-size: 0.98rem;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+.option .key {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--olive-wash);
+  color: var(--olive);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.option[data-state='selected'] {
+  border-color: var(--sea-deep);
+  background: var(--card);
+}
+
+.option[data-state='correct'] {
+  border-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.option[data-state='wrong'] {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+.option[disabled] {
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .option:not([disabled]):hover {
+    border-color: var(--olive);
+    transform: translateY(-2px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Feedback banner
+   -------------------------------------------------------------------------- */
+.feedback {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+}
+
+.feedback[data-tone='ok'] {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.feedback[data-tone='bad'] {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+
+.feedback .feedback-detail {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Match the Phrase
+   -------------------------------------------------------------------------- */
+.match-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.match-col {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.match-col h3 {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive);
+  text-align: center;
+}
+
+.match-item {
+  display: grid;
+  gap: 2px;
+  min-height: 60px;
+  padding: var(--space-3);
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  text-align: start;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
+    opacity var(--t-base) var(--ease), transform var(--t-fast) var(--ease);
+}
+
+.match-item .arabic {
+  font-size: 1.4rem;
+  color: var(--sea-deep);
+}
+
+.match-item .match-en {
+  font-size: 0.92rem;
+}
+
+.match-item[data-state='selected'] {
+  border-color: var(--citrus);
+  background: var(--card);
+  box-shadow: var(--shadow-press-sm);
+}
+
+.match-item[data-state='matched'] {
+  border-color: var(--ok);
+  background: var(--ok-bg);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.match-item[data-state='wrong'] {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  animation: shake 0.35s var(--ease);
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Fill the Blank
+   -------------------------------------------------------------------------- */
+.blank-sentence {
+  font-size: 1.1rem;
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+.blank-sentence .blank-slot {
+  display: inline-block;
+  min-width: 90px;
+  border-block-end: 3px dashed var(--citrus);
+  margin-inline: var(--space-1);
+}
+
+.answer-input {
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-3) var(--space-5);
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--sand-light);
+  font-size: 1.05rem;
+  text-align: center;
+  direction: ltr; /* transliteration is Latin, even in Arabic UI */
+}
+
+.answer-input:focus {
+  border-color: var(--olive);
+}
+
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+}
+
+.mode-toggle button {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--olive);
+  text-decoration: underline;
+  min-height: var(--tap);
+  padding-inline: var(--space-3);
+}
+
+/* --------------------------------------------------------------------------
+   Flashcards
+   -------------------------------------------------------------------------- */
+.flashcard {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  aspect-ratio: 3 / 2;
+  background: none;
+  border: none;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.5s var(--ease);
+}
+
+.flashcard[data-flipped='true'] .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.flashcard-front {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+}
+
+.flashcard-front .arabic {
+  font-size: clamp(2.2rem, 9vw, 3.2rem);
+  color: var(--sea-deep);
+}
+
+.flashcard-back {
+  background: var(--sea-deep);
+  transform: rotateY(180deg);
+}
+
+.flashcard-back .card-en {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 5vw, 1.9rem);
+  color: var(--sand-light);
+}
+
+.flashcard-back .translit {
+  color: var(--citrus);
+}
+
+.flashcard-hint {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.flashcard-back .flashcard-hint {
+  color: var(--on-dark-muted);
+}
+
+.srs-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--olive);
+  background: var(--olive-wash);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.btn-ok,
+.btn-again {
+  flex: 1;
+  min-height: var(--tap);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  padding: var(--space-3) var(--space-5);
+  border: 2px solid transparent;
+}
+
+.btn-ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+.btn-again {
+  background: var(--bad-bg);
+  color: var(--bad);
+  border-color: var(--bad);
+}
+
+/* --------------------------------------------------------------------------
+   Session summary
+   -------------------------------------------------------------------------- */
+.summary {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+
+.summary .score-ring {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--olive-wash);
+  border: 6px solid var(--citrus);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+.summary p {
+  color: var(--ink-muted);
+  max-width: 380px;
+}
+
+/* --------------------------------------------------------------------------
+   Empty / loading states
+   -------------------------------------------------------------------------- */
+.game-loading,
+.game-empty {
+  display: grid;
+  place-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--ink-soft);
+}

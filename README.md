@@ -1,0 +1,287 @@
+# Hkeeli — إحكيلي
+
+A bilingual (English / Arabic) site for a Lebanese Arabic dialect teacher. It is
+two things at once:
+
+1. a **portfolio and booking page** — who she is, what she teaches, how to book;
+2. a **lightweight learning platform** — lessons and four playable games for
+   people who don't read Arabic yet.
+
+Static HTML, CSS and ES modules. **No build step, no dependencies, no backend.**
+Deploy the folder as-is to Netlify, Vercel, GitHub Pages or any static host.
+
+---
+
+## Running it locally
+
+```bash
+npx serve .
+```
+
+Then open <http://localhost:3000>.
+
+> Opening `index.html` directly with `file://` **will not work**: the site loads
+> `data/*.json` with `fetch()` and uses ES modules, both of which browsers block
+> on the `file:` protocol. Any static server will do — `npx serve`,
+> `python -m http.server`, the VS Code Live Server extension.
+
+A ready-made config for the Claude Code preview pane lives in
+`.claude/launch.json` (port 4321).
+
+---
+
+## Folder structure
+
+```
+index.html          Home — hero, about, lesson preview, games preview, booking
+learn.html          All lesson units, expanded
+practice.html       The four games
+
+css/
+  tokens.css        Design tokens: colour, type, spacing, radii, shadows, motion
+  base.css          Reset, typography, Arabic/transliteration rules, utilities
+  components.css    Nav, buttons, postcard, lesson card, game tile, forms, footer
+  layout.css        Page grids and breakpoints (mobile-first)
+  games.css         Practice-page UI (loaded by practice.html only)
+
+js/
+  config.js         Everything environment-dependent — audio base, keys, tuning
+  i18n.js           Bilingual layer: bundles, data-i18n, <html lang/dir>
+  data.js           Loads lessons.json; the only module that fetches it
+  audio.js          playPhrase(): recording first, speech synthesis fallback
+  storage.js        Progress adapter (localStorage) + spaced repetition
+  toast.js          Transient messages
+  ui.js             Page chrome + shared renderers (lesson card, game tile, …)
+  main.js           Home page
+  learn.js          Learn page
+  practice.js       Practice page — game picker and mounting
+  booking.js        Booking form submission
+  games/
+    index.js        Game registry + shared shell (score, streak, summary)
+    shared.js       Shuffling, answer normalisation, option building
+    listen-choose.js  match.js  fill-blank.js  flashcards.js
+
+data/
+  lessons.json      All course content — units, dialogues, phrases, exercises
+  en.json           English UI strings
+  ar.json           Arabic UI strings
+
+public/audio/       Recordings, one folder per unit (see public/audio/README.md)
+assets/images/      Photography and logo assets
+```
+
+### Design system
+
+The approved mockup is the source of truth and lives entirely in
+`css/tokens.css` + `css/components.css`. **No stylesheet outside `tokens.css`
+should contain a colour literal**, and no stylesheet should use physical
+properties (`margin-left`, `left`, `text-align: right`) — logical properties
+only, which is what makes the Arabic layout mirror correctly for free.
+
+---
+
+## Adding a lesson unit
+
+Append one object to `units` in `data/lessons.json`. Nothing else changes: the
+Learn page renders it, and every phrase in it immediately becomes playable in
+all four games.
+
+```jsonc
+{
+  "id": "unit-4",
+  "order": 4,
+  "slug": "directions",
+  "featured": false,              // true = show on the home page preview
+  "feature": "u4-p3",             // optional: which phrase shows on the card
+  "level":       { "en": "Everyday", "ar": "يوميّات" },
+  "title":       { "en": "Finding Your Way", "ar": "..." },
+  "description": { "en": "...", "ar": "..." },
+  "tip":         { "en": "...", "ar": "..." },   // optional
+  "challenge":   { "en": "...", "ar": "..." },   // optional
+  "homework":    { "en": "...", "ar": "..." },   // optional
+  "dialogue": [
+    { "speaker": "A", "ar": "وين الطريق؟", "translit": "wein el tari2?", "en": "Where's the road?" }
+  ],
+  "phrases": [
+    {
+      "id": "u4-p1",
+      "ar": "على اليمين",
+      "translit": "3a l-yamin",
+      "en": "to the right",
+      "audio": "lessons/unit-4/3a-l-yamin.mp3",   // optional until recorded
+      "accept": ["3a l yamin", "aa l yamin"],     // extra accepted spellings
+      "tags": ["directions"],
+      "blank": {                                   // optional, see below
+        "translit": "lif ___ ba3d el ishara",
+        "ar": "لف ___ بعد الإشارة",
+        "answer": "3a l-yamin",
+        "hint": { "en": "right", "ar": "يمين" }
+      }
+    }
+  ]
+}
+```
+
+Notes:
+
+- **`id` must be unique across the whole file** — progress and scheduling are
+  keyed on it. Renaming an id resets that phrase's learning history.
+- **Every phrase needs `ar`, `translit` and `en`.** All three are always shown,
+  in both site languages: an English-mode learner still needs the script, and an
+  Arabic-mode beginner still needs the transliteration.
+- **`blank` is optional.** Without it, Fill the Blank derives an exercise by
+  hiding the longest word of the transliteration. Single-word phrases are simply
+  skipped by that game.
+- **`accept`** is worth filling in. Typed answers are already normalised
+  (case, spacing, punctuation, doubled letters, and chat-alphabet digits — `7`/`h`,
+  `3`/`gh`/`aa`, `2`, `5`/`kh`, `9`/`s`) and tolerate one typo, but listing the
+  spellings you actually see from students makes the game feel fair.
+
+---
+
+## Audio
+
+`js/audio.js` resolves pronunciation in this order:
+
+1. the phrase's `audio` file, resolved against `CONFIG.audioBase`;
+2. the browser's speech synthesis in an Arabic voice (temporary placeholder);
+3. a "no audio yet" toast — it never throws.
+
+A missing file is probed **once** per phrase per session, then remembered, so a
+404 doesn't repeat on every tap. The 404s you'll see in the console today are
+exactly that — intentional, and they disappear as recordings land.
+
+### Adding a recording
+
+Drop the file at the path already named in `lessons.json`:
+
+```
+public/audio/lessons/unit-1/kifak.mp3
+```
+
+That's the whole change — no code, no data edit. The file takes priority over
+speech synthesis the moment it exists.
+
+### Moving to hosted audio
+
+One line in `js/config.js`:
+
+```js
+audioBase: 'https://cdn.example.com/hkeeli/audio/'
+```
+
+Phrase paths stay relative and resolve against the new base. A phrase whose
+`audio` is already an absolute URL is used as-is, so partial migration works
+too. When the recordings are complete, set `ttsFallback: false` to stop the
+synthetic-voice fallback entirely.
+
+---
+
+## Bilingual and RTL
+
+UI copy never appears in the markup. Elements name a key instead:
+
+```html
+<h2 data-i18n="about.title"></h2>
+<button data-i18n-attr="aria-label:nav.openMenu"></button>
+<input data-i18n-attr="placeholder:book.goalsPlaceholder">
+```
+
+Keys resolve against `data/en.json` and `data/ar.json`. To add a string, add it
+to **both** files with the same key path — a key missing from `ar.json` falls
+back to English rather than rendering blank.
+
+Switching language sets `<html lang>` and `<html dir>`, re-renders every
+translatable node, saves the choice to `localStorage`, and fires a
+`hkeeli:langchange` event that data-driven sections listen for. There is no
+page reload. English is the default on a first visit.
+
+Lesson *content* is deliberately exempt: Arabic script, transliteration and
+English always render together, in both modes.
+
+---
+
+## Practice games
+
+All four read from the same phrase bank, so content added to `lessons.json`
+flows into every game automatically.
+
+| Game | What it does |
+|---|---|
+| **Listen & Choose** | Plays a phrase, offers four English meanings, checks the pick. |
+| **Match the Phrase** | Five Lebanese vs five English, shuffled; tap one then the other to pair. |
+| **Fill the Blank** | Type the missing word, or switch to multiple choice; lenient checking. |
+| **Daily Flashcards** | Flip Lebanese ↔ English, then "Got it" / "Still learning". |
+
+Match uses **tap-to-pair rather than drag-and-drop** on purpose: it behaves
+identically with a finger and a mouse and stays keyboard-reachable, where drag
+would be a pointer-only path.
+
+Round length, option count, pair count and SRS intervals are all in
+`CONFIG.games`.
+
+---
+
+## Progress tracking
+
+Games never touch `localStorage`. They call the adapter in `js/storage.js`:
+
+```js
+progress.getPhraseState(id)
+progress.setPhraseState(id, patch)
+progress.recordAnswer(gameId, phraseId, correct)
+progress.getDueCards(phrases, limit)
+progress.getGameStats(gameId)
+progress.recordSession(gameId, score, total)
+```
+
+Scheduling is Leitner boxes 0–4 with 0/1/3/7/21-day intervals: a correct answer
+promotes a card, a wrong one sends it back to box 0. Flashcard sessions pull
+overdue cards first, then cards never seen.
+
+**To move progress to a real backend**, write an `ApiProgress` class with those
+six methods and export it in place of `LocalStorageProgress` at the bottom of
+`js/storage.js`. No game logic changes. The storage key is versioned
+(`hkeeli.progress.v1`) so a schema change can migrate rather than clobber, and
+corrupt or absent data always falls back to a fresh object instead of throwing.
+
+---
+
+## Booking
+
+The form on the home page is a **placeholder**: it composes a prefilled
+`mailto:` draft. To wire it to a real service, set one value in `js/config.js`:
+
+```js
+formEndpoint: 'https://formspree.io/f/xxxxxxx'
+```
+
+`js/booking.js` then POSTs the form as JSON instead. Update `bookingEmail` to
+the teacher's real address before launch — it currently points at
+`hello@hkeeli.example`.
+
+---
+
+## Mobile
+
+Mobile is the full product, not a reduced one. Base CSS *is* the phone layout;
+media queries only enhance upward (600 / 860 / 1000px).
+
+- The hero postcard stack is a swipeable scroll-snap rail with dots on phones,
+  and the mock's scattered rotated stack from 860px up.
+- Nav links move into a drawer below 860px — including the Book a Class link,
+  so nothing is lost.
+- Every game is tap-first, with the check/next actions in a sticky bar within
+  thumb reach.
+- Hover lifts are wrapped in `@media (hover: hover)` so touch devices get press
+  states instead, and all motion respects `prefers-reduced-motion`.
+
+---
+
+## Known placeholders
+
+- **No real recordings** — everything falls back to speech synthesis.
+- **Portrait** is a CSS gradient block; swap `.about-portrait` for an `<img>`.
+- **Testimonials** are clearly-labelled placeholder text in `en.json`/`ar.json`.
+- **Units 4–12** are not in `lessons.json` yet; units 1–3 are complete.
+- **Booking** composes an email; there is no backend, login or payment.

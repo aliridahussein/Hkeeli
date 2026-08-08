@@ -1,0 +1,559 @@
+{
+  "meta": {
+    "version": 1,
+    "course": {
+      "en": "Lebanese Arabic Survival",
+      "ar": "لبناني للحياة اليومية"
+    },
+    "totalUnitsPlanned": 12,
+    "note": "Units 4-12 get appended to `units` below. No code changes are needed - the Learn page and all four games read from this file. See README.md."
+  },
+  "units": [
+    {
+      "id": "unit-1",
+      "feature": "u1-p2",
+      "order": 1,
+      "slug": "first-words",
+      "featured": true,
+      "level": { "en": "Beginner", "ar": "مبتدئ" },
+      "title": {
+        "en": "First Words in Lebanon",
+        "ar": "أول كلمات بلبنان"
+      },
+      "description": {
+        "en": "Greetings, please & thank you, the basics you need on day one.",
+        "ar": "التحيّات، من فضلك وشكراً — الأساسيات يلي بتلزمك من أول يوم."
+      },
+      "tip": {
+        "en": "Lebanese greetings are gendered: you say kifak to a man and kifik to a woman. Get this one right and people immediately hear that you learned from a person, not an app.",
+        "ar": "التحية بتتغيّر حسب الشخص: بتقول كيفك لرجّال وكيفِك لمرا. هيدي أول شي بيخلّي الناس تحس إنك تعلّمت من ناس، مش من تطبيق."
+      },
+      "challenge": {
+        "en": "Record a 20-second voice note introducing yourself: greet, say your name, ask how they are, and say goodbye.",
+        "ar": "سجّل رسالة صوتية ٢٠ ثانية: سلّم، قول اسمك، اسأل كيفه، وودّع."
+      },
+      "homework": {
+        "en": "Greet three people this week in Lebanese only — no English fallback. Note which reply you didn't understand and bring it to class.",
+        "ar": "سلّم على ٣ أشخاص هالأسبوع بالعربي بس. لاحظ شو الجواب يلي ما فهمتو وجيبو عالدرس."
+      },
+      "dialogue": [
+        {
+          "speaker": "A",
+          "ar": "مرحبا! كيفك؟",
+          "translit": "mar7aba! kifak?",
+          "en": "Hi! How are you?"
+        },
+        {
+          "speaker": "B",
+          "ar": "أهلين، منيح الحمدلله. وإنت؟",
+          "translit": "ahlein, mni7 el 7amdilla. w inte?",
+          "en": "Hey, I'm good, thank God. And you?"
+        },
+        {
+          "speaker": "A",
+          "ar": "منيح كمان. شو أخبارك؟",
+          "translit": "mni7 kamen. shu akhbarak?",
+          "en": "Good too. What's your news?"
+        },
+        {
+          "speaker": "B",
+          "ar": "ماشي الحال. يلا، بخاطرك!",
+          "translit": "mashe l-7al. yalla, b khatrak!",
+          "en": "Getting by. Alright — see you!"
+        }
+      ],
+      "phrases": [
+        {
+          "id": "u1-p1",
+          "ar": "مرحبا",
+          "translit": "mar7aba",
+          "en": "hello",
+          "audio": "lessons/unit-1/marhaba.mp3",
+          "accept": ["marhaba", "mar7aba", "marhaban"],
+          "tags": ["greeting"],
+          "blank": {
+            "translit": "___, kifak?",
+            "ar": "___، كيفك؟",
+            "answer": "mar7aba",
+            "hint": { "en": "the everyday hello", "ar": "التحية اليومية" }
+          }
+        },
+        {
+          "id": "u1-p2",
+          "ar": "كيفك",
+          "translit": "kifak / kifik",
+          "en": "how are you (m / f)",
+          "audio": "lessons/unit-1/kifak.mp3",
+          "accept": ["kifak", "kifik", "keefak", "kifak / kifik"],
+          "tags": ["greeting"],
+          "blank": {
+            "translit": "mar7aba, ___?",
+            "ar": "مرحبا، ___؟",
+            "answer": "kifak",
+            "hint": { "en": "asking a man how he is", "ar": "لما تسأل رجّال" }
+          }
+        },
+        {
+          "id": "u1-p3",
+          "ar": "منيح، وإنت؟",
+          "translit": "mni7, w inte?",
+          "en": "good, and you?",
+          "audio": "lessons/unit-1/mnih-w-inte.mp3",
+          "accept": ["mni7", "mnih", "mni7 w inte"],
+          "tags": ["greeting"]
+        },
+        {
+          "id": "u1-p4",
+          "ar": "شو أخبارك",
+          "translit": "shu akhbarak",
+          "en": "what's your news / how's it going",
+          "audio": "lessons/unit-1/shu-akhbarak.mp3",
+          "accept": ["shu akhbarak", "shu akhbarik"],
+          "tags": ["greeting"]
+        },
+        {
+          "id": "u1-p5",
+          "ar": "صباح الخير",
+          "translit": "saba7 el kheir",
+          "en": "good morning",
+          "audio": "lessons/unit-1/sabah-el-kheir.mp3",
+          "accept": ["sabah el kheir", "saba7 el kheir", "sabah l kheir"],
+          "tags": ["greeting"],
+          "blank": {
+            "translit": "___ el kheir!  (said before noon)",
+            "ar": "___ الخير!",
+            "answer": "saba7",
+            "hint": { "en": "morning", "ar": "الصبح" }
+          }
+        },
+        {
+          "id": "u1-p6",
+          "ar": "مسا الخير",
+          "translit": "masa el kheir",
+          "en": "good evening",
+          "audio": "lessons/unit-1/masa-el-kheir.mp3",
+          "accept": ["masa el kheir", "masa l kheir"],
+          "tags": ["greeting"]
+        },
+        {
+          "id": "u1-p7",
+          "ar": "تشرفنا",
+          "translit": "tsharrafna",
+          "en": "nice to meet you",
+          "audio": "lessons/unit-1/tsharrafna.mp3",
+          "accept": ["tsharrafna", "tsharafna"],
+          "tags": ["greeting", "politeness"]
+        },
+        {
+          "id": "u1-p8",
+          "ar": "شكرا",
+          "translit": "shukran",
+          "en": "thank you",
+          "audio": "lessons/unit-1/shukran.mp3",
+          "accept": ["shukran"],
+          "tags": ["politeness"]
+        },
+        {
+          "id": "u1-p9",
+          "ar": "تكرم عينك",
+          "translit": "tikram 3ainak",
+          "en": "\"bless your eyes\" — you're welcome",
+          "audio": "lessons/unit-1/tikram-3ainak.mp3",
+          "accept": ["tikram 3ainak", "tikram aynak", "tekram 3aynak"],
+          "tags": ["politeness"]
+        },
+        {
+          "id": "u1-p10",
+          "ar": "يلا",
+          "translit": "yalla",
+          "en": "let's go / come on",
+          "audio": "lessons/unit-1/yalla.mp3",
+          "accept": ["yalla", "yallah"],
+          "tags": ["filler"],
+          "blank": {
+            "translit": "___ , we're late!",
+            "ar": "___، تأخرنا!",
+            "answer": "yalla",
+            "hint": { "en": "the most-used word in Lebanon", "ar": "أكتر كلمة بتنقال بلبنان" }
+          }
+        },
+        {
+          "id": "u1-p11",
+          "ar": "بخاطرك",
+          "translit": "b khatrak",
+          "en": "goodbye (said by the person leaving)",
+          "audio": "lessons/unit-1/b-khatrak.mp3",
+          "accept": ["b khatrak", "bkhatrak", "b khatrik"],
+          "tags": ["greeting"]
+        },
+        {
+          "id": "u1-p12",
+          "ar": "شو القصة",
+          "translit": "shu l-2esse",
+          "en": "what's up / what's going on",
+          "audio": "lessons/unit-1/shu-el-esse.mp3",
+          "accept": ["shu l esse", "shu el 2esse", "shu l-2esse", "shu la2esse"],
+          "tags": ["greeting", "slang"]
+        }
+      ]
+    },
+    {
+      "id": "unit-2",
+      "feature": "u2-p1",
+      "order": 2,
+      "slug": "ordering-like-a-local",
+      "featured": true,
+      "level": { "en": "Everyday", "ar": "يوميّات" },
+      "title": {
+        "en": "Ordering Like a Local",
+        "ar": "كيف تطلب متل أهل البلد"
+      },
+      "description": {
+        "en": "Café orders, street food, and how to actually get the bill.",
+        "ar": "طلبات القهوة، أكل الشارع، وكيف بتطلب الحساب."
+      },
+      "tip": {
+        "en": "Coffee in Lebanon is ordered by sugar level, not size: 2ahwe sada (no sugar), wasat (medium), 7elwe (sweet). And 3al ri7a literally means \"on the scent\" — barely any sugar at all.",
+        "ar": "القهوة بلبنان بتنطلب حسب السكّر مش الحجم: سادة، وسط، حلوة. و\"عالريحة\" يعني سكّر شوي كتير قليل."
+      },
+      "challenge": {
+        "en": "Order a full café run for three people out loud — two coffees at different sugar levels and one manoushe — then ask for the bill.",
+        "ar": "اطلب بصوت عالي لتلات أشخاص: قهوتين بدرجات سكّر مختلفة ومنقوشة، وبعدين اطلب الحساب."
+      },
+      "homework": {
+        "en": "Next time you're at a café, order in Lebanese first. If they answer in English, repeat your order in Lebanese anyway.",
+        "ar": "أول مرة بتروح عالكافيه، اطلب بالعربي. إذا جاوبوك بالإنجليزي، عيد طلبك بالعربي."
+      },
+      "dialogue": [
+        {
+          "speaker": "A",
+          "ar": "أهلا وسهلا، شو بتحب؟",
+          "translit": "ahla w sahla, shu bt7eb?",
+          "en": "Welcome, what would you like?"
+        },
+        {
+          "speaker": "B",
+          "ar": "بدي قهوة وسط، من فضلك.",
+          "translit": "baddi 2ahwe wasat, min fadlak.",
+          "en": "I'd like a medium-sweet coffee, please."
+        },
+        {
+          "speaker": "A",
+          "ar": "شي تاني؟",
+          "translit": "shi tene?",
+          "en": "Anything else?"
+        },
+        {
+          "speaker": "B",
+          "ar": "منقوشة زعتر كمان. والحساب لو سمحت.",
+          "translit": "man2ushe za3tar kamen. w el 7seb law sama7t.",
+          "en": "A zaatar manoushe too. And the bill, please."
+        }
+      ],
+      "phrases": [
+        {
+          "id": "u2-p1",
+          "ar": "قهوة عالريحة",
+          "translit": "2ahwe 3al ri7a",
+          "en": "coffee with barely any sugar (\"on the scent\")",
+          "audio": "lessons/unit-2/ahwe-3al-riha.mp3",
+          "accept": ["2ahwe 3al riha", "ahwe 3al riha", "2ahwe aal riha"],
+          "tags": ["food", "coffee"]
+        },
+        {
+          "id": "u2-p2",
+          "ar": "بدي قهوة وسط",
+          "translit": "baddi 2ahwe wasat",
+          "en": "I want a medium-sweet coffee",
+          "audio": "lessons/unit-2/baddi-ahwe-wasat.mp3",
+          "accept": ["baddi 2ahwe wasat", "baddi ahwe wasat"],
+          "tags": ["food", "coffee"],
+          "blank": {
+            "translit": "___ 2ahwe wasat, min fadlak.",
+            "ar": "___ قهوة وسط، من فضلك.",
+            "answer": "baddi",
+            "hint": { "en": "\"I want\"", "ar": "أنا بريد" }
+          }
+        },
+        {
+          "id": "u2-p3",
+          "ar": "من فضلك",
+          "translit": "min fadlak",
+          "en": "please",
+          "audio": "lessons/unit-2/min-fadlak.mp3",
+          "accept": ["min fadlak", "min fadlik", "men fadlak"],
+          "tags": ["politeness"]
+        },
+        {
+          "id": "u2-p4",
+          "ar": "الحساب لو سمحت",
+          "translit": "el 7seb law sama7t",
+          "en": "the bill, please",
+          "audio": "lessons/unit-2/el-hseb-law-samaht.mp3",
+          "accept": ["el 7seb law sama7t", "el hseb law samaht", "l 7seb law sama7t"],
+          "tags": ["food"],
+          "blank": {
+            "translit": "el 7seb ___ sama7t.",
+            "ar": "الحساب ___ سمحت.",
+            "answer": "law",
+            "hint": { "en": "\"if\" — as in \"if you'd be so kind\"", "ar": "لو" }
+          }
+        },
+        {
+          "id": "u2-p5",
+          "ar": "شو بتنصحني",
+          "translit": "shu btinsa7ne",
+          "en": "what do you recommend?",
+          "audio": "lessons/unit-2/shu-btinsahne.mp3",
+          "accept": ["shu btinsa7ne", "shu btinsahne"],
+          "tags": ["food"]
+        },
+        {
+          "id": "u2-p6",
+          "ar": "بدي منقوشة زعتر",
+          "translit": "baddi man2ushe za3tar",
+          "en": "I want a zaatar manoushe",
+          "audio": "lessons/unit-2/man2ushe-za3tar.mp3",
+          "accept": ["baddi man2ushe za3tar", "man2ushe za3tar", "manoushe zaatar"],
+          "tags": ["food"]
+        },
+        {
+          "id": "u2-p7",
+          "ar": "بلا سكر",
+          "translit": "bala sikkar",
+          "en": "without sugar",
+          "audio": "lessons/unit-2/bala-sikkar.mp3",
+          "accept": ["bala sikkar", "bala sukkar"],
+          "tags": ["food", "coffee"]
+        },
+        {
+          "id": "u2-p8",
+          "ar": "صحتين",
+          "translit": "sa77tein",
+          "en": "bon appétit / to your health",
+          "audio": "lessons/unit-2/sahtein.mp3",
+          "accept": ["sa77tein", "sahtein", "sahtain"],
+          "tags": ["food", "politeness"]
+        },
+        {
+          "id": "u2-p9",
+          "ar": "قديش صار",
+          "translit": "2addesh sar",
+          "en": "how much is it?",
+          "audio": "lessons/unit-2/addesh-sar.mp3",
+          "accept": ["2addesh sar", "addesh sar", "2adesh sar"],
+          "tags": ["money"],
+          "blank": {
+            "translit": "___ sar? — asking for the total",
+            "ar": "___ صار؟",
+            "answer": "2addesh",
+            "hint": { "en": "\"how much\"", "ar": "قديش" }
+          }
+        },
+        {
+          "id": "u2-p10",
+          "ar": "أنا بدفع",
+          "translit": "ana bidfa3",
+          "en": "I'm paying",
+          "audio": "lessons/unit-2/ana-bidfa3.mp3",
+          "accept": ["ana bidfa3", "ana bedfa3"],
+          "tags": ["money"]
+        },
+        {
+          "id": "u2-p11",
+          "ar": "كفاية",
+          "translit": "kifeye",
+          "en": "that's enough",
+          "audio": "lessons/unit-2/kifeye.mp3",
+          "accept": ["kifeye", "kifaye", "kefeye"],
+          "tags": ["food"]
+        },
+        {
+          "id": "u2-p12",
+          "ar": "تفضل",
+          "translit": "tfaddal",
+          "en": "here you go / go ahead",
+          "audio": "lessons/unit-2/tfaddal.mp3",
+          "accept": ["tfaddal", "tfadal", "tfaddale"],
+          "tags": ["politeness"]
+        }
+      ]
+    },
+    {
+      "id": "unit-3",
+      "feature": "u3-p3",
+      "order": 3,
+      "slug": "teta-and-jiddo",
+      "featured": true,
+      "level": { "en": "Family", "ar": "عيلة" },
+      "title": {
+        "en": "Talking to Teta & Jiddo",
+        "ar": "الحكي مع تيتا وجدو"
+      },
+      "description": {
+        "en": "The phrases that make grandparents light up on the phone.",
+        "ar": "الجمل يلي بتضوّي وج تيتا وجدو عالتلفون."
+      },
+      "tip": {
+        "en": "Half of Lebanese affection is blessings, not compliments. Allah ykhallik and Allah ya3tik el 3afye do more work than \"thank you\" ever will — use them constantly.",
+        "ar": "نص الحنان اللبناني دعوات مش مجاملات. \"الله يخليك\" و\"الله يعطيك العافية\" بيعملوا أكتر من \"شكراً\" بكتير."
+      },
+      "challenge": {
+        "en": "Call a Lebanese relative or friend and keep the first two minutes entirely in Lebanese — greeting, how are you, I missed you, say hi to everyone.",
+        "ar": "اتصل بقريب أو صاحب لبناني وخلّي أول دقيقتين كلهن بالعربي."
+      },
+      "homework": {
+        "en": "Write five sentences about your own family using teta, jiddo, 7abibe, and one blessing. Bring them to the next lesson.",
+        "ar": "اكتب ٥ جمل عن عيلتك مستعمل تيتا، جدو، حبيبي، ودعوة وحدة."
+      },
+      "dialogue": [
+        {
+          "speaker": "A",
+          "ar": "ألو تيتا! كيف صحتك؟",
+          "translit": "alo teta! kif se77tik?",
+          "en": "Hello Teta! How's your health?"
+        },
+        {
+          "speaker": "B",
+          "ar": "حبيبي! اشتقتلك كتير.",
+          "translit": "7abibe! shta2tillak ktir.",
+          "en": "My love! I've missed you so much."
+        },
+        {
+          "speaker": "A",
+          "ar": "وأنا كمان. عم بتعلم عربي!",
+          "translit": "w ana kamen. 3am bet3allam 3arabe!",
+          "en": "Me too. I'm learning Arabic!"
+        },
+        {
+          "speaker": "B",
+          "ar": "الله يخليك. سلملي على الكل.",
+          "translit": "Allah ykhallik. sallemle 3a l-kill.",
+          "en": "Bless you. Say hi to everyone for me."
+        }
+      ],
+      "phrases": [
+        {
+          "id": "u3-p1",
+          "ar": "تيتا",
+          "translit": "teta",
+          "en": "grandma",
+          "audio": "lessons/unit-3/teta.mp3",
+          "accept": ["teta", "tayta"],
+          "tags": ["family"]
+        },
+        {
+          "id": "u3-p2",
+          "ar": "جدو",
+          "translit": "jiddo",
+          "en": "grandpa",
+          "audio": "lessons/unit-3/jiddo.mp3",
+          "accept": ["jiddo", "jido", "jeddo"],
+          "tags": ["family"]
+        },
+        {
+          "id": "u3-p3",
+          "ar": "الله يخليك",
+          "translit": "Allah ykhallik",
+          "en": "may God keep you — thank you / bless you",
+          "audio": "lessons/unit-3/allah-ykhallik.mp3",
+          "accept": ["allah ykhallik", "allah ykhalik", "alla ykhallik"],
+          "tags": ["blessing", "politeness"],
+          "blank": {
+            "translit": "Allah ___ — the everyday \"bless you\"",
+            "ar": "الله ___",
+            "answer": "ykhallik",
+            "hint": { "en": "\"keep you\"", "ar": "يخليك" }
+          }
+        },
+        {
+          "id": "u3-p4",
+          "ar": "اشتقتلك",
+          "translit": "shta2tillak",
+          "en": "I missed you",
+          "audio": "lessons/unit-3/shtatillak.mp3",
+          "accept": ["shta2tillak", "shtatillak", "eshta2tillak"],
+          "tags": ["family", "feelings"]
+        },
+        {
+          "id": "u3-p5",
+          "ar": "كيف صحتك",
+          "translit": "kif se77tak",
+          "en": "how's your health?",
+          "audio": "lessons/unit-3/kif-sehtak.mp3",
+          "accept": ["kif se77tak", "kif sehtak", "kif se77tik"],
+          "tags": ["family", "greeting"]
+        },
+        {
+          "id": "u3-p6",
+          "ar": "عم بتعلم عربي",
+          "translit": "3am bet3allam 3arabe",
+          "en": "I'm learning Arabic",
+          "audio": "lessons/unit-3/3am-bet3allam-3arabe.mp3",
+          "accept": ["3am bet3allam 3arabe", "am bet3allam arabe"],
+          "tags": ["intro"],
+          "blank": {
+            "translit": "___ bet3allam 3arabe.",
+            "ar": "___ بتعلم عربي.",
+            "answer": "3am",
+            "hint": { "en": "the marker that makes a verb \"-ing\"", "ar": "يلي بتخلي الفعل مستمر" }
+          }
+        },
+        {
+          "id": "u3-p7",
+          "ar": "حبيبي / حبيبتي",
+          "translit": "7abibe / 7abibte",
+          "en": "my love (said to absolutely everyone)",
+          "audio": "lessons/unit-3/habibe.mp3",
+          "accept": ["7abibe", "habibe", "7abibte", "habibi"],
+          "tags": ["family", "feelings"]
+        },
+        {
+          "id": "u3-p8",
+          "ar": "الله يعطيك العافية",
+          "translit": "Allah ya3tik el 3afye",
+          "en": "may God give you strength (said to someone working)",
+          "audio": "lessons/unit-3/allah-ya3tik-el-3afye.mp3",
+          "accept": ["allah ya3tik el 3afye", "allah yaatik el aafye"],
+          "tags": ["blessing"]
+        },
+        {
+          "id": "u3-p9",
+          "ar": "بحبك كتير",
+          "translit": "b7ebbak ktir",
+          "en": "I love you a lot",
+          "audio": "lessons/unit-3/bhebbak-ktir.mp3",
+          "accept": ["b7ebbak ktir", "bhebbak ktir", "b7ebbik ktir"],
+          "tags": ["family", "feelings"]
+        },
+        {
+          "id": "u3-p10",
+          "ar": "سلملي على الكل",
+          "translit": "sallemle 3a l-kill",
+          "en": "say hi to everyone for me",
+          "audio": "lessons/unit-3/sallemle-3a-lkill.mp3",
+          "accept": ["sallemle 3a l kill", "sallemli 3a lkill", "sallemle aa lkill"],
+          "tags": ["family", "greeting"]
+        },
+        {
+          "id": "u3-p11",
+          "ar": "إن شاء الله",
+          "translit": "inshallah",
+          "en": "God willing / hopefully",
+          "audio": "lessons/unit-3/inshallah.mp3",
+          "accept": ["inshallah", "in shaa allah", "nshallah"],
+          "tags": ["filler", "blessing"]
+        },
+        {
+          "id": "u3-p12",
+          "ar": "منشوفك قريب",
+          "translit": "mnshufak 2arib",
+          "en": "see you soon",
+          "audio": "lessons/unit-3/mnshufak-arib.mp3",
+          "accept": ["mnshufak 2arib", "mnshufak arib", "menshufak 2arib"],
+          "tags": ["greeting"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hkeeli — Practice</title>
+  <meta name="description" content="Four playable games built from the Hkeeli phrase bank: Listen & Choose, Match the Phrase, Fill the Blank and Daily Flashcards.">
+  <meta name="theme-color" content="#153534">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Markazi+Text:wght@500;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/games.css">
+</head>
+<body data-title-key="games.pageTitle">
+
+<a class="skip-link" href="#main" data-i18n="nav.skip">Skip to main content</a>
+
+<nav class="site-nav" data-open="false">
+  <a class="logo" href="index.html">
+    <span class="logo-en">Hkeeli</span>
+    <span class="logo-ar">إحكيلي</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="index.html#about" data-i18n="nav.about">Meet the Teacher</a>
+    <a href="learn.html" data-i18n="nav.learn">Learn</a>
+    <a href="practice.html" data-i18n="nav.practice">Practice</a>
+  </div>
+
+  <div class="nav-actions">
+    <div class="lang-switch" role="group" data-i18n-attr="aria-label:nav.language">
+      <button type="button" data-lang="en" aria-pressed="true" data-i18n-attr="aria-label:nav.switchToEnglish">EN</button>
+      <button type="button" data-lang="ar" aria-pressed="false" data-i18n-attr="aria-label:nav.switchToArabic">ع</button>
+    </div>
+    <a href="index.html#book" class="nav-cta" data-i18n="nav.cta">Book a Class</a>
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-drawer" data-i18n-attr="aria-label:nav.openMenu">
+      <span></span>
+    </button>
+  </div>
+
+  <div class="nav-drawer" id="nav-drawer" hidden>
+    <a href="index.html#about" data-i18n="nav.about">Meet the Teacher</a>
+    <a href="learn.html" data-i18n="nav.learn">Learn</a>
+    <a href="practice.html" data-i18n="nav.practice">Practice</a>
+    <a href="index.html#book" data-i18n="nav.book">Book a Class</a>
+  </div>
+</nav>
+
+<main id="main">
+  <header class="page-head">
+    <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
+    <h1 data-i18n="games.pageTitle">Practice</h1>
+    <p data-i18n="games.pageSubtitle"></p>
+  </header>
+
+  <section style="padding-block-start: var(--space-4);">
+    <div class="practice-layout">
+      <!-- Built from the game registry in js/games/index.js -->
+      <div class="game-picker" id="game-picker" role="tablist" data-i18n-attr="aria-label:games.pageTitle"></div>
+      <!-- The active game mounts here -->
+      <div id="game-host">
+        <div class="game-loading"><p data-i18n="game.loading">Loading phrases…</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="logo">
+    <span class="logo-en">Hkeeli</span>
+    <span class="logo-ar">إحكيلي</span>
+  </div>
+  <p data-i18n="site.tagline"></p>
+  <nav class="footer-links" data-i18n-attr="aria-label:footer.nav">
+    <a href="index.html#about" data-i18n="nav.about"></a>
+    <a href="learn.html" data-i18n="nav.learn"></a>
+    <a href="practice.html" data-i18n="nav.practice"></a>
+    <a href="index.html#book" data-i18n="nav.book"></a>
+  </nav>
+  <p class="form-note" data-i18n="footer.rights"></p>
+</footer>
+
+<script type="module" src="js/practice.js"></script>
+</body>
+</html>
