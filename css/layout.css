@@ -256,35 +256,78 @@ section {
   font-size: 1.02rem;
 }
 
-/* Portrait placeholder — swap for an <img> when a real photo exists. */
-.about-portrait {
-  width: 100%;
-  max-width: 340px;
-  aspect-ratio: 4 / 5;
-  border-radius: 20px;
-  background: linear-gradient(160deg, var(--olive), var(--sea));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-arabic);
-  font-size: 5rem;
-  color: rgba(250, 245, 233, 0.25);
-  position: relative;
-  overflow: hidden;
-  margin-inline: auto;
+/* The spoken introduction, in the slot a portrait would occupy. It sits on the
+   dark about band, so it borrows the on-dark wash rather than the card colour
+   used everywhere else. */
+.intro-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--wash-on-dark);
+  border: 1px solid var(--hairline-on-dark);
 }
 
-.about-portrait::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    135deg,
-    transparent,
-    transparent 18px,
-    rgba(250, 245, 233, 0.04) 18px,
-    rgba(250, 245, 233, 0.04) 36px
-  );
+.intro-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.intro-card h3 {
+  color: var(--sand-light);
+  font-size: 1.15rem;
+}
+
+.intro-card-body {
+  color: var(--on-dark-muted);
+  font-size: 0.9rem;
+}
+
+.intro-card .play {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+}
+
+/* The line she says, in all three scripts — the same trilingual treatment the
+   lessons use, so the page teaches even here. */
+.intro-line {
+  display: grid;
+  gap: var(--space-1);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--hairline-on-dark);
+}
+
+.intro-line .arabic {
+  font-size: 1.5rem;
+  color: var(--sand-light);
+}
+
+.intro-line .translit {
+  color: var(--citrus);
+}
+
+.intro-en {
+  font-size: 0.9rem;
+  color: var(--on-dark-muted);
+}
+
+.about-note {
+  margin-block-start: var(--space-5);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--citrus);
+  color: var(--on-dark-muted);
+  font-size: 0.95rem;
+}
+
+.testimonials-pending {
+  max-width: var(--measure);
+  margin-inline: auto;
+  margin-block-start: var(--space-7);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--on-dark-muted);
 }
 
 .testimonials-title {

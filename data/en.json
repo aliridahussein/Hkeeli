@@ -35,21 +35,20 @@
     "goToCard": "Go to card"
   },
   "about": {
-    "eyebrow": "Meet Your Teacher",
+    "eyebrow": "How I teach",
     "title": "Born in Beirut. Teaching the Lebanon you won't find in a textbook.",
     "p1": "I grew up hearing five conversations at once around the same table — that's the Lebanese I teach. Whether you're calling your teta every Sunday, marrying into a Lebanese family, or finally booking that trip to Beirut, I'll get you talking, fast.",
     "p2": "Every lesson comes from real life: airport small talk, ordering man2ushe, arguing about who pays the bill.",
-    "tag1": "🎓 8+ years teaching",
-    "tag2": "🌍 Students in 14 countries",
-    "tag3": "💬 100% dialect, 0% textbook Arabic",
-    "portraitAlt": "Photo of the teacher — coming soon",
+    "note": "Everything on this site is free — the lessons, the audio, all seven games. A class is the same thing, with someone listening and correcting you.",
+    "tag1": "💬 100% dialect, 0% textbook Arabic",
+    "tag2": "🎓 8+ years of teaching",
+    "tag3": "🌍 Students in 14 countries",
+    "introTitle": "Hear how I teach",
+    "introBody": "A few seconds of Lebanese, at the speed people actually speak it.",
+    "introPlay": "Play the introduction",
     "testimonialsTitle": "What students say",
-    "t1Quote": "Placeholder testimonial — I called my grandmother and held a whole conversation for the first time in my life.",
-    "t1Name": "Student name, city",
-    "t2Quote": "Placeholder testimonial — six weeks in and I ordered my own coffee in Beirut without switching to English.",
-    "t2Name": "Student name, city",
-    "t3Quote": "Placeholder testimonial — every other course taught me Arabic nobody actually speaks. This one didn't.",
-    "t3Name": "Student name, city"
+    "testimonialsPending": "Real student quotes are on the way. Nothing invented goes here.",
+    "testimonials": []
   },
   "learn": {
     "eyebrow": "Learn",

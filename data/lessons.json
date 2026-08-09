@@ -6,7 +6,14 @@
       "ar": "لبناني للحياة اليومية"
     },
     "totalUnitsPlanned": 12,
-    "note": "Units 4-12 get appended to `units` below. No code changes are needed - the Learn page and all four games read from this file. See README.md."
+    "note": "Units 4-12 get appended to `units` below. No code changes are needed - the Learn page and all four games read from this file. See README.md.",
+    "intro": {
+      "id": "intro-hello",
+      "ar": "أهلا وسهلا! أنا معلّمتك، ويلا نبدا نحكي لبناني.",
+      "translit": "ahla w sahla! ana m3allmtak, w yalla nebda ne7ke libnene.",
+      "en": "Welcome! I'm your teacher — let's start speaking Lebanese.",
+      "audio": "intro/hello.mp3"
+    }
   },
   "units": [
     {
@@ -15,7 +22,10 @@
       "order": 1,
       "slug": "first-words",
       "featured": true,
-      "level": { "en": "Beginner", "ar": "مبتدئ" },
+      "level": {
+        "en": "Beginner",
+        "ar": "مبتدئ"
+      },
       "title": {
         "en": "First Words in Lebanon",
         "ar": "أول كلمات بلبنان"
@@ -69,13 +79,22 @@
           "translit": "mar7aba",
           "en": "hello",
           "audio": "lessons/unit-1/marhaba.mp3",
-          "accept": ["marhaba", "mar7aba", "marhaban"],
-          "tags": ["greeting"],
+          "accept": [
+            "marhaba",
+            "mar7aba",
+            "marhaban"
+          ],
+          "tags": [
+            "greeting"
+          ],
           "blank": {
             "translit": "___, kifak?",
             "ar": "___، كيفك؟",
             "answer": "mar7aba",
-            "hint": { "en": "the everyday hello", "ar": "التحية اليومية" }
+            "hint": {
+              "en": "the everyday hello",
+              "ar": "التحية اليومية"
+            }
           }
         },
         {
@@ -84,13 +103,23 @@
           "translit": "kifak / kifik",
           "en": "how are you (m / f)",
           "audio": "lessons/unit-1/kifak.mp3",
-          "accept": ["kifak", "kifik", "keefak", "kifak / kifik"],
-          "tags": ["greeting"],
+          "accept": [
+            "kifak",
+            "kifik",
+            "keefak",
+            "kifak / kifik"
+          ],
+          "tags": [
+            "greeting"
+          ],
           "blank": {
             "translit": "mar7aba, ___?",
             "ar": "مرحبا، ___؟",
             "answer": "kifak",
-            "hint": { "en": "asking a man how he is", "ar": "لما تسأل رجّال" }
+            "hint": {
+              "en": "asking a man how he is",
+              "ar": "لما تسأل رجّال"
+            }
           }
         },
         {
@@ -99,8 +128,14 @@
           "translit": "mni7, w inte?",
           "en": "good, and you?",
           "audio": "lessons/unit-1/mnih-w-inte.mp3",
-          "accept": ["mni7", "mnih", "mni7 w inte"],
-          "tags": ["greeting"]
+          "accept": [
+            "mni7",
+            "mnih",
+            "mni7 w inte"
+          ],
+          "tags": [
+            "greeting"
+          ]
         },
         {
           "id": "u1-p4",
@@ -108,8 +143,13 @@
           "translit": "shu akhbarak",
           "en": "what's your news / how's it going",
           "audio": "lessons/unit-1/shu-akhbarak.mp3",
-          "accept": ["shu akhbarak", "shu akhbarik"],
-          "tags": ["greeting"]
+          "accept": [
+            "shu akhbarak",
+            "shu akhbarik"
+          ],
+          "tags": [
+            "greeting"
+          ]
         },
         {
           "id": "u1-p5",
@@ -117,13 +157,22 @@
           "translit": "saba7 el kheir",
           "en": "good morning",
           "audio": "lessons/unit-1/sabah-el-kheir.mp3",
-          "accept": ["sabah el kheir", "saba7 el kheir", "sabah l kheir"],
-          "tags": ["greeting"],
+          "accept": [
+            "sabah el kheir",
+            "saba7 el kheir",
+            "sabah l kheir"
+          ],
+          "tags": [
+            "greeting"
+          ],
           "blank": {
             "translit": "___ el kheir!  (said before noon)",
             "ar": "___ الخير!",
             "answer": "saba7",
-            "hint": { "en": "morning", "ar": "الصبح" }
+            "hint": {
+              "en": "morning",
+              "ar": "الصبح"
+            }
           }
         },
         {
@@ -132,8 +181,13 @@
           "translit": "masa el kheir",
           "en": "good evening",
           "audio": "lessons/unit-1/masa-el-kheir.mp3",
-          "accept": ["masa el kheir", "masa l kheir"],
-          "tags": ["greeting"]
+          "accept": [
+            "masa el kheir",
+            "masa l kheir"
+          ],
+          "tags": [
+            "greeting"
+          ]
         },
         {
           "id": "u1-p7",
@@ -141,8 +195,14 @@
           "translit": "tsharrafna",
           "en": "nice to meet you",
           "audio": "lessons/unit-1/tsharrafna.mp3",
-          "accept": ["tsharrafna", "tsharafna"],
-          "tags": ["greeting", "politeness"]
+          "accept": [
+            "tsharrafna",
+            "tsharafna"
+          ],
+          "tags": [
+            "greeting",
+            "politeness"
+          ]
         },
         {
           "id": "u1-p8",
@@ -150,8 +210,12 @@
           "translit": "shukran",
           "en": "thank you",
           "audio": "lessons/unit-1/shukran.mp3",
-          "accept": ["shukran"],
-          "tags": ["politeness"]
+          "accept": [
+            "shukran"
+          ],
+          "tags": [
+            "politeness"
+          ]
         },
         {
           "id": "u1-p9",
@@ -159,8 +223,14 @@
           "translit": "tikram 3ainak",
           "en": "\"bless your eyes\" — you're welcome",
           "audio": "lessons/unit-1/tikram-3ainak.mp3",
-          "accept": ["tikram 3ainak", "tikram aynak", "tekram 3aynak"],
-          "tags": ["politeness"]
+          "accept": [
+            "tikram 3ainak",
+            "tikram aynak",
+            "tekram 3aynak"
+          ],
+          "tags": [
+            "politeness"
+          ]
         },
         {
           "id": "u1-p10",
@@ -168,13 +238,21 @@
           "translit": "yalla",
           "en": "let's go / come on",
           "audio": "lessons/unit-1/yalla.mp3",
-          "accept": ["yalla", "yallah"],
-          "tags": ["filler"],
+          "accept": [
+            "yalla",
+            "yallah"
+          ],
+          "tags": [
+            "filler"
+          ],
           "blank": {
             "translit": "___ , we're late!",
             "ar": "___، تأخرنا!",
             "answer": "yalla",
-            "hint": { "en": "the most-used word in Lebanon", "ar": "أكتر كلمة بتنقال بلبنان" }
+            "hint": {
+              "en": "the most-used word in Lebanon",
+              "ar": "أكتر كلمة بتنقال بلبنان"
+            }
           }
         },
         {
@@ -183,8 +261,14 @@
           "translit": "b khatrak",
           "en": "goodbye (said by the person leaving)",
           "audio": "lessons/unit-1/b-khatrak.mp3",
-          "accept": ["b khatrak", "bkhatrak", "b khatrik"],
-          "tags": ["greeting"]
+          "accept": [
+            "b khatrak",
+            "bkhatrak",
+            "b khatrik"
+          ],
+          "tags": [
+            "greeting"
+          ]
         },
         {
           "id": "u1-p12",
@@ -192,8 +276,16 @@
           "translit": "shu l-2esse",
           "en": "what's up / what's going on",
           "audio": "lessons/unit-1/shu-el-esse.mp3",
-          "accept": ["shu l esse", "shu el 2esse", "shu l-2esse", "shu la2esse"],
-          "tags": ["greeting", "slang"]
+          "accept": [
+            "shu l esse",
+            "shu el 2esse",
+            "shu l-2esse",
+            "shu la2esse"
+          ],
+          "tags": [
+            "greeting",
+            "slang"
+          ]
         }
       ]
     },
@@ -203,7 +295,10 @@
       "order": 2,
       "slug": "ordering-like-a-local",
       "featured": true,
-      "level": { "en": "Everyday", "ar": "يوميّات" },
+      "level": {
+        "en": "Everyday",
+        "ar": "يوميّات"
+      },
       "title": {
         "en": "Ordering Like a Local",
         "ar": "كيف تطلب متل أهل البلد"
@@ -257,8 +352,15 @@
           "translit": "2ahwe 3al ri7a",
           "en": "coffee with barely any sugar (\"on the scent\")",
           "audio": "lessons/unit-2/ahwe-3al-riha.mp3",
-          "accept": ["2ahwe 3al riha", "ahwe 3al riha", "2ahwe aal riha"],
-          "tags": ["food", "coffee"]
+          "accept": [
+            "2ahwe 3al riha",
+            "ahwe 3al riha",
+            "2ahwe aal riha"
+          ],
+          "tags": [
+            "food",
+            "coffee"
+          ]
         },
         {
           "id": "u2-p2",
@@ -266,13 +368,22 @@
           "translit": "baddi 2ahwe wasat",
           "en": "I want a medium-sweet coffee",
           "audio": "lessons/unit-2/baddi-ahwe-wasat.mp3",
-          "accept": ["baddi 2ahwe wasat", "baddi ahwe wasat"],
-          "tags": ["food", "coffee"],
+          "accept": [
+            "baddi 2ahwe wasat",
+            "baddi ahwe wasat"
+          ],
+          "tags": [
+            "food",
+            "coffee"
+          ],
           "blank": {
             "translit": "___ 2ahwe wasat, min fadlak.",
             "ar": "___ قهوة وسط، من فضلك.",
             "answer": "baddi",
-            "hint": { "en": "\"I want\"", "ar": "أنا بريد" }
+            "hint": {
+              "en": "\"I want\"",
+              "ar": "أنا بريد"
+            }
           }
         },
         {
@@ -281,8 +392,14 @@
           "translit": "min fadlak",
           "en": "please",
           "audio": "lessons/unit-2/min-fadlak.mp3",
-          "accept": ["min fadlak", "min fadlik", "men fadlak"],
-          "tags": ["politeness"]
+          "accept": [
+            "min fadlak",
+            "min fadlik",
+            "men fadlak"
+          ],
+          "tags": [
+            "politeness"
+          ]
         },
         {
           "id": "u2-p4",
@@ -290,13 +407,22 @@
           "translit": "el 7seb law sama7t",
           "en": "the bill, please",
           "audio": "lessons/unit-2/el-hseb-law-samaht.mp3",
-          "accept": ["el 7seb law sama7t", "el hseb law samaht", "l 7seb law sama7t"],
-          "tags": ["food"],
+          "accept": [
+            "el 7seb law sama7t",
+            "el hseb law samaht",
+            "l 7seb law sama7t"
+          ],
+          "tags": [
+            "food"
+          ],
           "blank": {
             "translit": "el 7seb ___ sama7t.",
             "ar": "الحساب ___ سمحت.",
             "answer": "law",
-            "hint": { "en": "\"if\" — as in \"if you'd be so kind\"", "ar": "لو" }
+            "hint": {
+              "en": "\"if\" — as in \"if you'd be so kind\"",
+              "ar": "لو"
+            }
           }
         },
         {
@@ -305,8 +431,13 @@
           "translit": "shu btinsa7ne",
           "en": "what do you recommend?",
           "audio": "lessons/unit-2/shu-btinsahne.mp3",
-          "accept": ["shu btinsa7ne", "shu btinsahne"],
-          "tags": ["food"]
+          "accept": [
+            "shu btinsa7ne",
+            "shu btinsahne"
+          ],
+          "tags": [
+            "food"
+          ]
         },
         {
           "id": "u2-p6",
@@ -314,8 +445,14 @@
           "translit": "baddi man2ushe za3tar",
           "en": "I want a zaatar manoushe",
           "audio": "lessons/unit-2/man2ushe-za3tar.mp3",
-          "accept": ["baddi man2ushe za3tar", "man2ushe za3tar", "manoushe zaatar"],
-          "tags": ["food"]
+          "accept": [
+            "baddi man2ushe za3tar",
+            "man2ushe za3tar",
+            "manoushe zaatar"
+          ],
+          "tags": [
+            "food"
+          ]
         },
         {
           "id": "u2-p7",
@@ -323,8 +460,14 @@
           "translit": "bala sikkar",
           "en": "without sugar",
           "audio": "lessons/unit-2/bala-sikkar.mp3",
-          "accept": ["bala sikkar", "bala sukkar"],
-          "tags": ["food", "coffee"]
+          "accept": [
+            "bala sikkar",
+            "bala sukkar"
+          ],
+          "tags": [
+            "food",
+            "coffee"
+          ]
         },
         {
           "id": "u2-p8",
@@ -332,8 +475,15 @@
           "translit": "sa77tein",
           "en": "bon appétit / to your health",
           "audio": "lessons/unit-2/sahtein.mp3",
-          "accept": ["sa77tein", "sahtein", "sahtain"],
-          "tags": ["food", "politeness"]
+          "accept": [
+            "sa77tein",
+            "sahtein",
+            "sahtain"
+          ],
+          "tags": [
+            "food",
+            "politeness"
+          ]
         },
         {
           "id": "u2-p9",
@@ -341,13 +491,22 @@
           "translit": "2addesh sar",
           "en": "how much is it?",
           "audio": "lessons/unit-2/addesh-sar.mp3",
-          "accept": ["2addesh sar", "addesh sar", "2adesh sar"],
-          "tags": ["money"],
+          "accept": [
+            "2addesh sar",
+            "addesh sar",
+            "2adesh sar"
+          ],
+          "tags": [
+            "money"
+          ],
           "blank": {
             "translit": "___ sar? — asking for the total",
             "ar": "___ صار؟",
             "answer": "2addesh",
-            "hint": { "en": "\"how much\"", "ar": "قديش" }
+            "hint": {
+              "en": "\"how much\"",
+              "ar": "قديش"
+            }
           }
         },
         {
@@ -356,8 +515,13 @@
           "translit": "ana bidfa3",
           "en": "I'm paying",
           "audio": "lessons/unit-2/ana-bidfa3.mp3",
-          "accept": ["ana bidfa3", "ana bedfa3"],
-          "tags": ["money"]
+          "accept": [
+            "ana bidfa3",
+            "ana bedfa3"
+          ],
+          "tags": [
+            "money"
+          ]
         },
         {
           "id": "u2-p11",
@@ -365,8 +529,14 @@
           "translit": "kifeye",
           "en": "that's enough",
           "audio": "lessons/unit-2/kifeye.mp3",
-          "accept": ["kifeye", "kifaye", "kefeye"],
-          "tags": ["food"]
+          "accept": [
+            "kifeye",
+            "kifaye",
+            "kefeye"
+          ],
+          "tags": [
+            "food"
+          ]
         },
         {
           "id": "u2-p12",
@@ -374,8 +544,14 @@
           "translit": "tfaddal",
           "en": "here you go / go ahead",
           "audio": "lessons/unit-2/tfaddal.mp3",
-          "accept": ["tfaddal", "tfadal", "tfaddale"],
-          "tags": ["politeness"]
+          "accept": [
+            "tfaddal",
+            "tfadal",
+            "tfaddale"
+          ],
+          "tags": [
+            "politeness"
+          ]
         }
       ]
     },
@@ -385,7 +561,10 @@
       "order": 3,
       "slug": "teta-and-jiddo",
       "featured": true,
-      "level": { "en": "Family", "ar": "عيلة" },
+      "level": {
+        "en": "Family",
+        "ar": "عيلة"
+      },
       "title": {
         "en": "Talking to Teta & Jiddo",
         "ar": "الحكي مع تيتا وجدو"
@@ -439,8 +618,13 @@
           "translit": "teta",
           "en": "grandma",
           "audio": "lessons/unit-3/teta.mp3",
-          "accept": ["teta", "tayta"],
-          "tags": ["family"]
+          "accept": [
+            "teta",
+            "tayta"
+          ],
+          "tags": [
+            "family"
+          ]
         },
         {
           "id": "u3-p2",
@@ -448,8 +632,14 @@
           "translit": "jiddo",
           "en": "grandpa",
           "audio": "lessons/unit-3/jiddo.mp3",
-          "accept": ["jiddo", "jido", "jeddo"],
-          "tags": ["family"]
+          "accept": [
+            "jiddo",
+            "jido",
+            "jeddo"
+          ],
+          "tags": [
+            "family"
+          ]
         },
         {
           "id": "u3-p3",
@@ -457,13 +647,23 @@
           "translit": "Allah ykhallik",
           "en": "may God keep you — thank you / bless you",
           "audio": "lessons/unit-3/allah-ykhallik.mp3",
-          "accept": ["allah ykhallik", "allah ykhalik", "alla ykhallik"],
-          "tags": ["blessing", "politeness"],
+          "accept": [
+            "allah ykhallik",
+            "allah ykhalik",
+            "alla ykhallik"
+          ],
+          "tags": [
+            "blessing",
+            "politeness"
+          ],
           "blank": {
             "translit": "Allah ___ — the everyday \"bless you\"",
             "ar": "الله ___",
             "answer": "ykhallik",
-            "hint": { "en": "\"keep you\"", "ar": "يخليك" }
+            "hint": {
+              "en": "\"keep you\"",
+              "ar": "يخليك"
+            }
           }
         },
         {
@@ -472,8 +672,15 @@
           "translit": "shta2tillak",
           "en": "I missed you",
           "audio": "lessons/unit-3/shtatillak.mp3",
-          "accept": ["shta2tillak", "shtatillak", "eshta2tillak"],
-          "tags": ["family", "feelings"]
+          "accept": [
+            "shta2tillak",
+            "shtatillak",
+            "eshta2tillak"
+          ],
+          "tags": [
+            "family",
+            "feelings"
+          ]
         },
         {
           "id": "u3-p5",
@@ -481,8 +688,15 @@
           "translit": "kif se77tak",
           "en": "how's your health?",
           "audio": "lessons/unit-3/kif-sehtak.mp3",
-          "accept": ["kif se77tak", "kif sehtak", "kif se77tik"],
-          "tags": ["family", "greeting"]
+          "accept": [
+            "kif se77tak",
+            "kif sehtak",
+            "kif se77tik"
+          ],
+          "tags": [
+            "family",
+            "greeting"
+          ]
         },
         {
           "id": "u3-p6",
@@ -490,13 +704,21 @@
           "translit": "3am bet3allam 3arabe",
           "en": "I'm learning Arabic",
           "audio": "lessons/unit-3/3am-bet3allam-3arabe.mp3",
-          "accept": ["3am bet3allam 3arabe", "am bet3allam arabe"],
-          "tags": ["intro"],
+          "accept": [
+            "3am bet3allam 3arabe",
+            "am bet3allam arabe"
+          ],
+          "tags": [
+            "intro"
+          ],
           "blank": {
             "translit": "___ bet3allam 3arabe.",
             "ar": "___ بتعلم عربي.",
             "answer": "3am",
-            "hint": { "en": "the marker that makes a verb \"-ing\"", "ar": "يلي بتخلي الفعل مستمر" }
+            "hint": {
+              "en": "the marker that makes a verb \"-ing\"",
+              "ar": "يلي بتخلي الفعل مستمر"
+            }
           }
         },
         {
@@ -505,8 +727,16 @@
           "translit": "7abibe / 7abibte",
           "en": "my love (said to absolutely everyone)",
           "audio": "lessons/unit-3/habibe.mp3",
-          "accept": ["7abibe", "habibe", "7abibte", "habibi"],
-          "tags": ["family", "feelings"]
+          "accept": [
+            "7abibe",
+            "habibe",
+            "7abibte",
+            "habibi"
+          ],
+          "tags": [
+            "family",
+            "feelings"
+          ]
         },
         {
           "id": "u3-p8",
@@ -514,8 +744,13 @@
           "translit": "Allah ya3tik el 3afye",
           "en": "may God give you strength (said to someone working)",
           "audio": "lessons/unit-3/allah-ya3tik-el-3afye.mp3",
-          "accept": ["allah ya3tik el 3afye", "allah yaatik el aafye"],
-          "tags": ["blessing"]
+          "accept": [
+            "allah ya3tik el 3afye",
+            "allah yaatik el aafye"
+          ],
+          "tags": [
+            "blessing"
+          ]
         },
         {
           "id": "u3-p9",
@@ -523,8 +758,15 @@
           "translit": "b7ebbak ktir",
           "en": "I love you a lot",
           "audio": "lessons/unit-3/bhebbak-ktir.mp3",
-          "accept": ["b7ebbak ktir", "bhebbak ktir", "b7ebbik ktir"],
-          "tags": ["family", "feelings"]
+          "accept": [
+            "b7ebbak ktir",
+            "bhebbak ktir",
+            "b7ebbik ktir"
+          ],
+          "tags": [
+            "family",
+            "feelings"
+          ]
         },
         {
           "id": "u3-p10",
@@ -532,8 +774,15 @@
           "translit": "sallemle 3a l-kill",
           "en": "say hi to everyone for me",
           "audio": "lessons/unit-3/sallemle-3a-lkill.mp3",
-          "accept": ["sallemle 3a l kill", "sallemli 3a lkill", "sallemle aa lkill"],
-          "tags": ["family", "greeting"]
+          "accept": [
+            "sallemle 3a l kill",
+            "sallemli 3a lkill",
+            "sallemle aa lkill"
+          ],
+          "tags": [
+            "family",
+            "greeting"
+          ]
         },
         {
           "id": "u3-p11",
@@ -541,8 +790,15 @@
           "translit": "inshallah",
           "en": "God willing / hopefully",
           "audio": "lessons/unit-3/inshallah.mp3",
-          "accept": ["inshallah", "in shaa allah", "nshallah"],
-          "tags": ["filler", "blessing"]
+          "accept": [
+            "inshallah",
+            "in shaa allah",
+            "nshallah"
+          ],
+          "tags": [
+            "filler",
+            "blessing"
+          ]
         },
         {
           "id": "u3-p12",
@@ -550,8 +806,14 @@
           "translit": "mnshufak 2arib",
           "en": "see you soon",
           "audio": "lessons/unit-3/mnshufak-arib.mp3",
-          "accept": ["mnshufak 2arib", "mnshufak arib", "menshufak 2arib"],
-          "tags": ["greeting"]
+          "accept": [
+            "mnshufak 2arib",
+            "mnshufak arib",
+            "menshufak 2arib"
+          ],
+          "tags": [
+            "greeting"
+          ]
         }
       ]
     }

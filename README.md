@@ -263,6 +263,40 @@ invented ones as machine-readable claims would be worse than publishing none.
 
 ---
 
+## The About section
+
+There is no portrait, by choice: the teacher's identity stays private. In its
+place is a **spoken introduction** — for a language teacher the voice is the
+more relevant proof anyway, and it identifies nobody.
+
+- The line she says lives in `data/lessons.json` under `meta.intro`, in the same
+  `{ar, translit, en, audio}` shape as a phrase, which is why it can be passed
+  straight to `playPhrase()` and inherits the file-first, TTS-fallback path.
+- Drop the recording at `public/audio/intro/hello.mp3` and it plays instead of
+  the synthetic voice. Nothing else changes.
+- The heading is "How I teach", not "Meet your teacher": it frames the section
+  around the method, so the absent face stops being conspicuous.
+- The copy stays **first person and singular**. Anonymous-but-specific earns
+  more trust than a plural "our teachers have 8+ years of experience", which is
+  unverifiable and is the register every low-quality tutoring site writes in.
+
+### Testimonials
+
+`about.testimonials` is an **array, empty on purpose**. The block renders only
+when it holds real quotes; otherwise one line says they are coming. The
+placeholder quotes that used to sit here read as fake, which costs more trust
+than an absent section.
+
+To add real ones, put matching objects in both bundles:
+
+```json
+"testimonials": [
+  { "quote": "I called my grandmother and held a whole conversation.", "name": "First name, city" }
+]
+```
+
+---
+
 ## Practice games
 
 They all read from the same phrase bank, so content added to `lessons.json`

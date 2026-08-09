@@ -4,7 +4,7 @@
 
 import { initI18n, t } from './i18n.js';
 import { initChrome, el, clear, playButton, lessonCard, gameTile, errorState, onLangChange } from './ui.js';
-import { getFeaturedUnits, getAllPhrases } from './data.js';
+import { getFeaturedUnits, getAllPhrases, getIntro } from './data.js';
 import { GAMES } from './games/index.js';
 import { progress } from './storage.js';
 import { initBookingForm } from './booking.js';
@@ -19,7 +19,7 @@ async function main() {
   initBookingForm();
 
   try {
-    await Promise.all([renderHero(), renderLessons(), renderGames()]);
+    await Promise.all([renderHero(), renderAbout(), renderLessons(), renderGames()]);
   } catch (error) {
     console.error(error);
     const learn = document.querySelector('#learn-grid');
@@ -28,9 +28,85 @@ async function main() {
 
   onLangChange(() => {
     renderHero();
+    renderAbout();
     renderLessons();
     renderGames();
   });
+}
+
+/* --------------------------------------------------------------------------
+   About — the spoken introduction and the testimonials
+   -------------------------------------------------------------------------- */
+
+async function renderAbout() {
+  const host = document.querySelector('#intro-card');
+  if (host) {
+    const intro = await getIntro();
+    clear(host);
+    if (intro) {
+      // playButton() gives the same file-first, TTS-fallback behaviour as every
+      // other play control; only the accessible name differs, because "play
+      // pronunciation" is the wrong description for a spoken introduction.
+      const play = playButton(intro, 'intro-play');
+      play.setAttribute('aria-label', t('about.introPlay'));
+
+      host.append(
+        el(
+          'div',
+          { class: 'intro-card-head' },
+          play,
+          el(
+            'div',
+            {},
+            el('h3', {}, t('about.introTitle')),
+            el('p', { class: 'intro-card-body' }, t('about.introBody'))
+          )
+        ),
+        el(
+          'div',
+          { class: 'intro-line' },
+          el('p', { class: 'arabic', dir: 'rtl', lang: 'ar' }, intro.ar),
+          el('p', { class: 'translit', dir: 'ltr' }, intro.translit),
+          el('p', { class: 'intro-en' }, intro.en)
+        )
+      );
+    }
+  }
+
+  renderTestimonials();
+}
+
+/**
+ * Quotes come from the language bundles. An empty array renders nothing but a
+ * short note: three invented testimonials cost more trust than none at all.
+ */
+function renderTestimonials() {
+  const host = document.querySelector('#testimonials');
+  if (!host) return;
+
+  const quotes = t('about.testimonials');
+  clear(host);
+
+  if (!Array.isArray(quotes) || !quotes.length) {
+    host.append(el('p', { class: 'testimonials-pending' }, t('about.testimonialsPending')));
+    return;
+  }
+
+  host.append(
+    el('h3', { class: 'testimonials-title' }, t('about.testimonialsTitle')),
+    el(
+      'div',
+      { class: 'testimonials' },
+      ...quotes.map((item) =>
+        el(
+          'figure',
+          { class: 'testimonial' },
+          el('blockquote', {}, item.quote),
+          el('cite', {}, item.name)
+        )
+      )
+    )
+  );
 }
 
 /* --------------------------------------------------------------------------

@@ -65,6 +65,17 @@ export async function getUnits() {
   return units;
 }
 
+/**
+ * The spoken introduction on the home page. It lives in lessons.json rather
+ * than the UI bundles because it is trilingual content with an audio file,
+ * exactly like a phrase — which is also why it can be passed straight to
+ * playPhrase().
+ */
+export async function getIntro() {
+  const { meta } = await loadLessons();
+  return (meta && meta.intro) || null;
+}
+
 export async function getFeaturedUnits(limit = 3) {
   const units = await getUnits();
   const featured = units.filter((u) => u.featured);

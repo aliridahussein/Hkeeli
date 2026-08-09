@@ -148,9 +148,13 @@
   <!-- ABOUT -------------------------------------------------------------- -->
   <section class="about" id="about">
     <div class="about-grid">
-      <div class="about-portrait" role="img" data-i18n-attr="aria-label:about.portraitAlt">ز</div>
+      <!-- The voice stands in for a portrait: for a language teacher it is the
+           more relevant proof, and it identifies nobody. Built by js/main.js
+           from meta.intro in lessons.json, so it uses the same file-then-TTS
+           path as every other play button on the site. -->
+      <div class="intro-card" id="intro-card"></div>
       <div>
-        <p class="eyebrow eyebrow--light"><span data-i18n="about.eyebrow">Meet Your Teacher</span></p>
+        <p class="eyebrow eyebrow--light"><span data-i18n="about.eyebrow">How I teach</span></p>
         <h2 data-i18n="about.title"></h2>
         <p data-i18n="about.p1"></p>
         <p data-i18n="about.p2"></p>
@@ -159,24 +163,14 @@
           <span class="chip chip--on-dark" data-i18n="about.tag2"></span>
           <span class="chip chip--on-dark" data-i18n="about.tag3"></span>
         </div>
+        <p class="about-note" data-i18n="about.note"></p>
       </div>
     </div>
 
-    <h3 class="testimonials-title" data-i18n="about.testimonialsTitle"></h3>
-    <div class="testimonials">
-      <figure class="testimonial">
-        <blockquote data-i18n="about.t1Quote"></blockquote>
-        <cite data-i18n="about.t1Name"></cite>
-      </figure>
-      <figure class="testimonial">
-        <blockquote data-i18n="about.t2Quote"></blockquote>
-        <cite data-i18n="about.t2Name"></cite>
-      </figure>
-      <figure class="testimonial">
-        <blockquote data-i18n="about.t3Quote"></blockquote>
-        <cite data-i18n="about.t3Name"></cite>
-      </figure>
-    </div>
+    <!-- Testimonials render only when data/*.json carries real ones. An empty
+         array hides the whole block: invented quotes cost more trust than an
+         absent section. -->
+    <div id="testimonials"></div>
   </section>
 
   <!-- LEARN -------------------------------------------------------------- -->
