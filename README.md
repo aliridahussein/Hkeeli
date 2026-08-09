@@ -214,6 +214,55 @@ holding a phrase's English needs to join that selector list.
 
 ---
 
+## Brand assets, icons and link previews
+
+The mark is a teal speech bubble holding a citrus **ح** — the root letter of
+حكي (to talk) and the H of "Hkeeli".
+
+```
+favicon.ico              root by necessity - browsers request /favicon.ico
+                         automatically when no <link> matches
+favicon.svg              root by convention; preferred where supported, and the
+                         letter is an outline path so it needs no Arabic font
+apple-touch-icon.png     root by necessity - iOS probes /apple-touch-icon.png.
+                         180px, full-bleed and square: iOS masks it itself
+robots.txt               root by spec
+sitemap.xml              root by convention
+
+assets/icons/favicon-32x32.png     tab icon
+assets/icons/favicon-192x192.png   Android home screen
+assets/icons/favicon-512x512.png   splash / future PWA manifest
+assets/images/og-image.png         1200x630 link preview card
+```
+
+Only the files with an automatic root lookup live in the root. Everything else
+is reached through an explicit tag, so it belongs under `assets/` - moving one
+of those means updating the three `<head>` blocks, and nothing else.
+
+These are generated, not hand-drawn. The script lives outside the repo (it
+pulls Fraunces, Markazi Text and Karla from Google Fonts and draws at 4x before
+downsampling); regenerate only if the mark or the palette changes.
+
+### Domain
+
+**`og:url`, `og:image`, `canonical`, `robots.txt` and `sitemap.xml` all hardcode
+`https://hkeeli.com`.** Absolute URLs are required — link scrapers do not
+resolve relative `og:image` paths reliably — so this is the one string to change
+when the real domain is decided:
+
+```bash
+grep -rl "https://hkeeli.com" index.html learn.html practice.html robots.txt sitemap.xml   | xargs sed -i "s|https://hkeeli.com|https://YOUR-DOMAIN|g"
+```
+
+Until the domain resolves, link previews will show the title and description
+but no image, because the scraper can't fetch it.
+
+There is deliberately **no `Person` structured data** yet: the teacher's name,
+photo and testimonials in `data/en.json` are still placeholders, and publishing
+invented ones as machine-readable claims would be worse than publishing none.
+
+---
+
 ## Practice games
 
 They all read from the same phrase bank, so content added to `lessons.json`
