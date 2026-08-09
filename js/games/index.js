@@ -16,10 +16,20 @@ import { progress } from '../storage.js';
 import listenChoose from './listen-choose.js';
 import match from './match.js';
 import fillBlank from './fill-blank.js';
+import sentenceBuilder from './sentence-builder.js';
 import orderDialogue from './order-dialogue.js';
+import reply from './reply.js';
 import flashcards from './flashcards.js';
 
-export const GAMES = [listenChoose, match, fillBlank, orderDialogue, flashcards];
+export const GAMES = [
+  listenChoose,
+  match,
+  fillBlank,
+  sentenceBuilder,
+  orderDialogue,
+  reply,
+  flashcards
+];
 
 export function getGame(id) {
   return GAMES.find((game) => game.id === id) || GAMES[0];

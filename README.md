@@ -64,7 +64,9 @@ js/
   games/
     index.js        Game registry + shared shell (score, streak, summary)
     shared.js       Shuffling, answer normalisation, option building
-    listen-choose.js  match.js  fill-blank.js  flashcards.js
+    keyboard.js       A-D / 1-9 / Enter for the multiple-choice games
+    listen-choose.js  match.js  fill-blank.js
+    sentence-builder.js  order-dialogue.js  reply.js  flashcards.js
 
 data/
   lessons.json      All course content — units, dialogues, phrases, exercises
@@ -204,11 +206,17 @@ page reload. English is the default on a first visit.
 Lesson *content* is deliberately exempt: Arabic script, transliteration and
 English always render together, in both modes.
 
+All three scripts isolate their own direction (`unicode-bidi: isolate`, see the
+top of `css/base.css`). This matters for the Latin runs, not just the Arabic:
+without it an Arabic page renders `How are you?` as `?How are you`, because the
+trailing punctuation gets absorbed into the surrounding RTL run. Any new element
+holding a phrase's English needs to join that selector list.
+
 ---
 
 ## Practice games
 
-All four read from the same phrase bank, so content added to `lessons.json`
+They all read from the same phrase bank, so content added to `lessons.json`
 flows into every game automatically.
 
 | Game | What it does |
@@ -216,7 +224,9 @@ flows into every game automatically.
 | **Listen & Choose** | Plays a phrase, offers four English meanings, checks the pick. |
 | **Match the Phrase** | Five Lebanese vs five English, shuffled; tap one then the other to pair. |
 | **Fill the Blank** | Type the missing word, or switch to multiple choice; lenient checking. |
+| **Sentence Builder** | Tap scrambled word chips into the right order from the English meaning and the audio. |
 | **Order the Conversation** | A unit's dialogue, shuffled — tap the lines back into sequence. |
+| **What Do You Reply?** | Plays a line from a dialogue; pick the reply that actually follows it. |
 | **Daily Flashcards** | Show answer (or tap the card) to flip Lebanese ↔ English, then "Got it" / "Still learning". |
 
 ### Scoping practice to one unit
@@ -231,11 +241,26 @@ Note the local dev server needs `serve.json` (`"cleanUrls": false`) — otherwis
 string**, silently unscoping the drill. Vercel with our `vercel.json` does not
 rewrite URLs, so production is unaffected.
 
-Order the Conversation is the only game that reads whole units rather than loose
-phrases (it needs the `dialogue` arrays), which is what `GameShell`'s `context`
-argument carries. It deliberately does **not** call `shell.record()`: dialogue
-lines aren't phrases, and writing their ids into the spaced-repetition store
-would schedule reviews for cards that no flashcard will ever show.
+Order the Conversation, What Do You Reply? and Sentence Builder read whole
+units rather than loose phrases (they need the `dialogue` arrays), which is what
+`GameShell`'s `context` argument carries. The first two deliberately do **not**
+call `shell.record()`:
+dialogue lines aren't phrases, and writing their ids into the spaced-repetition
+store would schedule reviews for cards that no flashcard will ever show. They
+call `shell.addScore()` instead, so the round still scores.
+
+Sentence Builder is the mixed case: it draws on both phrases and dialogue
+lines (anything three words or longer, skipping transliterations that carry a
+`/`, which is an editorial "or" rather than a word). Only the phrase items go
+through `shell.record()`; the dialogue items just score. Its prompt shows the
+English and the audio and *not* the transliteration — otherwise the answer
+would be sitting there to copy.
+
+What Do You Reply? draws its three wrong answers from *other* units. Lines from
+the same conversation are the tempting distractor, but with four lines per
+dialogue several of them could genuinely follow, and an ambiguous question
+teaches nothing. If the course is ever down to one unit with dialogue, it falls
+back to the whole bank.
 
 Match uses **tap-to-pair rather than drag-and-drop** on purpose: it behaves
 identically with a finger and a mouse and stays keyboard-reachable, where drag

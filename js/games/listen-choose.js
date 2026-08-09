@@ -50,7 +50,7 @@ export default {
           'button',
           { type: 'button', class: 'option' },
           el('span', { class: 'key', 'aria-hidden': 'true' }, optionKey(i)),
-          el('span', {}, option.en)
+          el('span', { class: 'option-en' }, option.en)
         )
       );
 

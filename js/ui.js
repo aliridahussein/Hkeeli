@@ -63,6 +63,11 @@ export function initChrome() {
         toggle.focus();
       }
     });
+    // Tapping the page behind an open drawer closes it — the gesture everyone
+    // expects on a phone, and the only way out that doesn't need the toggle.
+    document.addEventListener('click', (e) => {
+      if (nav.dataset.open === 'true' && !nav.contains(e.target)) setOpen(false);
+    });
     // The drawer is a small-screen affordance; close it if we grow past it.
     window.matchMedia('(min-width: 860px)').addEventListener('change', (e) => {
       if (e.matches) setOpen(false);

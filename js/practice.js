@@ -134,6 +134,29 @@ function renderPicker() {
   );
 }
 
+/**
+ * Bring the selected tab into view inside the picker rail.
+ *
+ * The rail scrolls horizontally on a phone and is far wider than the screen, so
+ * arriving from a home-page tile (or any #hash link) selected a tab that was
+ * hundreds of pixels off-screen — the page looked like nothing was chosen.
+ *
+ * Measured with rects rather than offsetLeft: offsetLeft is relative to the
+ * offset parent, which is not the rail, and it doesn't mirror in RTL.
+ */
+function revealActiveTab(id) {
+  const rail = document.querySelector('#game-picker');
+  const btn = rail && rail.querySelector(`button[data-game="${id}"]`);
+  if (!rail || !btn || rail.scrollWidth <= rail.clientWidth) return;
+
+  const railRect = rail.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const delta = btnRect.left - railRect.left - (railRect.width - btnRect.width) / 2;
+  // Instant, not smooth: on first paint there's nothing to animate from, and a
+  // smooth scroll here competes with the page's own scroll position.
+  rail.scrollBy({ left: delta, behavior: 'auto' });
+}
+
 function mount(id) {
   const game = getGame(id);
   const host = document.querySelector('#game-host');
@@ -147,6 +170,8 @@ function mount(id) {
   document
     .querySelectorAll('#game-picker button')
     .forEach((btn) => btn.setAttribute('aria-selected', String(btn.dataset.game === game.id)));
+
+  revealActiveTab(game.id);
 
   // A narrow unit filter can leave a game without enough material to run.
   if (phrases.length < (game.minPhrases || 1)) {

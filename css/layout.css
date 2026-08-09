@@ -48,6 +48,15 @@ section {
   }
 }
 
+/* A phone held sideways has ~360px of height. Between the sticky nav and the
+   games' sticky action bar, two thirds of that would be chrome — so the nav
+   gives up its stickiness and scrolls away instead. */
+@media (max-height: 480px) {
+  .site-nav {
+    position: static;
+  }
+}
+
 @media (min-width: 860px) {
   .nav-toggle {
     display: none;
@@ -131,9 +140,11 @@ section {
 
 /* 8px dot, 32px hit area — the padding is the tap target. */
 .postcard-dots button {
-  width: 32px;
-  height: 32px;
-  padding: 12px;
+  /* A full tap target around an 8px dot: the padding is the hit area, and
+     background-clip keeps the visible dot small. */
+  width: var(--tap);
+  height: var(--tap);
+  padding: 18px;
   border-radius: 50%;
   background: var(--hairline-strong);
   background-clip: content-box;
@@ -142,7 +153,9 @@ section {
 
 .postcard-dots button[aria-current='true'] {
   background: var(--citrus);
-  transform: scale(1.4);
+  /* Grows the dot by shrinking its padding, not by scaling the button: a
+     transform would enlarge the hit area over its neighbours too. */
+  padding: 16px;
 }
 
 @media (min-width: 860px) {
@@ -529,8 +542,19 @@ section {
 
 /* auto-fit rather than a fixed count: the tile row has to stay balanced as
    games are added, otherwise the 5th one strands itself on its own row. */
+/* Wrapping flex rather than a grid: with any column count, a game list that
+   doesn't divide evenly leaves the last tile stranded against one edge. Here
+   the final row centres itself instead, whatever the total. */
 @media (min-width: 560px) {
   .games-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .games-grid > * {
+    flex: 1 1 240px;
+    /* Caps how far a short final row stretches, so rows stay close in width. */
+    max-width: 300px;
   }
 }

@@ -102,6 +102,23 @@ ol {
   letter-spacing: 0.02em;
 }
 
+/* English lesson content needs the same isolation as transliteration. Without
+   it, an Arabic page renders "How are you?" as "?How are you" — the trailing
+   punctuation belongs to the surrounding RTL run, not to the sentence. The
+   feedback detail is in the list because it mixes all three scripts in one
+   line. */
+.phrase-en,
+.match-en,
+.card-en,
+.option-en,
+.order-en,
+.reply-en,
+.builder-en,
+.feedback-detail {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 /* Arabic UI copy gets the display Arabic face when the site is in Arabic. */
 [lang='ar'] h1,
 [lang='ar'] h2,

@@ -2,3 +2,6 @@
 .DS_Store
 dist/
 .env
+
+# Local convenience launcher (double-click to serve the site)
+run.cmd

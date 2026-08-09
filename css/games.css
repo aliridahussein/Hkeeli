@@ -421,6 +421,90 @@
 }
 
 /* --------------------------------------------------------------------------
+   Sentence Builder
+   -------------------------------------------------------------------------- */
+
+.builder-target {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--sand);
+  margin-block-end: var(--space-4);
+}
+
+.builder-target .play {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+.builder-en {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--sea-deep);
+}
+
+/* The sentence under construction. Always LTR — transliteration is Latin
+   script, so it reads left to right even on an Arabic page. */
+.builder-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 76px;
+  padding: var(--space-3);
+  border: 2px dashed var(--hairline-strong);
+  border-radius: var(--radius-md);
+}
+
+.builder-placeholder {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.builder-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-block-start: var(--space-4);
+  margin-block-start: var(--space-4);
+  border-block-start: 2px dashed var(--hairline-strong);
+}
+
+.builder-chip {
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-4);
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--sand-light);
+  font-size: 1rem;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+.builder-chip[disabled] {
+  cursor: default;
+}
+
+.builder-chip[data-state='correct'] {
+  border-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.builder-chip[data-state='wrong'] {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+@media (hover: hover) {
+  .builder-chip:not([disabled]):hover {
+    border-color: var(--olive);
+    transform: translateY(-2px);
+  }
+}
+
+/* --------------------------------------------------------------------------
    Order the Conversation
    -------------------------------------------------------------------------- */
 
@@ -480,7 +564,8 @@
 }
 
 .order-index,
-.order-speaker {
+.order-speaker,
+.reply-speaker {
   flex-shrink: 0;
   width: 30px;
   height: 30px;
@@ -496,7 +581,8 @@
   color: var(--citrus);
 }
 
-.order-speaker {
+.order-speaker,
+.reply-speaker {
   background: var(--olive-wash);
   color: var(--olive);
 }
@@ -542,6 +628,50 @@
 }
 
 /* --------------------------------------------------------------------------
+   What Do You Reply?
+   -------------------------------------------------------------------------- */
+
+/* The line that was said to you. Deeper sand than the options (which are
+   sand-light) and borderless, so the prompt never reads as a fifth choice. */
+.reply-said {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--sand);
+  margin-block-end: var(--space-5);
+}
+
+.reply-said .play {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+.reply-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.reply-text .arabic {
+  font-size: 1.25rem;
+  color: var(--sea-deep);
+}
+
+.reply-en {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* Three-line options would be squeezed by the default two-column grid. */
+@media (min-width: 700px) {
+  .options-stacked {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Unit filter
    -------------------------------------------------------------------------- */
 
@@ -570,7 +700,9 @@
   border-radius: var(--radius-pill);
   background: var(--card);
   font-weight: 700;
-  font-size: 0.9rem;
+  /* Not smaller: iOS Safari zooms the whole page when a form control under
+     16px takes focus, and the zoom doesn't undo itself. */
+  font-size: 1rem;
   color: var(--sea-deep);
 }
 

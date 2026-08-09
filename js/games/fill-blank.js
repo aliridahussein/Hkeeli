@@ -66,7 +66,11 @@ export default {
         el('p', { class: 'arabic', dir: 'rtl', lang: 'ar' }, blank.ar || phrase.ar),
         sentence,
         playBtn,
-        el('p', { class: 'prompt-hint' }, blank.hint ? hintText(blank) : `“${phrase.en}”`)
+        // The hint is translated UI copy and follows the page; the fallback is
+        // the phrase's English and has to stay LTR on an Arabic page.
+        blank.hint
+          ? el('p', { class: 'prompt-hint' }, hintText(blank))
+          : el('p', { class: 'prompt-hint option-en' }, `“${phrase.en}”`)
       );
 
       const input = el('input', {
