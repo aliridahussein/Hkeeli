@@ -25,6 +25,9 @@
   align-items: baseline;
   gap: var(--space-2);
   flex-shrink: 0;
+  /* Padding rather than min-height so the baseline alignment is untouched;
+     brings the tap target up to ~45px. */
+  padding-block: var(--space-1);
 }
 
 .logo-en {
@@ -441,6 +444,7 @@
    Lesson card
    -------------------------------------------------------------------------- */
 .lesson-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   background: var(--card);
@@ -448,6 +452,21 @@
   padding: var(--space-6);
   border: 1px solid var(--hairline);
   transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
+}
+
+/* The title link alone is a ~25px tap target. Stretch it over the whole card
+   so the card is the target, while keeping the play button clickable above it. */
+.lesson-card h3 a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.lesson-card .lesson-phrase {
+  position: relative;
+  z-index: 2;
 }
 
 .lesson-level {
@@ -715,10 +734,18 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: var(--space-5);
+  gap: var(--space-3) var(--space-5);
   margin-block-start: var(--space-4);
   font-weight: 700;
   color: var(--sea-deep);
+}
+
+/* Bare text links are ~22px tall — too small to hit reliably on a phone. */
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding-inline: var(--space-2);
 }
 
 /* --------------------------------------------------------------------------

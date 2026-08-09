@@ -7,6 +7,7 @@ import { t } from '../i18n.js';
 import { el } from '../ui.js';
 import { playPhrase } from '../audio.js';
 import { sample, buildOptions, optionKey } from './shared.js';
+import { bindChoiceKeys } from './keyboard.js';
 
 export default {
   id: 'listen',
@@ -18,6 +19,9 @@ export default {
   start(shell) {
     const round = sample(shell.phrases, Math.min(CONFIG.games.roundLength, shell.phrases.length));
     let index = 0;
+    // Read fresh on every keypress, so the keys always drive the live question.
+    let keyState = {};
+    bindChoiceKeys(shell, () => keyState);
 
     const question = () => {
       shell.clearFeedback();
@@ -81,6 +85,8 @@ export default {
           nextBtn.focus();
         });
       });
+
+      keyState = { options: optionButtons, next: nextBtn };
 
       shell.renderBoard(prompt, el('div', { class: 'options' }, optionButtons));
       shell.renderActions(

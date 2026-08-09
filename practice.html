@@ -63,6 +63,8 @@
     <div class="practice-layout">
       <!-- Built from the game registry in js/games/index.js -->
       <div class="game-picker" id="game-picker" role="tablist" data-i18n-attr="aria-label:games.pageTitle"></div>
+      <!-- Scopes every game to one unit; driven by ?unit= in the URL -->
+      <div class="unit-filter" id="unit-filter"></div>
       <!-- The active game mounts here -->
       <div id="game-host">
         <div class="game-loading"><p data-i18n="game.loading">Loading phrases…</p></div>

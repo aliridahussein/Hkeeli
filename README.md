@@ -216,11 +216,34 @@ flows into every game automatically.
 | **Listen & Choose** | Plays a phrase, offers four English meanings, checks the pick. |
 | **Match the Phrase** | Five Lebanese vs five English, shuffled; tap one then the other to pair. |
 | **Fill the Blank** | Type the missing word, or switch to multiple choice; lenient checking. |
+| **Order the Conversation** | A unit's dialogue, shuffled — tap the lines back into sequence. |
 | **Daily Flashcards** | Show answer (or tap the card) to flip Lebanese ↔ English, then "Got it" / "Still learning". |
+
+### Scoping practice to one unit
+
+`practice.html?unit=unit-2` narrows every game to that unit's phrases, and the
+Learn page's "Practice these words" button links this way. The unit dropdown on
+the Practice page writes the same parameter, so any drill can be bookmarked or
+shared. Without the parameter, games draw from the whole course.
+
+Note the local dev server needs `serve.json` (`"cleanUrls": false`) — otherwise
+`serve` redirects `/practice.html?unit=…` to `/practice` and **drops the query
+string**, silently unscoping the drill. Vercel with our `vercel.json` does not
+rewrite URLs, so production is unaffected.
+
+Order the Conversation is the only game that reads whole units rather than loose
+phrases (it needs the `dialogue` arrays), which is what `GameShell`'s `context`
+argument carries. It deliberately does **not** call `shell.record()`: dialogue
+lines aren't phrases, and writing their ids into the spaced-repetition store
+would schedule reviews for cards that no flashcard will ever show.
 
 Match uses **tap-to-pair rather than drag-and-drop** on purpose: it behaves
 identically with a finger and a mouse and stays keyboard-reachable, where drag
 would be a pointer-only path.
+
+**Keyboard:** in the multiple-choice games, `A`–`D` (or `1`–`4`) pick an answer
+and `Enter` advances. `js/games/keyboard.js` stands down whenever a text field
+has focus, so typing in Fill the Blank is never intercepted.
 
 **Flashcards deliberately show no score.** The first three games have right and
 wrong answers, so score and streak are meaningful. Flashcards are self-graded

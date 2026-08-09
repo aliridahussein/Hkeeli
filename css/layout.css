@@ -274,12 +274,21 @@ section {
   );
 }
 
+.testimonials-title {
+  max-width: var(--measure);
+  margin-inline: auto;
+  margin-block-start: var(--space-8);
+  color: var(--sand-light);
+  font-size: 1.3rem;
+  text-align: center;
+}
+
 .testimonials {
   display: grid;
   gap: var(--space-4);
   max-width: var(--measure);
   margin-inline: auto;
-  margin-block-start: var(--space-7);
+  margin-block-start: var(--space-5);
 }
 
 .testimonial {
@@ -518,14 +527,10 @@ section {
   margin-inline: auto;
 }
 
+/* auto-fit rather than a fixed count: the tile row has to stay balanced as
+   games are added, otherwise the 5th one strands itself on its own row. */
 @media (min-width: 560px) {
   .games-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1000px) {
-  .games-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 }

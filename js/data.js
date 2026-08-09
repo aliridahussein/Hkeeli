@@ -41,6 +41,14 @@ export async function loadLessons() {
 function normalise(json) {
   const units = (json.units || []).slice().sort((a, b) => (a.order || 0) - (b.order || 0));
   units.forEach((unit, ui) => {
+    // Dialogue lines get ids too — Order the Conversation compares by id, and
+    // the audio layer keys its file/TTS lookups on one.
+    unit.dialogue = (unit.dialogue || []).map((line, li) => ({
+      ...line,
+      id: line.id || `${unit.id}-d${li + 1}`,
+      unitId: unit.id
+    }));
+
     unit.phrases = (unit.phrases || []).map((phrase, pi) => ({
       ...phrase,
       id: phrase.id || `${unit.id}-p${pi + 1}`,

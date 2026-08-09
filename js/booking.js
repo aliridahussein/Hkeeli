@@ -16,6 +16,16 @@ export function initBookingForm() {
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    /* The form carries `novalidate` so the browser doesn't interrupt with its
+       own bubbles before our handler runs — which means we have to ask for
+       validation ourselves. Without this, an empty form still composed a
+       blank enquiry email. */
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     const data = Object.fromEntries(new FormData(form).entries());
 
     if (CONFIG.formEndpoint) {

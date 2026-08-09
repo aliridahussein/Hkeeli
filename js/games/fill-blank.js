@@ -12,6 +12,7 @@ import { el } from '../ui.js';
 import { playPhrase } from '../audio.js';
 import { deriveBlank } from '../data.js';
 import { sample, shuffle, isAnswerAcceptable, optionKey } from './shared.js';
+import { bindChoiceKeys } from './keyboard.js';
 
 export default {
   id: 'blank',
@@ -30,6 +31,11 @@ export default {
     const round = sample(usable, Math.min(CONFIG.games.roundLength, usable.length));
     let index = 0;
     let typing = true; // remembered across questions within a round
+
+    /* Keys only drive the multiple-choice mode; while the text input is
+       focused, bindChoiceKeys stands down so letters type normally. */
+    let keyState = {};
+    bindChoiceKeys(shell, () => keyState);
 
     const question = () => {
       shell.clearFeedback();
@@ -139,6 +145,8 @@ export default {
       choiceButtons.forEach((button, i) => {
         button.addEventListener('click', () => settle(choices[i] === blank.answer, choices[i]));
       });
+
+      keyState = { options: choiceButtons, next: nextBtn };
 
       shell.renderBoard(prompt, input, choiceWrap, toggle);
       shell.renderActions(checkBtn, nextBtn);

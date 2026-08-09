@@ -16,9 +16,10 @@ import { progress } from '../storage.js';
 import listenChoose from './listen-choose.js';
 import match from './match.js';
 import fillBlank from './fill-blank.js';
+import orderDialogue from './order-dialogue.js';
 import flashcards from './flashcards.js';
 
-export const GAMES = [listenChoose, match, fillBlank, flashcards];
+export const GAMES = [listenChoose, match, fillBlank, orderDialogue, flashcards];
 
 export function getGame(id) {
   return GAMES.find((game) => game.id === id) || GAMES[0];
@@ -28,12 +29,17 @@ export class GameShell {
   /**
    * @param {HTMLElement} host    container the shell renders into
    * @param {object} game         a game module
-   * @param {Array} phrases       the phrase bank
+   * @param {Array} phrases       the phrase bank (already scoped to the unit
+   *                              filter, if one is active)
+   * @param {object} [context]    { units, unitId } for games that need whole
+   *                              units rather than loose phrases
    */
-  constructor(host, game, phrases) {
+  constructor(host, game, phrases, context = {}) {
     this.host = host;
     this.game = game;
     this.phrases = phrases;
+    this.units = context.units || [];
+    this.unitId = context.unitId || null;
     this.cleanups = [];
     this.score = 0;
     this.streak = 0;

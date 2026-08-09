@@ -88,9 +88,10 @@ function unitCard(unit, isOpen) {
       unit.challenge ? task('learn.challenge', pick(unit.challenge)) : null,
       unit.homework ? task('learn.homework', pick(unit.homework)) : null
     ),
+    // Scoped to this unit, so "practice these words" practises these words.
     el(
       'a',
-      { class: 'btn-primary btn-small', href: 'practice.html' },
+      { class: 'btn-primary btn-small', href: `practice.html?unit=${encodeURIComponent(unit.id)}` },
       t('learn.practiceThis')
     )
   );

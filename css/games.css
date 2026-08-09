@@ -421,6 +421,170 @@
 }
 
 /* --------------------------------------------------------------------------
+   Order the Conversation
+   -------------------------------------------------------------------------- */
+
+.order-unit {
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.order-sequence,
+.order-bank {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.order-bank {
+  padding-block-start: var(--space-4);
+  border-block-start: 2px dashed var(--hairline-strong);
+}
+
+.order-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+
+.order-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-3);
+  text-align: start;
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
+}
+
+.order-line[disabled] {
+  cursor: default;
+}
+
+.order-line[data-state='correct'] {
+  border-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.order-line[data-state='wrong'] {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+.order-index,
+.order-speaker {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.order-index {
+  background: var(--sea-deep);
+  color: var(--citrus);
+}
+
+.order-speaker {
+  background: var(--olive-wash);
+  color: var(--olive);
+}
+
+.order-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.order-text .arabic {
+  font-size: 1.25rem;
+  color: var(--sea-deep);
+}
+
+.order-en {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.order-play {
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* Empty slot: a numbered target, so the sequence reads as a sequence. */
+.order-empty {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border: 2px dashed var(--hairline-strong);
+  border-radius: var(--radius-md);
+  color: var(--ink-soft);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  .order-line:not([disabled]):hover {
+    border-color: var(--olive);
+    transform: translateY(-2px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Unit filter
+   -------------------------------------------------------------------------- */
+
+.unit-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-block-end: var(--space-5);
+}
+
+.unit-filter-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.unit-filter select {
+  flex: 1 1 220px;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--sea-deep);
+}
+
+@media (min-width: 700px) {
+  .unit-filter {
+    justify-content: center;
+  }
+  .unit-filter select {
+    flex: 0 0 auto;
+    max-width: 420px;
+  }
+}
+
+/* --------------------------------------------------------------------------
    Flashcards
    -------------------------------------------------------------------------- */
 .flashcard {
