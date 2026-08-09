@@ -35,6 +35,64 @@ export function getGame(id) {
   return GAMES.find((game) => game.id === id) || GAMES[0];
 }
 
+const RING_RADIUS = 54;
+const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
+
+const wantsReducedMotion = () =>
+  window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * The end-of-round ring: an arc that draws itself while the score counts up to
+ * meet it. Built as SVG rather than a bordered circle because only a stroke can
+ * be animated to a fraction.
+ *
+ * Honours prefers-reduced-motion by simply arriving at the final state — the
+ * CSS transition is already neutered there, and a count-up in JS would not be.
+ */
+function scoreRing(score, total) {
+  const ratio = total ? Math.max(0, Math.min(1, score / total)) : 0;
+  const label = el('span', { class: 'ring-label' }, `${score}/${total}`);
+
+  const value = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  const track = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 120 120');
+  svg.setAttribute('aria-hidden', 'true');
+  [track, value].forEach((circle, i) => {
+    circle.setAttribute('cx', '60');
+    circle.setAttribute('cy', '60');
+    circle.setAttribute('r', String(RING_RADIUS));
+    circle.setAttribute('class', i ? 'ring-value' : 'ring-track');
+    svg.append(circle);
+  });
+  value.setAttribute('stroke-dasharray', String(RING_LENGTH));
+  value.setAttribute('stroke-dashoffset', String(RING_LENGTH));
+
+  const ring = el('div', { class: 'score-ring' }, svg, label);
+  const settle = () => value.setAttribute('stroke-dashoffset', String(RING_LENGTH * (1 - ratio)));
+
+  if (wantsReducedMotion() || !score) {
+    settle();
+    return ring;
+  }
+
+  // One frame's delay, so the browser has a start value to transition from.
+  requestAnimationFrame(() => {
+    settle();
+    const duration = 700;
+    const start = performance.now();
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      label.textContent = `${Math.round(score * eased)}/${total}`;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+
+  return ring;
+}
+
 export class GameShell {
   /**
    * @param {HTMLElement} host    container the shell renders into
@@ -125,6 +183,17 @@ export class GameShell {
     this.scoreEl.textContent = String(this.score);
     // In review mode the second stat is "how many are coming back", not a streak.
     this.streakEl.textContent = String(this.mode === 'review' ? this.again : this.streak);
+
+    /* A streak is the one number here worth reacting to. The class is removed
+       and re-added (with a forced reflow between) so the animation replays on
+       every correct answer rather than only the first. */
+    if (this.mode === 'quiz') {
+      this.streakEl.classList.remove('is-hot');
+      if (correct && this.streak >= 3) {
+        void this.streakEl.offsetWidth;
+        this.streakEl.classList.add('is-hot');
+      }
+    }
   }
 
   /* ---- board / actions ---- */
@@ -174,7 +243,7 @@ export class GameShell {
       el(
         'div',
         { class: 'summary' },
-        el('div', { class: 'score-ring' }, `${score}/${total}`),
+        scoreRing(score, total),
         el('h3', {}, t(isReview ? 'game.summaryReviewTitle' : 'game.summaryTitle')),
         el(
           'p',

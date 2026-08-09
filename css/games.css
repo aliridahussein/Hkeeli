@@ -102,6 +102,20 @@
 .hud-stats b {
   color: var(--sea-deep);
   font-size: 0.95rem;
+  display: inline-block;
+}
+
+/* Three in a row should feel like something. The colour persists while the
+   streak lives; the animation replays on each new correct answer. */
+.hud-stats b.is-hot {
+  color: var(--citrus);
+  animation: streak-pulse calc(var(--t-base) * 1.6) var(--ease);
+}
+
+@keyframes streak-pulse {
+  40% {
+    transform: scale(1.35);
+  }
 }
 
 .progress-track {
@@ -276,12 +290,22 @@
 /* --------------------------------------------------------------------------
    Feedback banner
    -------------------------------------------------------------------------- */
+/* The banner is toggled with [hidden], so going from display:none to rendered
+   restarts the animation on every question — no JS retrigger needed. */
 .feedback {
   display: grid;
   gap: var(--space-1);
   padding: var(--space-4);
   border-radius: var(--radius-md);
   font-weight: 700;
+  animation: feedback-in var(--t-base) var(--ease);
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 }
 
 .feedback[data-tone='ok'] {
@@ -362,7 +386,35 @@
 .match-item[data-state='wrong'] {
   border-color: var(--bad);
   background: var(--bad-bg);
-  animation: shake 0.35s var(--ease);
+  animation: shake calc(var(--t-base) * 1.4) var(--ease);
+}
+
+/* --------------------------------------------------------------------------
+   Answer feedback motion
+
+   A right answer is the moment the whole app exists for, and until this it got
+   less reaction than a wrong one. The pop is deliberately shorter than the gap
+   before the next question: nothing here delays play.
+   -------------------------------------------------------------------------- */
+
+.option[data-state='correct'],
+.order-line[data-state='correct'],
+.builder-chip[data-state='correct'],
+.match-item[data-state='matched'] {
+  animation: pop var(--t-base) var(--ease);
+}
+
+/* Sentence Builder marks every word at once; the delay walks the pop along the
+   sentence instead of flashing five chips simultaneously. --i is set per chip. */
+.builder-line .builder-chip[data-state='correct'] {
+  animation-delay: calc(var(--i, 0) * 45ms);
+  animation-fill-mode: backwards;
+}
+
+@keyframes pop {
+  40% {
+    transform: scale(1.045);
+  }
 }
 
 @keyframes shake {
@@ -843,18 +895,49 @@
   padding: var(--space-6) var(--space-4);
 }
 
+/* The one flourish in the whole app. Finishing a round is the only moment
+   that has earned a half-second of ceremony, so the ring draws itself and the
+   score counts up to meet it. */
 .summary .score-ring {
+  position: relative;
   width: 128px;
   height: 128px;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background: var(--olive-wash);
-  border: 6px solid var(--citrus);
   font-family: var(--font-display);
   font-size: 2rem;
   font-weight: 700;
   color: var(--sea-deep);
+}
+
+.score-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Start the arc at twelve o'clock rather than three. */
+  transform: rotate(-90deg);
+}
+
+.score-ring circle {
+  fill: none;
+  stroke-width: 8;
+}
+
+.score-ring .ring-track {
+  stroke: var(--hairline-strong);
+}
+
+.score-ring .ring-value {
+  stroke: var(--citrus);
+  stroke-linecap: round;
+  transition: stroke-dashoffset calc(var(--t-base) * 3) var(--ease);
+}
+
+.score-ring .ring-label {
+  position: relative;
 }
 
 .summary p {

@@ -76,6 +76,8 @@ export default {
             ? placed.map((token, slot) =>
                 chip(token.text, {
                   state: checked ? (token.text === item.tokens[slot] ? 'correct' : 'wrong') : null,
+                  // Walks the correct-answer pop along the sentence (see games.css).
+                  index: slot,
                   disabled: checked,
                   label: t('game.buildRemove'),
                   onSelect: () => {
@@ -186,7 +188,7 @@ function tokenize(translit) {
 }
 
 /** One word. Tapping a placed chip takes it back out; tapping a bank chip plays it in. */
-function chip(text, { state, disabled, label, onSelect }) {
+function chip(text, { state, disabled, label, index, onSelect }) {
   const button = el(
     'button',
     {
@@ -198,6 +200,7 @@ function chip(text, { state, disabled, label, onSelect }) {
     },
     text
   );
+  if (index != null) button.style.setProperty('--i', String(index));
   button.addEventListener('click', onSelect);
   return button;
 }

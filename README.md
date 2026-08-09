@@ -263,6 +263,34 @@ invented ones as machine-readable claims would be worse than publishing none.
 
 ---
 
+## Motion
+
+Motion is spent on feedback, not decoration. There is deliberately no
+scroll-triggered animation, no parallax and no entrance effect on page sections:
+on a page a learner opens daily, a flourish you notice twice becomes friction by
+the tenth visit.
+
+The four places it is used, all in `css/games.css`:
+
+| Moment | What happens |
+|---|---|
+| Correct answer | a 250ms `pop` on the option, chip, tile or line |
+| Sentence Builder check | the same pop, staggered 45ms per word via `--i`, so it walks along the sentence |
+| Feedback banner | rises 6px into place; `[hidden]` toggling restarts it each question |
+| Streak reaches 3 | the HUD number turns citrus and pulses on each further correct answer |
+| End of round | the summary ring draws its arc while the score counts up |
+
+Two rules to keep if you add more:
+
+- **Nothing may delay the next question.** Every animation above is fire-and-forget;
+  no game logic waits on one. In a drill, speed beats delight.
+- **Durations come from `--t-fast` / `--t-base`,** never hardcoded seconds. The
+  `prefers-reduced-motion` block in `tokens.css` zeroes those tokens, so anything
+  built on them is automatically covered. The JS count-up checks the media query
+  directly and jumps to the final value.
+
+---
+
 ## Practice games
 
 They all read from the same phrase bank, so content added to `lessons.json`
