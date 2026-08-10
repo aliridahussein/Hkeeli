@@ -1,29 +1,34 @@
 /**
  * Hkeeli — Practice page.
  *
- * Owns the game picker, the unit filter, and the lifecycle of the currently
- * mounted game. All games share one phrase bank and one shell
- * (js/games/index.js).
+ * Daily Practice is the page's answer to "what should I do now": one guided
+ * sequence built from the games that already exist. The seven individual games
+ * are still all here, one level down, grouped by the skill they train — a
+ * learner who knows they want listening practice can go straight to it.
  *
  * URL shape: practice.html?unit=unit-2#listen
- *   - `unit` scopes every game to a single lesson, so "Practice these words"
- *     on the Learn page actually practises those words.
- *   - the hash selects the game.
- * Both are kept in the URL so a learner can bookmark or share a drill.
+ *   - `unit` scopes the session and every game to a single lesson, so
+ *     "Practice these words" on the Lessons page actually practises those words;
+ *   - the hash selects what is mounted: `daily` (the default) or a game id.
+ * Both stay in the URL so a learner can bookmark or share a drill.
  */
 
 import { initI18n, t, pick } from './i18n.js';
-import { initChrome, el, clear, errorState, onLangChange } from './ui.js';
+import { initChrome, el, clear, gameTile, errorState, onLangChange } from './ui.js';
 import { getUnits } from './data.js';
 import { stopAudio } from './audio.js';
-import { GAMES, getGame, GameShell } from './games/index.js';
+import { GAMES, GAME_GROUPS, ungroupedGames, getGame, GameShell } from './games/index.js';
+import { DailySession, DAILY_ID } from './daily.js';
+import { dueCount } from './journey.js';
 import { progress } from './storage.js';
 
 const ALL = 'all';
+const DAILY = 'daily';
 
 let units = [];
 let phrases = [];
 let shell = null;
+let session = null;
 let activeId = null;
 let unitId = ALL;
 
@@ -43,21 +48,28 @@ async function main() {
   unitId = readUnitFromUrl();
   applyUnit(unitId, { remount: false });
 
-  renderPicker();
   renderUnitFilter();
-  mount(getGame(location.hash.slice(1)).id);
+  renderCatalogue();
+  await mount(readTargetFromUrl());
 
   window.addEventListener('hashchange', () => {
-    const id = location.hash.slice(1);
-    if (id && id !== activeId) mount(getGame(id).id);
+    const id = readTargetFromUrl();
+    if (id !== activeId) mount(id);
   });
 
-  // A language switch re-renders the board, which restarts the current round.
-  onLangChange(() => {
-    renderPicker();
+  // A language switch re-renders the board, which restarts whatever is running.
+  onLangChange(async () => {
     renderUnitFilter();
-    mount(activeId);
+    renderCatalogue();
+    await mount(activeId);
   });
+}
+
+/** `daily` unless the hash names a real game. */
+function readTargetFromUrl() {
+  const id = location.hash.slice(1);
+  if (!id || id === DAILY) return DAILY;
+  return GAMES.some((game) => game.id === id) ? id : DAILY;
 }
 
 /* --------------------------------------------------------------------------
@@ -79,7 +91,7 @@ function applyUnit(next, { remount = true } = {}) {
 }
 
 function syncUrl() {
-  // Only once a game is mounted: writing the URL earlier would clobber the
+  // Only once something is mounted: writing the URL earlier would clobber the
   // incoming hash before it has been read.
   if (!activeId) return;
   const query = unitId === ALL ? '' : `?unit=${encodeURIComponent(unitId)}`;
@@ -107,71 +119,141 @@ function renderUnitFilter() {
 }
 
 /* --------------------------------------------------------------------------
-   Game picker + mounting
+   The Daily Practice card — the page's recommended action
    -------------------------------------------------------------------------- */
 
-function renderPicker() {
-  const picker = document.querySelector('#game-picker');
-  if (!picker) return;
+async function renderDailyCard() {
+  const host = document.querySelector('#daily-card');
+  if (!host) return;
 
-  clear(picker).append(
-    ...GAMES.map((game) => {
-      const stats = progress.getGameStats(game.id);
-      return el(
-        'button',
-        {
-          type: 'button',
-          role: 'tab',
-          'aria-selected': String(game.id === activeId),
-          dataset: { game: game.id },
-          onClick: () => mount(game.id)
-        },
-        el('span', { 'aria-hidden': 'true' }, game.icon),
-        el('span', {}, t(game.titleKey)),
-        stats.plays ? el('span', { class: 'tile-stat' }, String(stats.best)) : null
-      );
-    })
+  const stats = progress.getGameStats(DAILY_ID);
+  const due = await dueCount();
+  const scoped = units.find((unit) => unit.id === unitId);
+  const running = activeId === DAILY && session;
+  const steps = t('practice.dailySteps');
+
+  clear(host).append(
+    el(
+      'div',
+      { class: 'daily-card', dataset: { state: running ? 'running' : 'idle' } },
+      el(
+        'div',
+        { class: 'daily-card-body' },
+        el('p', { class: 'eyebrow' }, el('span', { class: 'dot' }), el('span', {}, t('practice.recommended'))),
+        el('h2', {}, t('practice.dailyTitle')),
+        el('p', {}, t('practice.dailyBody')),
+        Array.isArray(steps)
+          ? el('ul', { class: 'daily-card-steps' }, ...steps.map((step) => el('li', {}, step)))
+          : null,
+        el(
+          'p',
+          { class: 'daily-card-stats' },
+          due
+            ? t('practice.dueCount', { count: due })
+            : t('practice.noneDue'),
+          scoped ? ` · ${t('practice.scopedTo')} ${pick(scoped.title)}` : '',
+          stats.plays ? ` · ${t('practice.lastScore')} ${stats.lastScore}/${stats.lastTotal || '—'}` : ''
+        )
+      ),
+      running
+        ? el('p', { class: 'daily-card-running' }, t('practice.running'))
+        : el(
+            'button',
+            { type: 'button', class: 'btn-primary', onClick: () => mount(DAILY, { restart: true }) },
+            t(stats.plays ? 'practice.startDailyAgain' : 'practice.startDaily')
+          )
+    )
   );
 }
 
-/**
- * Bring the selected tab into view inside the picker rail.
- *
- * The rail scrolls horizontally on a phone and is far wider than the screen, so
- * arriving from a home-page tile (or any #hash link) selected a tab that was
- * hundreds of pixels off-screen — the page looked like nothing was chosen.
- *
- * Measured with rects rather than offsetLeft: offsetLeft is relative to the
- * offset parent, which is not the rail, and it doesn't mirror in RTL.
- */
-function revealActiveTab(id) {
-  const rail = document.querySelector('#game-picker');
-  const btn = rail && rail.querySelector(`button[data-game="${id}"]`);
-  if (!rail || !btn || rail.scrollWidth <= rail.clientWidth) return;
+/* --------------------------------------------------------------------------
+   The game catalogue — secondary, grouped by skill
+   -------------------------------------------------------------------------- */
 
-  const railRect = rail.getBoundingClientRect();
-  const btnRect = btn.getBoundingClientRect();
-  const delta = btnRect.left - railRect.left - (railRect.width - btnRect.width) / 2;
-  // Instant, not smooth: on first paint there's nothing to animate from, and a
-  // smooth scroll here competes with the page's own scroll position.
-  rail.scrollBy({ left: delta, behavior: 'auto' });
+function renderCatalogue() {
+  const host = document.querySelector('#game-groups');
+  if (!host) return;
+
+  const extra = ungroupedGames();
+  const groups = extra.length
+    ? [...GAME_GROUPS, { id: 'other', titleKey: 'practice.skillOther', games: extra.map((g) => g.id) }]
+    : GAME_GROUPS;
+
+  clear(host).append(
+    ...groups.map((group) =>
+      el(
+        'section',
+        { class: 'game-group' },
+        el('h3', {}, t(group.titleKey)),
+        el(
+          'div',
+          { class: 'games-grid' },
+          ...group.games.map((id) => {
+            const game = getGame(id);
+            const tile = gameTile(game, progress.getGameStats(game.id), {
+              onSelect: () => mount(game.id, { scroll: true })
+            });
+            tile.dataset.game = game.id;
+            return tile;
+          })
+        )
+      )
+    )
+  );
+
+  markActiveTile();
 }
 
-function mount(id) {
-  const game = getGame(id);
+/** The tile whose game is mounted says so — otherwise nothing in the catalogue
+    reflects what is currently on screen above it. */
+function markActiveTile() {
+  document.querySelectorAll('#game-groups .game-tile').forEach((tile) => {
+    if (tile.dataset.game === activeId) tile.setAttribute('aria-current', 'true');
+    else tile.removeAttribute('aria-current');
+  });
+}
+
+/* --------------------------------------------------------------------------
+   Mounting
+   -------------------------------------------------------------------------- */
+
+async function teardown() {
+  stopAudio();
+  if (shell) shell.destroy();
+  if (session) session.destroy();
+  shell = null;
+  session = null;
+}
+
+/**
+ * Mount Daily Practice or a single game into the host.
+ *
+ * @param {string} id  'daily' or a game id
+ * @param {{restart?: boolean, scroll?: boolean}} [options]
+ */
+async function mount(id, { restart = false, scroll = false } = {}) {
   const host = document.querySelector('#game-host');
   if (!host) return;
 
-  stopAudio();
-  if (shell) shell.destroy();
-  activeId = game.id;
+  const target = id === DAILY || GAMES.some((game) => game.id === id) ? id : DAILY;
+  const wasRunning = activeId === DAILY && Boolean(session);
+
+  await teardown();
+  activeId = target;
   syncUrl();
 
-  document
-    .querySelectorAll('#game-picker button')
-    .forEach((btn) => btn.setAttribute('aria-selected', String(btn.dataset.game === game.id)));
+  if (target === DAILY) {
+    // Arriving at the page shows the card, not a session in progress: Daily
+    // Practice starts when the learner says so.
+    if (restart || wasRunning) startDaily(host);
+    else clear(host);
+    markActiveTile();
+    await renderDailyCard();
+    if (scroll) host.scrollIntoView({ block: 'start' });
+    return;
+  }
 
-  revealActiveTab(game.id);
+  const game = getGame(target);
 
   // A narrow unit filter can leave a game without enough material to run.
   if (phrases.length < (game.minPhrases || 1)) {
@@ -189,11 +271,54 @@ function mount(id) {
           : null
       )
     );
+    await renderDailyCard();
     return;
   }
 
-  shell = new GameShell(host, game, phrases, { units, unitId: unitId === ALL ? null : unitId });
+  const mountPoint = el('div', { class: 'game-mount' });
+  clear(host).append(
+    el(
+      'div',
+      { class: 'game-frame' },
+      el(
+        'div',
+        { class: 'game-frame-head' },
+        el(
+          'button',
+          { type: 'button', class: 'game-back', onClick: () => mount(DAILY, { scroll: true }) },
+          t('practice.backToDaily')
+        ),
+        el('p', { class: 'game-frame-title' }, t(game.blurbKey))
+      ),
+      mountPoint
+    )
+  );
+
+  shell = new GameShell(mountPoint, game, phrases, {
+    units,
+    unitId: unitId === ALL ? null : unitId
+  });
   game.start(shell);
+
+  markActiveTile();
+  await renderDailyCard();
+  if (scroll) host.scrollIntoView({ block: 'start' });
+}
+
+function startDaily(host) {
+  session = new DailySession(clear(host), {
+    units,
+    phrases,
+    unitId: unitId === ALL ? null : unitId,
+    onExit: () => {
+      session = null;
+      clear(host);
+      renderDailyCard();
+      const catalogue = document.querySelector('#game-catalogue');
+      if (catalogue) catalogue.scrollIntoView({ block: 'start' });
+    }
+  });
+  session.start();
 }
 
 main();

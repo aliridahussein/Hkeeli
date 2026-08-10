@@ -39,7 +39,7 @@ export default {
       return;
     }
 
-    const round = sample(pool, Math.min(CONFIG.games.roundLength, pool.length));
+    const round = sample(pool, shell.roundSize(CONFIG.games.roundLength, pool.length));
     let index = 0;
 
     /* The only key this game wants is Enter: it checks a full sentence, then

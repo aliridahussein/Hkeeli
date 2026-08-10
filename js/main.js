@@ -1,12 +1,18 @@
 /**
  * Hkeeli — home page.
+ *
+ * The page is a route through one promise: hear a phrase, understand it, see
+ * where it fits, meet the person teaching it, book if you want a human. Each
+ * section below renders one step of that route; every one of them reads the
+ * same lesson data the rest of the site uses.
  */
 
-import { initI18n, t } from './i18n.js';
-import { initChrome, el, clear, playButton, lessonCard, gameTile, errorState, onLangChange } from './ui.js';
-import { getFeaturedUnits, getAllPhrases, getIntro } from './data.js';
-import { GAMES } from './games/index.js';
-import { progress } from './storage.js';
+import { initI18n, t, pick } from './i18n.js';
+import { initChrome, el, clear, playButton, errorState, onLangChange } from './ui.js';
+import { getAllPhrases, getIntro } from './data.js';
+import { getJourney, GOALS, getGoal } from './journey.js';
+import { initMiniLesson } from './mini-lesson.js';
+import { prefs } from './storage.js';
 import { initBookingForm } from './booking.js';
 
 /* The three phrases on the hero postcards, by id. Change these to feature
@@ -19,94 +25,30 @@ async function main() {
   initBookingForm();
 
   try {
-    await Promise.all([renderHero(), renderAbout(), renderLessons(), renderGames()]);
+    await Promise.all([
+      renderHero(),
+      initMiniLesson(document.querySelector('#mini-host')),
+      renderGoals(),
+      renderJourney(),
+      renderAbout(),
+      renderClassFacts(),
+      renderFaq()
+    ]);
   } catch (error) {
     console.error(error);
-    const learn = document.querySelector('#learn-grid');
-    if (learn) errorState(learn, () => location.reload());
+    const journey = document.querySelector('#journey-list');
+    if (journey) errorState(journey, () => location.reload());
   }
 
   onLangChange(() => {
     renderHero();
+    initMiniLesson(document.querySelector('#mini-host'));
+    renderGoals();
+    renderJourney();
     renderAbout();
-    renderLessons();
-    renderGames();
+    renderClassFacts();
+    renderFaq();
   });
-}
-
-/* --------------------------------------------------------------------------
-   About — the spoken introduction and the testimonials
-   -------------------------------------------------------------------------- */
-
-async function renderAbout() {
-  const host = document.querySelector('#intro-card');
-  if (host) {
-    const intro = await getIntro();
-    clear(host);
-    if (intro) {
-      // playButton() gives the same file-first, TTS-fallback behaviour as every
-      // other play control; only the accessible name differs, because "play
-      // pronunciation" is the wrong description for a spoken introduction.
-      const play = playButton(intro, 'intro-play');
-      play.setAttribute('aria-label', t('about.introPlay'));
-
-      host.append(
-        el(
-          'div',
-          { class: 'intro-card-head' },
-          play,
-          el(
-            'div',
-            {},
-            el('h3', {}, t('about.introTitle')),
-            el('p', { class: 'intro-card-body' }, t('about.introBody'))
-          )
-        ),
-        el(
-          'div',
-          { class: 'intro-line' },
-          el('p', { class: 'arabic', dir: 'rtl', lang: 'ar' }, intro.ar),
-          el('p', { class: 'translit', dir: 'ltr' }, intro.translit),
-          el('p', { class: 'intro-en' }, intro.en)
-        )
-      );
-    }
-  }
-
-  renderTestimonials();
-}
-
-/**
- * Quotes come from the language bundles. An empty array renders nothing but a
- * short note: three invented testimonials cost more trust than none at all.
- */
-function renderTestimonials() {
-  const host = document.querySelector('#testimonials');
-  if (!host) return;
-
-  const quotes = t('about.testimonials');
-  clear(host);
-
-  if (!Array.isArray(quotes) || !quotes.length) {
-    host.append(el('p', { class: 'testimonials-pending' }, t('about.testimonialsPending')));
-    return;
-  }
-
-  host.append(
-    el('h3', { class: 'testimonials-title' }, t('about.testimonialsTitle')),
-    el(
-      'div',
-      { class: 'testimonials' },
-      ...quotes.map((item) =>
-        el(
-          'figure',
-          { class: 'testimonial' },
-          el('blockquote', {}, item.quote),
-          el('cite', {}, item.name)
-        )
-      )
-    )
-  );
 }
 
 /* --------------------------------------------------------------------------
@@ -223,24 +165,246 @@ function setupCarousel(stack, dots, count) {
 }
 
 /* --------------------------------------------------------------------------
-   Learn preview
+   Why are you learning?
+   --------------------------------------------------------------------------
+   Picking a goal recommends a unit and remembers the choice on this device, so
+   the Start Here flow and any later visit already know the answer. Nothing is
+   sent anywhere and no account is involved.
    -------------------------------------------------------------------------- */
 
-async function renderLessons() {
-  const grid = document.querySelector('#learn-grid');
+async function renderGoals() {
+  const grid = document.querySelector('#goal-grid');
+  const result = document.querySelector('#goal-result');
   if (!grid) return;
-  const units = await getFeaturedUnits(3);
-  clear(grid).append(...units.map((unit) => lessonCard(unit)));
+
+  const journey = await getJourney();
+  const unitsById = new Map(journey.flatMap((stage) => stage.units).map((unit) => [unit.id, unit]));
+  let selected = prefs.get().goal;
+
+  const show = (goalId) => {
+    if (!result) return;
+    const goal = getGoal(goalId);
+    const unit = goal && unitsById.get(goal.unitId);
+    clear(result);
+    if (!goal || !unit) return;
+
+    result.append(
+      el(
+        'div',
+        { class: 'goal-recommendation' },
+        el('p', { class: 'goal-reco-label' }, t('goals.recommended')),
+        el('h3', {}, pick(unit.title)),
+        el('p', {}, pick(unit.outcome || unit.description)),
+        el(
+          'div',
+          { class: 'goal-reco-actions' },
+          el('a', { class: 'btn-primary btn-small', href: `learn.html#${unit.id}` }, t('goals.startUnit')),
+          el(
+            'a',
+            {
+              class: 'btn-secondary btn-small',
+              href: `practice.html?unit=${encodeURIComponent(unit.id)}#${goal.gameId}`
+            },
+            t('goals.practiceThis')
+          )
+        )
+      )
+    );
+  };
+
+  const buttons = GOALS.map((goal) =>
+    el(
+      'button',
+      {
+        type: 'button',
+        class: 'goal-card',
+        'aria-pressed': String(goal.id === selected),
+        onClick: () => {
+          selected = goal.id;
+          prefs.set({ goal: goal.id });
+          buttons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.goal === goal.id)));
+          show(goal.id);
+        },
+        dataset: { goal: goal.id }
+      },
+      el('span', { class: 'goal-label' }, t(goal.labelKey)),
+      el('span', { class: 'goal-blurb' }, t(goal.blurbKey))
+    )
+  );
+
+  clear(grid).append(...buttons);
+  if (selected) show(selected);
+  else if (result) clear(result);
 }
 
 /* --------------------------------------------------------------------------
-   Practice preview
+   The learning journey
    -------------------------------------------------------------------------- */
 
-async function renderGames() {
-  const grid = document.querySelector('#games-grid');
-  if (!grid) return;
-  clear(grid).append(...GAMES.map((game) => gameTile(game, progress.getGameStats(game.id))));
+async function renderJourney() {
+  const host = document.querySelector('#journey-list');
+  if (!host) return;
+
+  const stages = await getJourney();
+  clear(host).append(
+    ...stages.map((stage, index) =>
+      el(
+        'li',
+        { class: 'journey-stage', dataset: { state: stage.planned ? 'planned' : 'live' } },
+        el('span', { class: 'journey-index', 'aria-hidden': 'true' }, String(index + 1)),
+        el(
+          'div',
+          { class: 'journey-body' },
+          el('h3', {}, t(stage.titleKey)),
+          el('p', { class: 'journey-outcome' }, t(stage.outcomeKey)),
+          stage.planned
+            ? el('p', { class: 'journey-planned' }, t('journey.planned'))
+            : el(
+                'ul',
+                { class: 'journey-units' },
+                ...stage.units.map((unit) =>
+                  el(
+                    'li',
+                    {},
+                    el('a', { href: `learn.html#${unit.id}` }, pick(unit.title)),
+                    el('span', { class: 'journey-unit-outcome' }, pick(unit.outcome || unit.description))
+                  )
+                )
+              )
+        )
+      )
+    )
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Meet the teacher
+   -------------------------------------------------------------------------- */
+
+async function renderAbout() {
+  const host = document.querySelector('#intro-card');
+  if (host) {
+    const intro = await getIntro();
+    clear(host);
+    if (intro) {
+      // playButton() gives the same file-first, TTS-fallback behaviour as every
+      // other play control; only the accessible name differs, because "play
+      // pronunciation" is the wrong description for a spoken introduction.
+      const play = playButton(intro, 'intro-play');
+      play.setAttribute('aria-label', t('about.introPlay'));
+
+      host.append(
+        el(
+          'div',
+          { class: 'intro-card-head' },
+          play,
+          el(
+            'div',
+            {},
+            el('h3', {}, t('about.introTitle')),
+            el('p', { class: 'intro-card-body' }, t('about.introBody'))
+          )
+        ),
+        el(
+          'div',
+          { class: 'intro-line' },
+          el('p', { class: 'arabic', dir: 'rtl', lang: 'ar' }, intro.ar),
+          el('p', { class: 'translit', dir: 'ltr' }, intro.translit),
+          el('p', { class: 'intro-en' }, intro.en)
+        )
+      );
+    }
+  }
+
+  renderTestimonials();
+}
+
+/**
+ * Quotes come from the language bundles. An empty array renders nothing but a
+ * short note: three invented testimonials cost more trust than none at all.
+ */
+function renderTestimonials() {
+  const host = document.querySelector('#testimonials');
+  if (!host) return;
+
+  const quotes = t('about.testimonials');
+  clear(host);
+
+  if (!Array.isArray(quotes) || !quotes.length) {
+    host.append(el('p', { class: 'testimonials-pending' }, t('about.testimonialsPending')));
+    return;
+  }
+
+  host.append(
+    el('h3', { class: 'testimonials-title' }, t('about.testimonialsTitle')),
+    el(
+      'div',
+      { class: 'testimonials' },
+      ...quotes.map((item) =>
+        el(
+          'figure',
+          { class: 'testimonial' },
+          el('blockquote', {}, item.quote),
+          el('cite', {}, item.name)
+        )
+      )
+    )
+  );
+}
+
+/* --------------------------------------------------------------------------
+   Classes
+   --------------------------------------------------------------------------
+   Each row is a fact about the class offer. A row whose value is the literal
+   string "tbc" renders as "ask when you book" — the honest answer until the
+   owner fills it in, and a single place to change once they do.
+   -------------------------------------------------------------------------- */
+
+function renderClassFacts() {
+  const host = document.querySelector('#class-facts');
+  if (!host) return;
+
+  const rows = t('classes.facts');
+  clear(host);
+  if (!Array.isArray(rows)) return;
+
+  host.append(
+    ...rows.flatMap((row) => [
+      el('dt', {}, row.label),
+      el(
+        'dd',
+        { class: row.value === 'tbc' ? 'class-fact--pending' : '' },
+        row.value === 'tbc' ? t('classes.pending') : row.value
+      )
+    ])
+  );
+}
+
+/* --------------------------------------------------------------------------
+   FAQ
+   --------------------------------------------------------------------------
+   Native <details> rather than a hand-rolled accordion: it is keyboard
+   operable, announced correctly, and works before the JS that fills it runs.
+   -------------------------------------------------------------------------- */
+
+function renderFaq() {
+  const host = document.querySelector('#faq-list');
+  if (!host) return;
+
+  const items = t('faq.items');
+  clear(host);
+  if (!Array.isArray(items)) return;
+
+  host.append(
+    ...items.map((item) =>
+      el(
+        'details',
+        { class: 'faq-item' },
+        el('summary', {}, item.q),
+        el('div', { class: 'faq-answer' }, el('p', {}, item.a))
+      )
+    )
+  );
 }
 
 main();

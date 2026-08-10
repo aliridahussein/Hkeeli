@@ -5,7 +5,8 @@
  */
 
 import { t, pick, setLang, getLang } from './i18n.js';
-import { playPhrase } from './audio.js';
+import { playPhrase, hasSlowAudio } from './audio.js';
+import { usageLabel } from './journey.js';
 import { toast } from './toast.js';
 
 export { toast };
@@ -80,14 +81,21 @@ export function initChrome() {
 
   markCurrentPage();
   document.addEventListener('hkeeli:langchange', markCurrentPage);
+  // Two nav items are sections of the home page rather than pages of their own,
+  // so "where am I" changes as the hash changes, not only on navigation.
+  window.addEventListener('hashchange', markCurrentPage);
 }
 
 function markCurrentPage() {
   const here = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a, .nav-drawer a').forEach((link) => {
     const target = link.getAttribute('href') || '';
-    const isPage = target.split('#')[0] === here && !target.startsWith('#');
-    if (isPage) link.setAttribute('aria-current', 'page');
+    const [path, fragment] = target.split('#');
+    const samePage = (path || here) === here;
+    // A link to a section is only "current" while that section is the target;
+    // otherwise every hash link on the home page would claim to be current.
+    const isCurrent = fragment ? samePage && `#${fragment}` === location.hash : samePage;
+    if (isCurrent) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
 }
@@ -119,42 +127,93 @@ export function playButton(phrase, extraClass = '') {
  * audio are shown together in *both* site languages — a learner in Arabic mode
  * still needs the transliteration, and a learner in English mode still needs
  * the script.
+ *
+ * With `showNotes`, it also carries what the data says about how the phrase is
+ * used: the literal meaning where the two differ, the usage note, and a label
+ * derived from the phrase's own tags. Nothing is shown that lessons.json
+ * doesn't contain — a phrase with no note simply has no note line.
  */
-export function phraseStrip(phrase, { showEnglish = true } = {}) {
+export function phraseStrip(phrase, { showEnglish = true, showNotes = false } = {}) {
+  const usage = showNotes ? usageLabel(phrase) : null;
+  const hasNotes = showNotes && (phrase.literal || phrase.note || usage);
+
   return el(
     'div',
-    { class: 'lesson-phrase' },
+    { class: `lesson-phrase ${hasNotes ? 'lesson-phrase--noted' : ''}`.trim() },
     el(
       'div',
-      {},
+      { class: 'lesson-phrase-main' },
       el('div', { class: 'arabic', dir: 'rtl', lang: 'ar' }, phrase.ar),
       el('div', { class: 'translit', dir: 'ltr' }, phrase.translit),
-      showEnglish && el('div', { class: 'phrase-en' }, phrase.en)
+      showEnglish && el('div', { class: 'phrase-en' }, phrase.en),
+      hasNotes
+        ? el(
+            'div',
+            { class: 'phrase-notes' },
+            phrase.literal
+              ? el('span', { class: 'phrase-note' }, `${t('phrase.literally')} “${pick(phrase.literal)}”`)
+              : null,
+            phrase.note ? el('span', { class: 'phrase-note' }, pick(phrase.note)) : null,
+            usage ? el('span', { class: 'usage-tag' }, usage) : null
+          )
+        : null
     ),
-    playButton(phrase)
+    el(
+      'div',
+      { class: 'lesson-phrase-audio' },
+      playButton(phrase),
+      hasSlowAudio(phrase)
+        ? el(
+            'button',
+            {
+              type: 'button',
+              class: 'slow-link',
+              onClick: () => playPhrase(phrase, null, { slow: true })
+            },
+            t('phrase.slow')
+          )
+        : null
+    )
   );
 }
 
-/** Lesson card used on the home page and as the collapsed unit on Learn. */
-export function lessonCard(unit, { href = 'learn.html' } = {}) {
-  // A unit can nominate its showcase phrase via `feature` in lessons.json.
-  const first = unit.phrases.find((p) => p.id === unit.feature) || unit.phrases[0];
+/**
+ * A labelled progress bar. Used for units and for the course as a whole; the
+ * number it shows is always "phrases you have answered", never a guess at how
+ * much of the language someone knows.
+ */
+export function progressBar(ratio, label) {
+  const pct = Math.round(Math.max(0, Math.min(1, ratio)) * 100);
   return el(
-    'article',
-    { class: 'lesson-card' },
-    el('span', { class: 'lesson-level' }, pick(unit.level)),
-    el('h3', {}, el('a', { href: `${href}#${unit.id}` }, pick(unit.title))),
-    el('p', {}, pick(unit.description)),
-    first ? phraseStrip(first, { showEnglish: false }) : null
+    'div',
+    { class: 'progress-meter' },
+    el(
+      'div',
+      {
+        class: 'progress-track',
+        role: 'progressbar',
+        'aria-valuemin': '0',
+        'aria-valuemax': '100',
+        'aria-valuenow': String(pct),
+        'aria-label': label || t('progress.label')
+      },
+      el('div', { class: 'progress-fill', style: `width:${pct}%` })
+    ),
+    label ? el('span', { class: 'progress-label' }, label) : null
   );
 }
 
-/** Practice tile — a link into practice.html with the saved best score. */
-export function gameTile(game, stats) {
+/**
+ * Practice tile with the saved best score.
+ *
+ * Two shapes, one component: a link when the tile navigates to the practice
+ * page, a button when the game will mount in place (which is what the practice
+ * page itself needs — a link that reloads the page it is already on is a
+ * worse version of the same action).
+ */
+export function gameTile(game, stats, { onSelect = null, href = `practice.html#${game.id}` } = {}) {
   const played = stats && stats.plays > 0;
-  return el(
-    'a',
-    { class: 'game-tile', href: `practice.html#${game.id}` },
+  const children = [
     el('span', { class: 'icon', 'aria-hidden': 'true' }, game.icon),
     el('h3', {}, t(game.titleKey)),
     el('p', {}, t(game.blurbKey)),
@@ -163,7 +222,11 @@ export function gameTile(game, stats) {
       { class: 'tile-stat' },
       played ? `${t('games.bestScore')}: ${stats.best}` : t('games.notPlayed')
     )
-  );
+  ];
+
+  return onSelect
+    ? el('button', { type: 'button', class: 'game-tile', onClick: onSelect }, children)
+    : el('a', { class: 'game-tile', href }, children);
 }
 
 /** The coastline SVG divider, so the motif is defined in one place. */

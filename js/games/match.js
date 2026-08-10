@@ -20,7 +20,7 @@ export default {
   minPhrases: 4,
 
   start(shell) {
-    const pairs = sample(shell.phrases, Math.min(CONFIG.games.matchPairs, shell.phrases.length));
+    const pairs = sample(shell.phrases, shell.roundSize(CONFIG.games.matchPairs, shell.phrases.length));
     const total = pairs.length;
     let matched = 0;
     let selected = null; // { phraseId, button, side }

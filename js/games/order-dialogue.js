@@ -41,7 +41,7 @@ export default {
       return;
     }
 
-    const round = shuffle(scoped).slice(0, Math.min(ROUND_LENGTH, scoped.length));
+    const round = shuffle(scoped).slice(0, shell.roundSize(ROUND_LENGTH, scoped.length));
     let index = 0;
 
     const question = () => {

@@ -17,7 +17,7 @@ export default {
   minPhrases: 4,
 
   start(shell) {
-    const round = sample(shell.phrases, Math.min(CONFIG.games.roundLength, shell.phrases.length));
+    const round = sample(shell.phrases, shell.roundSize(CONFIG.games.roundLength, shell.phrases.length));
     let index = 0;
     // Read fresh on every keypress, so the keys always drive the live question.
     let keyState = {};

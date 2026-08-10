@@ -39,6 +39,10 @@ export const CONFIG = {
    * LocalStorageProgress (see js/storage.js) and export that instead. */
   storageKey: 'hkeeli.progress.v1',
 
+  /* Onboarding answers (why / level / what first). Separate from progress so
+   * that resetting one never wipes the other. */
+  prefsKey: 'hkeeli.prefs.v1',
+
   /* ---- Games ------------------------------------------------------------ */
   games: {
     roundLength: 8, // questions per round for Listen & Choose / Fill the Blank
@@ -48,6 +52,21 @@ export const CONFIG = {
     /* Leitner boxes: index = box, value = days until the card is due again. */
     srsIntervals: [0, 1, 3, 7, 21],
     fuzzyDistance: 1 // Levenshtein tolerance for typed answers
+  },
+
+  /* ---- Daily Practice ---------------------------------------------------
+   * The guided session on practice.html. Each step reuses an existing game;
+   * `length` is how many questions/cards that step asks for. Reorder, drop or
+   * repeat steps here — js/daily.js needs no changes. A step whose game can't
+   * run with the phrases in scope is skipped rather than shown empty. */
+  daily: {
+    steps: [
+      { kind: 'game', game: 'cards', length: 3, labelKey: 'daily.stepReview' },
+      { kind: 'teach', labelKey: 'daily.stepLearn' },
+      { kind: 'game', game: 'listen', length: 3, labelKey: 'daily.stepListen' },
+      { kind: 'game', game: 'reply', length: 2, labelKey: 'daily.stepReply' },
+      { kind: 'game', game: 'build', length: 2, labelKey: 'daily.stepBuild' }
+    ]
   },
 
   /* ---- Booking ----------------------------------------------------------

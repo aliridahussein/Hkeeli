@@ -806,3 +806,772 @@
   border-color: var(--hairline-on-dark);
   color: var(--sand-light);
 }
+
+/* --------------------------------------------------------------------------
+   Progress meter (units, the course, the onboarding flow)
+   Shares .progress-track / .progress-fill with the game shell so that a bar
+   means the same thing everywhere on the site.
+   -------------------------------------------------------------------------- */
+.progress-meter {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+}
+
+.progress-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Phrase notes — literal meaning, usage, register
+   -------------------------------------------------------------------------- */
+.phrase-notes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+.phrase-note {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.usage-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--olive);
+  background: var(--olive-wash);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+}
+
+.lesson-phrase-main {
+  min-width: 0;
+}
+
+.lesson-phrase-audio {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.slow-link {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--olive);
+  padding: var(--space-1) var(--space-2);
+}
+
+/* --------------------------------------------------------------------------
+   Hero addition
+   -------------------------------------------------------------------------- */
+.hero-aside {
+  margin-block-start: var(--space-5);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--sea);
+}
+
+/* Inline-flex with a tap-sized box: a bare text link is ~24px tall, which is
+   too small to hit reliably on a phone. */
+.hero-aside a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  border-block-end: 2px solid var(--citrus);
+}
+
+/* --------------------------------------------------------------------------
+   Mini-lesson (home page)
+   -------------------------------------------------------------------------- */
+.mini-lesson {
+  max-width: 620px;
+  margin-inline: auto;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mini-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  border-block-end: 1px solid var(--hairline);
+  padding-block-end: var(--space-3);
+}
+
+.mini-head h3 {
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--olive);
+}
+
+.mini-step {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.mini-board {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mini-prompt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--sand);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.mini-prompt .play {
+  width: 56px;
+  height: 56px;
+}
+
+.mini-hint {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.mini-translit {
+  font-size: 1.15rem;
+  margin-block-start: 2px;
+}
+
+.mini-slow {
+  margin-block-start: var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--olive);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+
+.mini-question {
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+.mini-options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.mini-option {
+  min-height: var(--tap);
+  text-align: start;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  font-size: 0.95rem;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+.mini-option[data-state='correct'] {
+  border-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.mini-option[data-state='wrong'] {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+.mini-option[disabled] {
+  opacity: 0.75;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .mini-option:not([disabled]):hover {
+    border-color: var(--olive);
+    background: var(--olive-wash);
+  }
+}
+
+.mini-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mini-restart {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--olive);
+  text-decoration: underline;
+  padding: var(--space-2);
+}
+
+.mini-feedback {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border-inline-start: 4px solid var(--olive);
+  background: var(--olive-wash);
+}
+
+.mini-feedback[data-tone='ok'] {
+  border-inline-start-color: var(--ok);
+  background: var(--ok-bg);
+}
+
+.mini-feedback[data-tone='bad'] {
+  border-inline-start-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+.mini-notes {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  margin-block-start: var(--space-1);
+}
+
+.mini-notes .arabic {
+  font-size: 1.5rem;
+  color: var(--sea-deep);
+}
+
+.mini-note-en {
+  font-weight: 700;
+}
+
+.mini-note {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.mini-summary {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.mini-score {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+/* --------------------------------------------------------------------------
+   Goal picker
+   -------------------------------------------------------------------------- */
+.goal-card {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  text-align: start;
+  min-height: var(--tap);
+  padding: var(--space-5);
+  background: var(--card);
+  border: 2px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--t-fast) var(--ease), transform var(--t-base) var(--ease);
+}
+
+.goal-card[aria-pressed='true'] {
+  border-color: var(--citrus);
+  background: var(--sand);
+}
+
+.goal-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--sea-deep);
+}
+
+.goal-blurb {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+@media (hover: hover) {
+  .goal-card:hover {
+    border-color: var(--olive);
+    transform: translateY(-3px);
+  }
+}
+
+.goal-recommendation {
+  max-width: 620px;
+  margin-inline: auto;
+  margin-block-start: var(--space-6);
+  padding: var(--space-5);
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.goal-recommendation h3 {
+  color: var(--sand-light);
+  font-size: 1.25rem;
+}
+
+.goal-recommendation p {
+  color: var(--on-dark-muted);
+}
+
+.goal-reco-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--citrus);
+}
+
+.goal-reco-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+.goal-reco-actions .btn-secondary {
+  border-color: var(--sand-light);
+  color: var(--sand-light);
+}
+
+/* --------------------------------------------------------------------------
+   Method — hear it / understand it / use it
+   -------------------------------------------------------------------------- */
+.method {
+  background: var(--sand);
+}
+
+.method-index {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sea-deep);
+  color: var(--citrus);
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin-block-end: var(--space-4);
+}
+
+.method-steps h3 {
+  font-size: 1.2rem;
+  margin-block-end: var(--space-2);
+}
+
+.method-steps p {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.method-note {
+  max-width: 640px;
+  margin-inline: auto;
+  margin-block-start: var(--space-7);
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Learning journey
+   -------------------------------------------------------------------------- */
+.journey-stage {
+  display: flex;
+  gap: var(--space-4);
+  padding-block: var(--space-5);
+  border-block-start: 1px solid var(--hairline);
+}
+
+.journey-stage:first-child {
+  border-block-start: none;
+}
+
+.journey-index {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--sea-deep);
+  color: var(--citrus);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.journey-stage[data-state='planned'] .journey-index {
+  background: var(--olive-wash);
+  color: var(--olive);
+}
+
+.journey-body h3 {
+  font-size: 1.2rem;
+}
+
+.journey-outcome {
+  color: var(--ink-muted);
+  margin-block-start: var(--space-1);
+}
+
+.journey-units {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-start: var(--space-4);
+}
+
+.journey-units li {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+}
+
+.journey-units a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--sea-deep);
+  border-block-end: 2px solid transparent;
+  justify-self: start;
+}
+
+.journey-unit-outcome {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.journey-planned {
+  margin-block-start: var(--space-3);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+@media (hover: hover) {
+  .journey-units a:hover {
+    border-block-end-color: var(--citrus);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Teacher value grid (sits on the dark About band)
+   -------------------------------------------------------------------------- */
+.teach-grid {
+  display: grid;
+  gap: var(--space-4);
+  max-width: var(--measure);
+  margin-inline: auto;
+  margin-block-start: var(--space-7);
+}
+
+.teach-grid article {
+  background: var(--wash-on-dark);
+  border: 1px solid var(--hairline-on-dark);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.teach-grid h3 {
+  color: var(--citrus);
+  font-size: 1.05rem;
+  margin-block-end: var(--space-2);
+}
+
+.teach-grid p {
+  color: var(--on-dark-muted);
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Classes
+   -------------------------------------------------------------------------- */
+.class-facts {
+  display: grid;
+  max-width: 720px;
+  margin-inline: auto;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.class-facts dt {
+  padding: var(--space-4) var(--space-5) var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.class-facts dd {
+  padding: 0 var(--space-5) var(--space-4);
+  color: var(--ink-muted);
+  border-block-end: 1px solid var(--hairline);
+}
+
+.class-facts dd:last-of-type {
+  border-block-end: none;
+}
+
+.class-fact--pending {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.class-note {
+  max-width: 720px;
+  margin-inline: auto;
+  margin-block-start: var(--space-4);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* Two columns once there is room. The rule then has to move onto the label as
+   well, or it would cut across the middle of each row. */
+@media (min-width: 700px) {
+  .class-facts {
+    grid-template-columns: minmax(150px, 0.4fr) 1fr;
+    align-items: baseline;
+  }
+
+  .class-facts dt {
+    padding: var(--space-4) var(--space-5);
+    border-block-end: 1px solid var(--hairline);
+  }
+
+  .class-facts dd {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .class-facts dt:last-of-type {
+    border-block-end: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   FAQ — native <details>, so it works with the keyboard for free
+   -------------------------------------------------------------------------- */
+.faq-section {
+  background: var(--sand);
+}
+
+.faq {
+  max-width: 760px;
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.faq-item {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--tap);
+  padding: var(--space-4) var(--space-5);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--sea-deep);
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: '+';
+  flex-shrink: 0;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--citrus);
+}
+
+.faq-item[open] summary::after {
+  content: '\2013';
+}
+
+.faq-answer {
+  padding: 0 var(--space-5) var(--space-5);
+  color: var(--ink-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Start Here onboarding
+   -------------------------------------------------------------------------- */
+.onboarding-card {
+  max-width: 620px;
+  margin-inline: auto;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  padding: var(--space-6);
+}
+
+.onboarding-card h2 {
+  font-size: var(--step-2);
+  margin-block-end: var(--space-5);
+}
+
+.onboarding-options {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.onboarding-option {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  text-align: start;
+  min-height: var(--tap);
+  padding: var(--space-4);
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+.onboarding-option[aria-pressed='true'] {
+  border-color: var(--citrus);
+  background: var(--sand);
+}
+
+.onboarding-option-label {
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+.onboarding-option-blurb {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+@media (hover: hover) {
+  .onboarding-option:hover {
+    border-color: var(--olive);
+    background: var(--olive-wash);
+  }
+}
+
+.onboarding-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-block-start: var(--space-5);
+}
+
+.onboarding-skip-link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--olive);
+  text-decoration: underline;
+  min-height: var(--tap);
+  padding-inline: var(--space-2);
+}
+
+.onboarding-reason {
+  color: var(--ink-muted);
+  margin-block-end: var(--space-2);
+}
+
+.onboarding-reco {
+  margin-block: var(--space-5);
+  padding: var(--space-5);
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  border-radius: var(--radius-lg);
+}
+
+.onboarding-reco h3 {
+  color: var(--sand-light);
+  font-size: 1.3rem;
+  margin-block: var(--space-2);
+}
+
+.onboarding-reco p {
+  color: var(--on-dark-muted);
+}
+
+.onboarding-reco-kind {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--citrus);
+}
+
+.onboarding-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.onboarding-saved {
+  margin-block-start: var(--space-5);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.onboarding-skip {
+  margin-block-start: var(--space-6);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--olive);
+}
+
+.onboarding-skip a {
+  text-decoration: underline;
+}
+
+/* Headings take focus when a question changes; the outline is the cue that
+   focus moved, so it must not be suppressed. */
+.onboarding-card h2:focus-visible {
+  outline: 3px solid var(--citrus);
+  outline-offset: 6px;
+}

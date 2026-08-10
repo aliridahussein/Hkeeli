@@ -28,7 +28,7 @@ export default {
       return;
     }
 
-    const round = sample(usable, Math.min(CONFIG.games.roundLength, usable.length));
+    const round = sample(usable, shell.roundSize(CONFIG.games.roundLength, usable.length));
     let index = 0;
     let typing = true; // remembered across questions within a round
 

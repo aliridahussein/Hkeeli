@@ -35,6 +35,28 @@ export function getGame(id) {
   return GAMES.find((game) => game.id === id) || GAMES[0];
 }
 
+/**
+ * The games grouped by the skill they train.
+ *
+ * Seven equally-weighted tiles is a menu, not a recommendation — grouping them
+ * lets a learner pick by what they want to get better at instead of by icon.
+ * Every game appears exactly once; a game added to GAMES but not to a group
+ * would vanish from the picker, so `ungroupedGames()` catches that.
+ */
+export const GAME_GROUPS = [
+  { id: 'listening', titleKey: 'practice.skillListening', games: ['listen'] },
+  { id: 'understanding', titleKey: 'practice.skillUnderstanding', games: ['match', 'blank'] },
+  { id: 'building', titleKey: 'practice.skillBuilding', games: ['build', 'order'] },
+  { id: 'responding', titleKey: 'practice.skillResponding', games: ['reply'] },
+  { id: 'remembering', titleKey: 'practice.skillRemembering', games: ['cards'] }
+];
+
+/** Any game missing from GAME_GROUPS, so nothing silently disappears. */
+export function ungroupedGames() {
+  const grouped = new Set(GAME_GROUPS.flatMap((group) => group.games));
+  return GAMES.filter((game) => !grouped.has(game.id));
+}
+
 export class GameShell {
   /**
    * @param {HTMLElement} host    container the shell renders into
@@ -42,7 +64,9 @@ export class GameShell {
    * @param {Array} phrases       the phrase bank (already scoped to the unit
    *                              filter, if one is active)
    * @param {object} [context]    { units, unitId } for games that need whole
-   *                              units rather than loose phrases
+   *                              units rather than loose phrases, plus an
+   *                              optional `roundLength` cap — Daily Practice
+   *                              runs the same games in short bursts.
    */
   constructor(host, game, phrases, context = {}) {
     this.host = host;
@@ -50,6 +74,7 @@ export class GameShell {
     this.phrases = phrases;
     this.units = context.units || [];
     this.unitId = context.unitId || null;
+    this.roundLength = context.roundLength || null;
     this.cleanups = [];
     this.score = 0;
     this.streak = 0;
@@ -101,6 +126,15 @@ export class GameShell {
       )
     );
     this.board.append(this.feedbackEl);
+  }
+
+  /**
+   * How many questions (or cards, or pairs) this round should ask for.
+   * Games call this instead of reading CONFIG directly, so a shorter round can
+   * be requested — by Daily Practice — without any game knowing about it.
+   */
+  roundSize(preferred, available) {
+    return Math.max(1, Math.min(this.roundLength || preferred, available));
   }
 
   /* ---- state readouts ---- */

@@ -3,9 +3,13 @@
 A bilingual (English / Arabic) site for a Lebanese Arabic dialect teacher. It is
 two things at once:
 
-1. a **portfolio and booking page** — who she is, what she teaches, how to book;
-2. a **lightweight learning platform** — lessons and four playable games for
-   people who don't read Arabic yet.
+1. a **guided learning journey** — a free mini-lesson, a curriculum with stated
+   outcomes, and a daily practice session, for people who don't read Arabic yet;
+2. a **portfolio and booking page** — how she teaches, what a class is, how to
+   book one.
+
+The promise the whole site is arranged around: *speak useful Lebanese Arabic
+from your first lesson, even if you can't read Arabic.*
 
 Static HTML, CSS and ES modules. **No build step, no dependencies, no backend.**
 Deploy the folder as-is to Netlify, Vercel, GitHub Pages or any static host.
@@ -38,9 +42,11 @@ A ready-made config for the Claude Code preview pane lives in
 ## Folder structure
 
 ```
-index.html          Home — hero, about, lesson preview, games preview, booking
-learn.html          All lesson units, expanded
-practice.html       The four games
+index.html          Home — hero, mini-lesson, goals, method, journey, teacher,
+                    classes + booking, FAQ
+start.html          Start Here — three-question onboarding and a recommendation
+learn.html          The curriculum: units grouped by stage, expandable
+practice.html       Daily Practice, plus the seven games grouped by skill
 
 css/
   tokens.css        Design tokens: colour, type, spacing, radii, shadows, motion
@@ -56,10 +62,15 @@ js/
   audio.js          playPhrase(): recording first, speech synthesis fallback
   storage.js        Progress adapter (localStorage) + spaced repetition
   toast.js          Transient messages
-  ui.js             Page chrome + shared renderers (lesson card, game tile, …)
+  ui.js             Page chrome + shared renderers (phrase strip, progress, …)
+  journey.js        Stages, goals, recommendations, unit progress — the model
+                    every page asks "what should this learner do next?"
+  mini-lesson.js    The working lesson on the home page
+  daily.js          Daily Practice — sequences the existing games into one session
   main.js           Home page
-  learn.js          Learn page
-  practice.js       Practice page — game picker and mounting
+  start.js          Start Here onboarding
+  learn.js          Lessons page
+  practice.js       Practice page — daily session, game catalogue, mounting
   booking.js        Booking form submission
   games/
     index.js        Game registry + shared shell (score, streak, summary)
@@ -90,8 +101,8 @@ only, which is what makes the Arabic layout mirror correctly for free.
 ## Adding a lesson unit
 
 Append one object to `units` in `data/lessons.json`. Nothing else changes: the
-Learn page renders it, and every phrase in it immediately becomes playable in
-all four games.
+Lessons page renders it under its stage, and every phrase in it immediately
+becomes playable in all seven games and in Daily Practice.
 
 ```jsonc
 {
@@ -100,9 +111,14 @@ all four games.
   "slug": "directions",
   "featured": false,              // true = show on the home page preview
   "feature": "u4-p3",             // optional: which phrase shows on the card
+  "stage": "everyday-situations", // which journey stage it belongs to
   "level":       { "en": "Everyday", "ar": "يوميّات" },
   "title":       { "en": "Finding Your Way", "ar": "..." },
   "description": { "en": "...", "ar": "..." },
+  "outcome":     { "en": "Ask for directions and understand the answer.", "ar": "..." },
+  "skills": [                                    // shown as chips on the card
+    { "en": "Left, right, straight on", "ar": "..." }
+  ],
   "tip":         { "en": "...", "ar": "..." },   // optional
   "challenge":   { "en": "...", "ar": "..." },   // optional
   "homework":    { "en": "...", "ar": "..." },   // optional
@@ -118,6 +134,9 @@ all four games.
       "audio": "lessons/unit-4/3a-l-yamin.mp3",   // optional until recorded
       "accept": ["3a l yamin", "aa l yamin"],     // extra accepted spellings
       "tags": ["directions"],
+      "literal": { "en": "on the right side", "ar": "..." },  // optional
+      "note":    { "en": "Said pointing, not on the phone.", "ar": "..." }, // optional
+      "audioSlow": "lessons/unit-4/3a-l-yamin-slow.mp3",      // optional
       "blank": {                                   // optional, see below
         "translit": "lif ___ ba3d el ishara",
         "ar": "لف ___ بعد الإشارة",
@@ -139,6 +158,20 @@ Notes:
 - **`blank` is optional.** Without it, Fill the Blank derives an exercise by
   hiding the longest word of the transliteration. Single-word phrases are simply
   skipped by that game.
+- **`stage`** places the unit on the learning journey. The five stage ids live
+  in `js/journey.js` (`STAGES`); a unit with no `stage`, or one naming a stage
+  that isn't there, simply won't appear on the Lessons page — check this first
+  if a new unit goes missing.
+- **`outcome` and `skills`** drive the curriculum card. Write the outcome as
+  something the learner will be able to *do*; the page prefixes it with "You'll
+  be able to:". Without an outcome the card falls back to `description`.
+- **`literal` and `note`** are optional and only for what is actually true of
+  the phrase — a literal gloss where it differs from the natural meaning, and a
+  usage note. The register label ("Casual", "Polite", "A blessing"…) is derived
+  from `tags`, not written by hand, so it can never contradict the data.
+- **`audioSlow`** adds a slow recording. The slow control appears **only** when
+  the file is named here — there is deliberately no synthetic stand-in, because
+  a "slow" button that plays the same speed teaches nothing.
 - **`accept`** is worth filling in. Typed answers are already normalised
   (case, spacing, punctuation, doubled letters, and chat-alphabet digits — `7`/`h`,
   `3`/`gh`/`aa`, `2`, `5`/`kh`, `9`/`s`) and tolerate one typo, but listing the
@@ -251,7 +284,7 @@ resolve relative `og:image` paths reliably — so this is the one string to chan
 when the real domain is decided:
 
 ```bash
-grep -rl "https://hkeeli.com" index.html learn.html practice.html robots.txt sitemap.xml   | xargs sed -i "s|https://hkeeli.com|https://YOUR-DOMAIN|g"
+grep -rl "https://hkeeli.com" index.html start.html learn.html practice.html robots.txt sitemap.xml   | xargs sed -i "s|https://hkeeli.com|https://YOUR-DOMAIN|g"
 ```
 
 Until the domain resolves, link previews will show the title and description
@@ -294,6 +327,75 @@ To add real ones, put matching objects in both bundles:
   { "quote": "I called my grandmother and held a whole conversation.", "name": "First name, city" }
 ]
 ```
+
+---
+
+## The learning journey
+
+`js/journey.js` is the model behind every "what next?" on the site. It holds:
+
+- **`STAGES`** — the five stages a learner moves through. A unit joins one by
+  declaring `stage` in `lessons.json`. Stages with no units yet still render,
+  marked as planned, so the path is visible without pretending the material is
+  there.
+- **`GOALS`** — the five reasons on the home page, each pointing at a unit that
+  exists today and the game that drills it.
+- **`recommend({goal, level, first})`** — the single rule that turns the Start
+  Here answers into one destination. A complete beginner always lands on unit 1
+  whatever their goal; "practise listening" and "prepare for conversation" go to
+  a game rather than a page of text.
+- **`usageLabel(phrase)`** — the register chip, derived from the phrase's own
+  `tags`. A phrase with no matching tag gets no label rather than a guessed one.
+
+### Start Here
+
+`start.html` asks three questions, one screen at a time, and ends on a single
+button. Every question can be skipped, the answers are stored on the device
+under `hkeeli.prefs.v1` (see `prefs` in `js/storage.js`), and the page carries a
+link straight to Unit 1 for anyone who would rather not answer at all. There is
+no account and nothing is sent anywhere.
+
+`prefs` is deliberately separate from `progress`: clearing one should never
+clear the other.
+
+### The mini-lesson
+
+The home page runs a real three-phrase lesson (`js/mini-lesson.js`) on the same
+phrase bank, the same `playPhrase()` path and the same progress store as the
+course. Answers are recorded under the id `mini-lesson`, so trying it out never
+distorts a game's statistics. Change the phrases it teaches by editing
+`LESSON_PHRASE_IDS` at the top of the module.
+
+---
+
+## Daily Practice
+
+`js/daily.js` is the primary practice experience: one guided sequence rather
+than seven equal choices. It **duplicates no game logic** — each step mounts a
+real game in a `StepShell`, a subclass of `GameShell` whose only difference is
+that finishing a round hands control back to the session instead of offering
+"play again".
+
+The sequence lives in `CONFIG.daily.steps` (`js/config.js`):
+
+```js
+{ kind: 'game', game: 'cards', length: 3, labelKey: 'daily.stepReview' }
+```
+
+`length` is passed to the shell as `roundLength`; games ask
+`shell.roundSize(preferred, available)` instead of reading `CONFIG` directly, so
+the same game runs an 8-question round on its own and a 3-question one inside a
+session. The one non-game step, `kind: 'teach'`, presents the most overdue card
+with its audio, literal meaning and usage note — being shown a phrase moves it
+through the schedule but never counts toward the score.
+
+Steps whose game has nothing to work with (a unit filter can leave "What Do You
+Reply?" with no dialogue) are dropped from the plan rather than shown empty.
+
+The seven games stay available below, grouped by skill in `GAME_GROUPS`
+(`js/games/index.js`). A game added to `GAMES` but not to a group would vanish
+from the catalogue, so `ungroupedGames()` collects the strays into a final
+"More practice" group.
 
 ---
 
@@ -377,6 +479,7 @@ progress.recordAnswer(gameId, phraseId, correct)
 progress.getDueCards(phrases, limit)
 progress.getGameStats(gameId)
 progress.recordSession(gameId, score, total)
+progress.getUnitProgress(unit)      // { total, seen, learned, ratio, status }
 ```
 
 Scheduling is Leitner boxes 0–4 with 0/1/3/7/21-day intervals: a correct answer
@@ -414,7 +517,9 @@ media queries only enhance upward (600 / 860 / 1000px).
 - The hero postcard stack is a swipeable scroll-snap rail with dots on phones,
   and the mock's scattered rotated stack from 860px up.
 - Nav links move into a drawer below 860px — including the Book a Class link,
-  so nothing is lost.
+  so nothing is lost. The five items are Start Here, Lessons, Practice, About
+  and Book a Class; the two that are home-page sections are marked current only
+  while their hash is the target.
 - Every game is tap-first, with the check/next actions in a sticky bar within
   thumb reach.
 - Hover lifts are wrapped in `@media (hover: hover)` so touch devices get press
@@ -446,10 +551,22 @@ paths are left alone.
 If you ever move the audio out of `public/` (say to `media/`), this override
 stops being necessary — update `CONFIG.audioBase` in `js/config.js` to match.
 
-## Known placeholders
+## What the owner still has to supply
 
-- **No real recordings** — everything falls back to speech synthesis.
-- **Portrait** is a CSS gradient block; swap `.about-portrait` for an `<img>`.
-- **Testimonials** are clearly-labelled placeholder text in `en.json`/`ar.json`.
-- **Units 4–12** are not in `lessons.json` yet; units 1–3 are complete.
-- **Booking** composes an email; there is no backend, login or payment.
+Nothing on the site invents a fact. Where a business detail isn't known, the
+page says so in neutral wording instead of guessing — these are the gaps:
+
+| Gap | Where to fill it |
+|---|---|
+| **Class length, price, trial-class policy** | `classes.facts` in `data/en.json` + `data/ar.json`. Any row whose `value` is the literal string `"tbc"` renders as "Ask when you book — this isn't set in stone yet." Replace the value and the italic note disappears. |
+| **Real recordings** | Drop mp3s at the paths already named in `lessons.json`; everything falls back to speech synthesis until then. Add `audioSlow` per phrase to unlock the slow-audio control. |
+| **Testimonials** | `about.testimonials` is an empty array on purpose — see above. |
+| **Teacher's real name / photo / credentials** | Not published anywhere, and no `Person` structured data exists. If they are ever added, add them to `data/*.json` and the JSON-LD together. |
+| **Booking address** | `CONFIG.bookingEmail` still points at `hello@hkeeli.example`. |
+| **A real booking backend** | Set `CONFIG.formEndpoint`; the form POSTs JSON instead of composing an email. |
+| **Units 4–12** | Not in `lessons.json` yet; units 1–3 are complete. Stages 4 and 5 of the journey show as "being written" until units declare those `stage` ids. |
+| **Domain** | `https://hkeeli.com` is hardcoded in the four pages, `robots.txt` and `sitemap.xml` — see [Domain](#domain). |
+
+The claims in `about.tag2` / `about.tag3` ("8+ years of teaching", "students in
+14 countries") predate this build and were left as they were found. If they
+can't be substantiated, they are the first thing to cut.

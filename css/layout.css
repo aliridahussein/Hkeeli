@@ -409,17 +409,7 @@ section {
   margin-block-end: var(--space-5);
 }
 
-.unit-summary {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  width: 100%;
-  padding: var(--space-5);
-  text-align: start;
-  min-height: var(--tap);
-}
-
-.unit-summary .unit-index {
+.unit-index {
   flex-shrink: 0;
   width: 40px;
   height: 40px;
@@ -432,39 +422,10 @@ section {
   font-weight: 700;
 }
 
-.unit-summary h2 {
-  font-size: 1.2rem;
-}
-
-.unit-summary .unit-sub {
-  font-size: 0.88rem;
-  color: var(--ink-soft);
-}
-
-.unit-summary .chevron {
-  margin-inline-start: auto;
-  flex-shrink: 0;
-  color: var(--olive);
-  font-size: 1.1rem;
-  transition: transform var(--t-base) var(--ease);
-}
-
-.unit[data-open='true'] .chevron {
-  transform: rotate(180deg);
-}
-
 .unit-body {
   padding: 0 var(--space-5) var(--space-6);
   display: grid;
   gap: var(--space-6);
-}
-
-.unit-block h3 {
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--olive);
-  margin-block-end: var(--space-3);
 }
 
 /* Dialogue lines */
@@ -600,4 +561,521 @@ section {
     /* Caps how far a short final row stretches, so rows stay close in width. */
     max-width: 300px;
   }
+}
+
+/* --------------------------------------------------------------------------
+   Home sections that need their own grid
+   -------------------------------------------------------------------------- */
+.mini-section {
+  background: var(--sand);
+}
+
+.goal-grid {
+  display: grid;
+  gap: var(--space-4);
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+.method-steps,
+.journey-list {
+  max-width: var(--measure);
+  margin-inline: auto;
+}
+
+.method-steps {
+  display: grid;
+  gap: var(--space-6);
+  counter-reset: none;
+}
+
+.method-steps > li {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+@media (min-width: 600px) {
+  .goal-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  /* Five goals: three then two, with the last row centred rather than left
+     against the edge — same reasoning as the games grid. */
+  .goal-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .goal-grid > * {
+    flex: 1 1 280px;
+    max-width: 340px;
+  }
+
+  .method-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+
+  .teach-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Lessons page — course overview and stages
+   -------------------------------------------------------------------------- */
+.course-overview {
+  display: grid;
+  gap: var(--space-4);
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-block-end: var(--space-7);
+}
+
+.course-overview h2 {
+  font-size: var(--step-2);
+}
+
+.course-overview p {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  margin-block-start: var(--space-2);
+}
+
+.course-overview .btn-primary {
+  justify-self: start;
+}
+
+@media (min-width: 760px) {
+  .course-overview {
+    grid-template-columns: 1fr auto;
+  }
+
+  .course-overview .btn-primary {
+    justify-self: end;
+  }
+}
+
+.stage {
+  padding: 0;
+  margin-block-end: var(--space-8);
+}
+
+.stage-head {
+  margin-block-end: var(--space-5);
+  padding-block-end: var(--space-3);
+  border-block-end: 2px solid var(--hairline);
+}
+
+.stage-title {
+  font-size: var(--step-2);
+}
+
+.stage-outcome {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  margin-block-start: var(--space-2);
+}
+
+.planned-stages {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.planned-stages li {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-4) var(--space-5);
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--radius-md);
+}
+
+.planned-stages strong {
+  font-family: var(--font-display);
+  color: var(--sea-deep);
+}
+
+.planned-stages span {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Unit card (curriculum view)
+   -------------------------------------------------------------------------- */
+.unit-head {
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.unit-headline {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.unit-headline h3 {
+  font-size: 1.3rem;
+}
+
+.unit-outcome {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  margin-block-start: var(--space-2);
+}
+
+.unit-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+.unit-meta .lesson-level {
+  margin: 0;
+}
+
+.unit-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--hairline);
+  color: var(--ink-soft);
+}
+
+.unit-status[data-status='started'] {
+  background: rgba(232, 163, 61, 0.18);
+  color: var(--citrus-ink);
+}
+
+.unit-status[data-status='complete'] {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.unit-count {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.unit-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.unit-skills li {
+  font-size: 0.82rem;
+  color: var(--sea-deep);
+  background: var(--olive-wash);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+
+.unit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.unit-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.unit-block h4 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--olive);
+  margin-block-end: var(--space-3);
+}
+
+/* --------------------------------------------------------------------------
+   Practice page — the daily card, the session, the catalogue
+   -------------------------------------------------------------------------- */
+.daily-card {
+  display: grid;
+  gap: var(--space-5);
+  align-items: center;
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  margin-block-end: var(--space-5);
+}
+
+.daily-card h2 {
+  color: var(--sand-light);
+  font-size: var(--step-3);
+}
+
+.daily-card p {
+  color: var(--on-dark-muted);
+  margin-block-start: var(--space-3);
+}
+
+.daily-card .eyebrow {
+  color: var(--citrus);
+  margin-block-end: var(--space-3);
+}
+
+.daily-card-steps {
+  display: grid;
+  gap: var(--space-1);
+  margin-block-start: var(--space-4);
+  font-size: 0.9rem;
+  color: var(--on-dark-muted);
+}
+
+.daily-card-steps li {
+  padding-inline-start: var(--space-4);
+  position: relative;
+}
+
+.daily-card-steps li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.65em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--citrus);
+}
+
+.daily-card-stats {
+  font-size: 0.85rem;
+  color: var(--citrus);
+  margin-block-start: var(--space-4);
+}
+
+.daily-card-running {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--citrus);
+}
+
+.daily-card .btn-primary {
+  justify-self: start;
+}
+
+@media (min-width: 800px) {
+  .daily-card {
+    grid-template-columns: 1fr auto;
+  }
+
+  .daily-card .btn-primary {
+    justify-self: end;
+  }
+}
+
+.daily-session {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-block-end: var(--space-6);
+}
+
+.daily-session-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.daily-session-head h2 {
+  font-size: 1.2rem;
+}
+
+.daily-exit {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--olive);
+  text-decoration: underline;
+  min-height: var(--tap);
+  padding-inline: var(--space-2);
+}
+
+/* The step rail is the session's progress indicator: it names every step and
+   says which one you are on, rather than only counting them. */
+.daily-trail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin-block: var(--space-4);
+  padding-block-end: var(--space-4);
+  border-block-end: 1px solid var(--hairline);
+}
+
+.daily-trail-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.daily-trail-index {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--hairline);
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+}
+
+.daily-trail-step[data-state='current'] {
+  color: var(--sea-deep);
+}
+
+.daily-trail-step[data-state='current'] .daily-trail-index {
+  background: var(--citrus);
+  color: var(--sea-deep);
+}
+
+.daily-trail-step[data-state='done'] .daily-trail-index {
+  background: var(--olive);
+  color: var(--sand-light);
+}
+
+.daily-teach {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.daily-step-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.teach-card {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  background: var(--sand);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.teach-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  justify-content: space-between;
+}
+
+.teach-main .arabic {
+  font-size: 2rem;
+  color: var(--sea-deep);
+}
+
+.teach-en {
+  font-weight: 700;
+}
+
+.teach-note {
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+}
+
+.daily-summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.game-frame {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.game-frame-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.game-back {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--olive);
+  min-height: var(--tap);
+  padding-inline: var(--space-2);
+}
+
+.game-frame-title {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.game-catalogue {
+  padding: var(--space-7) 0 0;
+  border-block-start: 1px solid var(--hairline);
+  margin-block-start: var(--space-7);
+}
+
+.game-catalogue h2 {
+  font-size: var(--step-2);
+}
+
+.catalogue-note {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  margin-block: var(--space-2) var(--space-6);
+}
+
+.game-group {
+  padding: 0;
+  margin-block-end: var(--space-6);
+}
+
+.game-group h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--olive);
+  margin-block-end: var(--space-4);
+}
+
+/* A tile is a button here rather than a link, so it needs the card's own
+   alignment back — buttons centre their text by default. */
+.game-catalogue .game-tile {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+
+.game-catalogue .game-tile[aria-current='true'] {
+  border-color: var(--citrus);
+  box-shadow: var(--shadow-lift);
+}
+
+.onboarding-section {
+  padding-block-start: var(--space-4);
 }

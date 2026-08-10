@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hkeeli — Lessons</title>
-  <meta name="description" content="The Lebanese Arabic Survival course — dialogues, vocabulary with audio, tips and homework for every unit.">
+  <title>Hkeeli — Start Here</title>
+  <meta name="description" content="Three quick questions and you'll know exactly which Lebanese Arabic lesson or practice activity to start with. No account needed.">
   <meta name="theme-color" content="#153534">
-  <link rel="canonical" href="https://hkeeli.com/learn.html">
+  <link rel="canonical" href="https://hkeeli.com/start.html">
 
   <!-- Icons. The SVG is preferred where supported; the .ico covers the rest. -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -16,21 +16,21 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <!-- Link previews. og:image must be absolute — scrapers don't resolve
-       relative paths reliably. Change the domain in all three pages together. -->
+       relative paths reliably. Change the domain in all four pages together. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Hkeeli">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="ar_LB">
-  <meta property="og:url" content="https://hkeeli.com/learn.html">
-  <meta property="og:title" content="Lebanese Arabic lessons — dialogues, vocabulary and audio">
-  <meta property="og:description" content="The Lebanese Arabic Survival course — dialogues, vocabulary with audio, tips and homework for every unit.">
+  <meta property="og:url" content="https://hkeeli.com/start.html">
+  <meta property="og:title" content="Start Here — find your first Lebanese Arabic lesson">
+  <meta property="og:description" content="Three quick questions and you'll know exactly where to start. No account needed.">
   <meta property="og:image" content="https://hkeeli.com/assets/images/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Hkeeli — learn spoken Lebanese Arabic">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Lebanese Arabic lessons — dialogues, vocabulary and audio">
-  <meta name="twitter:description" content="The Lebanese Arabic Survival course — dialogues, vocabulary with audio, tips and homework for every unit.">
+  <meta name="twitter:title" content="Start Here — find your first Lebanese Arabic lesson">
+  <meta name="twitter:description" content="Three quick questions and you'll know exactly where to start. No account needed.">
   <meta name="twitter:image" content="https://hkeeli.com/assets/images/og-image.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/layout.css">
 </head>
-<body data-title-key="learn.pageTitle">
+<body data-title-key="start.pageTitle">
 
 <a class="skip-link" href="#main" data-i18n="nav.skip">Skip to main content</a>
 
@@ -81,34 +81,18 @@
 
 <main id="main">
   <header class="page-head">
-    <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="learn.eyebrow">Learn</span></p>
-    <h1 data-i18n="learn.pageTitle">The lessons</h1>
-    <p data-i18n="learn.pageSubtitle"></p>
+    <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="start.eyebrow">Start here</span></p>
+    <h1 data-i18n="start.pageTitle">Start Here</h1>
+    <p data-i18n="start.pageSubtitle"></p>
   </header>
 
-  <div class="coastline" aria-hidden="true">
-    <svg viewBox="0 0 1200 70" preserveAspectRatio="none" focusable="false">
-      <path d="M0,35 C150,10 300,60 450,35 C600,10 750,60 900,35 C1050,10 1150,50 1200,35 L1200,70 L0,70 Z" fill="#1F4B4A" opacity="0.08"/>
-      <path d="M0,45 C150,20 300,68 450,45 C600,20 750,68 900,45 C1050,22 1150,58 1200,45 L1200,70 L0,70 Z" fill="#E8A33D" opacity="0.15"/>
-    </svg>
-  </div>
+  <section class="onboarding-section">
+    <!-- Three questions, then a recommendation. Built by js/start.js; answers
+         are kept on this device only. -->
+    <div class="onboarding" id="onboarding"></div>
 
-  <section>
-    <!-- Where you are in the course, and the unit that continues it -->
-    <div class="wrap" id="course-overview"></div>
-
-    <!-- Every unit in data/lessons.json, grouped by its stage -->
-    <div class="wrap" id="units"></div>
-  </section>
-
-  <section class="games">
-    <div class="section-head">
-      <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
-      <h2 data-i18n="games.title"></h2>
-      <p data-i18n="games.subtitle"></p>
-    </div>
-    <p class="center-text">
-      <a href="practice.html" class="btn-primary" data-i18n="practice.startDaily">Start Daily Practice</a>
+    <p class="center-text onboarding-skip">
+      <a href="learn.html#unit-1" data-i18n="start.skip">Skip this — just show me Unit 1</a>
     </p>
   </section>
 </main>
@@ -129,6 +113,6 @@
   <p class="form-note" data-i18n="footer.rights"></p>
 </footer>
 
-<script type="module" src="js/learn.js"></script>
+<script type="module" src="js/start.js"></script>
 </body>
 </html>

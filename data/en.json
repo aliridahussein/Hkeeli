@@ -10,8 +10,9 @@
   },
   "nav": {
     "home": "Home",
-    "about": "Meet the Teacher",
-    "learn": "Learn",
+    "start": "Start Here",
+    "about": "About",
+    "learn": "Lessons",
     "practice": "Practice",
     "book": "Book a Class",
     "cta": "Book a Class",
@@ -24,15 +25,96 @@
     "skip": "Skip to main content"
   },
   "hero": {
-    "eyebrow": "Lebanese Arabic, taught by a native speaker",
-    "titleBefore": "Speak Lebanese like you grew up on the block —",
+    "eyebrow": "Spoken Lebanese, taught by a native speaker",
+    "titleBefore": "Speak useful Lebanese Arabic",
     "titleArabic": "إحكي",
-    "titleAfter": "from day one.",
-    "body": "Real lessons for expats, heritage speakers, and anyone falling for Lebanon — built for people who don't read Arabic yet. No classroom Arabic. Just how people actually talk.",
-    "ctaPrimary": "Start Learning Free",
-    "ctaSecondary": "Book a 1-on-1",
+    "titleAfter": "from your first lesson.",
+    "body": "You don't need to read Arabic. Every phrase comes with audio and Latin transliteration, and it's the Lebanese people actually speak — at the table, in the taxi, on the phone to teta.",
+    "ctaPrimary": "Try a Free Mini-Lesson",
+    "ctaSecondary": "Book a Class",
+    "startLink": "Not sure where to begin? Start here →",
     "cardsLabel": "Sample Lebanese phrases",
     "goToCard": "Go to card"
+  },
+  "mini": {
+    "eyebrow": "Free mini-lesson",
+    "sectionTitle": "Learn three Lebanese phrases right now",
+    "sectionBody": "No sign-up, no download. Listen, choose what it means, and see how it's really used — the same way every lesson on this site works.",
+    "title": "Mini-lesson",
+    "step": "Phrase {current} of {total}",
+    "listenHint": "Listen, then read it out loud:",
+    "question": "What does it mean?",
+    "reveal": "Show me the meaning",
+    "revealed": "Here it is.",
+    "next": "Next phrase",
+    "finish": "See how I did",
+    "score": "{score} of {total} right",
+    "doneTitle": "That's how a lesson feels.",
+    "doneBody": "Every unit works this way, with dialogue, vocabulary, and practice built from the same phrases.",
+    "toLessons": "Start Unit 1",
+    "toPractice": "Try the practice",
+    "again": "Run it again",
+    "slow": "Play it slowly"
+  },
+  "phrase": {
+    "literally": "Literally:",
+    "slow": "Slow",
+    "registerCasual": "Casual",
+    "registerBlessing": "A blessing",
+    "registerPolite": "Polite",
+    "registerAffectionate": "Affectionate",
+    "registerFamily": "Family",
+    "registerEveryday": "Everyday"
+  },
+  "progress": {
+    "label": "Progress"
+  },
+  "goals": {
+    "eyebrow": "Your reason",
+    "title": "Why are you learning Lebanese?",
+    "subtitle": "Pick the one that fits and I'll point you at the unit that gets you there fastest. Your choice stays on this device.",
+    "recommended": "Start with this",
+    "startUnit": "Open this unit",
+    "practiceThis": "Practise it",
+    "familyLabel": "Talk with family",
+    "familyBlurb": "Grandparents, cousins, the relatives who answer in Lebanese.",
+    "visitLabel": "Prepare for a visit to Lebanon",
+    "visitBlurb": "Cafés, taxis, ordering, paying, getting by.",
+    "understandLabel": "Understand friends or a partner",
+    "understandBlurb": "Follow the half of the conversation that isn't in English.",
+    "zeroLabel": "Start Lebanese from zero",
+    "zeroBlurb": "No Arabic at all yet — begin at the greetings.",
+    "pronunciationLabel": "Improve pronunciation and conversation",
+    "pronunciationBlurb": "You know words. You want them to sound Lebanese."
+  },
+  "method": {
+    "eyebrow": "How it works",
+    "title": "Hear it. Understand it. Use it.",
+    "subtitle": "Three steps, repeated until the words come out without you assembling them first.",
+    "s1Title": "Hear it",
+    "s1Body": "Every phrase starts as sound, not spelling. You listen first, replay as often as you like, and read it in Latin letters — no Arabic script required.",
+    "s2Title": "Understand it",
+    "s2Body": "Then the meaning: what it says literally, what it actually means, and when a Lebanese person would say it rather than the textbook version.",
+    "s3Title": "Use it in a real conversation",
+    "s3Body": "Finally you answer with it — choosing the natural reply, rebuilding the sentence, and repeating it across days until it's yours.",
+    "note": "Situations, not word lists. You learn a phrase inside the conversation it belongs to, and meet it again a few days later when it's about to slip."
+  },
+  "journey": {
+    "eyebrow": "The journey",
+    "title": "Where this takes you",
+    "subtitle": "Five stages, from your first hello to holding your own in a Lebanese conversation. Each unit belongs to a stage, so you always know what it's building towards.",
+    "viewAll": "See the full curriculum",
+    "planned": "Being written — the units above come first.",
+    "s1Title": "First conversations",
+    "s1Outcome": "Greet people, say how you are, and say goodbye without switching to English.",
+    "s2Title": "Everyday situations",
+    "s2Outcome": "Order, ask, pay, and understand the reply you get back.",
+    "s3Title": "Family and social life",
+    "s3Outcome": "Hold a phone call with relatives — affection, blessings, and the small talk in between.",
+    "s4Title": "Expressing needs and opinions",
+    "s4Outcome": "Say what you want, what you think, and what you'd rather do.",
+    "s5Title": "Natural Lebanese conversation",
+    "s5Outcome": "Follow a fast conversation and answer inside it, at Lebanese speed."
   },
   "about": {
     "eyebrow": "How I teach",
@@ -46,16 +128,26 @@
     "introTitle": "Hear how I teach",
     "introBody": "A few seconds of Lebanese, at the speed people actually speak it.",
     "introPlay": "Play the introduction",
+    "valueApproachTitle": "How the teaching works",
+    "valueApproachBody": "Situations first. You get the phrases a moment actually needs — a greeting, an order, a phone call — and use them out loud before you analyse them.",
+    "valueDialectTitle": "Spoken Lebanese, not Modern Standard",
+    "valueDialectBody": "What you learn here is the dialect people speak day to day. Where the textbook version differs, I tell you which one to say and which one to only recognise.",
+    "valuePronunciationTitle": "Pronunciation support",
+    "valuePronunciationBody": "Every phrase has audio and a Latin transliteration built for the sounds English doesn't have. In a class, you say it back and get corrected on the spot.",
+    "valueClassTitle": "What happens in a class",
+    "valueClassBody": "You speak, I listen and correct, and we work through the situations you actually need. Bring what you didn't understand this week and we start there.",
+    "valueWhoTitle": "Who classes suit",
+    "valueWhoBody": "Complete beginners, heritage speakers who understand more than they say, and anyone who has done the free units and wants someone listening.",
     "testimonialsTitle": "What students say",
     "testimonialsPending": "Real student quotes are on the way. Nothing invented goes here.",
     "testimonials": []
   },
   "learn": {
-    "eyebrow": "Learn",
+    "eyebrow": "Lessons",
     "title": "Lessons that meet you where you are",
     "subtitle": "Every word comes with audio, Arabic script, and Latin transliteration — so you can start speaking before you can read.",
-    "pageTitle": "The lessons",
-    "pageSubtitle": "A 12-unit survival course in Lebanese Arabic. Tap a unit to open the dialogue, the vocabulary, and the practice tasks.",
+    "pageTitle": "The curriculum",
+    "pageSubtitle": "A 12-unit course in spoken Lebanese. Each unit says what you'll be able to do, what it covers, and how far through it you are. Open one to get the dialogue, the vocabulary and the practice tasks.",
     "viewAll": "See all lessons",
     "openUnit": "Open unit",
     "unitLabel": "Unit",
@@ -65,16 +157,111 @@
     "challenge": "Speaking challenge",
     "homework": "Homework",
     "practiceThis": "Practice these words",
-    "comingSoon": "More units are on the way",
+    "listenThis": "Listening drill",
+    "comingSoon": "Still being written",
     "comingSoonBody": "Units 4–12 cover directions, shopping, texting, future plans, opinions, and a final \"survive a day in Lebanon\" review.",
-    "phraseCount": "phrases"
+    "phraseCount": "phrases",
+    "youWillBeAbleTo": "You'll be able to:",
+    "skills": "What this unit covers",
+    "countPhrases": "{count} phrases",
+    "countDialogue": "{count}-line dialogue",
+    "unitProgress": "{seen} of {total} phrases practised",
+    "overviewStart": "Start the course",
+    "overviewResume": "Pick up where you left off",
+    "overviewCount": "{units} units published · {seen} of {phrases} phrases practised on this device.",
+    "overviewProgress": "{percent}% of the published phrases practised",
+    "startWith": "Start with",
+    "continueWith": "Continue with",
+    "start": "Start unit",
+    "continue": "Continue unit",
+    "close": "Close unit",
+    "status": {
+      "new": "Not started",
+      "started": "In progress",
+      "complete": "All phrases seen"
+    }
+  },
+  "practice": {
+    "recommended": "Recommended",
+    "dailyTitle": "Daily Practice",
+    "dailyBody": "One short guided session that mixes review, a new phrase, listening, replying and building a sentence — in that order, the way a lesson runs.",
+    "dailySteps": [
+      "Review what you've met before",
+      "Learn or revisit one phrase",
+      "Listen and choose the meaning",
+      "Pick the natural reply",
+      "Build the sentence yourself"
+    ],
+    "dueCount": "{count} due for review",
+    "noneDue": "Nothing due yet — this session will teach you new phrases",
+    "scopedTo": "Scoped to",
+    "lastScore": "Last session",
+    "running": "Session in progress below.",
+    "startDaily": "Start Daily Practice",
+    "startDailyAgain": "Start today's session",
+    "backToDaily": "← Back to Daily Practice",
+    "catalogueTitle": "Or choose a game",
+    "catalogueBody": "The same phrase bank, drilled one skill at a time. Your best score is kept on this device.",
+    "skillListening": "Listening",
+    "skillUnderstanding": "Understanding",
+    "skillBuilding": "Building sentences",
+    "skillResponding": "Responding naturally",
+    "skillRemembering": "Remembering",
+    "skillOther": "More practice"
+  },
+  "daily": {
+    "sessionTitle": "Daily Practice",
+    "exit": "End session",
+    "continue": "Continue",
+    "stepReview": "Review",
+    "stepLearn": "New phrase",
+    "stepListen": "Listen",
+    "stepReply": "Reply",
+    "stepBuild": "Build",
+    "teachNew": "A phrase you haven't met yet. Listen, then say it out loud.",
+    "teachAgain": "You've met this one before. Say it out loud before you move on.",
+    "doneTitle": "Session complete",
+    "doneBody": "{score} of {total} correct across the session.",
+    "again": "Run another session",
+    "chooseGame": "Choose a game instead"
+  },
+  "start": {
+    "eyebrow": "Start here",
+    "pageTitle": "Start Here",
+    "pageSubtitle": "Three questions, about thirty seconds, and you'll have one place to begin. No account — your answers stay on this device.",
+    "q1": "Why are you learning Lebanese?",
+    "q2": "Where are you right now?",
+    "q3": "What would you like to do first?",
+    "levelZero": "Complete beginner",
+    "levelSome": "I know some phrases",
+    "levelHeritage": "I understand more than I speak",
+    "levelConversational": "I can hold a simple conversation",
+    "firstPhrases": "Learn essential phrases",
+    "firstListening": "Practise listening",
+    "firstConversation": "Prepare for conversation",
+    "step": "Question {current} of {total}",
+    "back": "Back",
+    "skipQuestion": "Skip this question",
+    "skip": "Skip this — just show me Unit 1",
+    "done": "Done",
+    "resultTitle": "Start here",
+    "reasonBeginner": "You're starting from zero, so the greetings come first — everything else builds on them.",
+    "reasonGoal": "Based on why you're learning, this is the unit that gets you there fastest.",
+    "reasonListening": "You want listening practice, so we'll start with your ears rather than a page.",
+    "reasonConversation": "You want to be ready to talk, so we'll start with what you'd say back.",
+    "kindLesson": "Your first unit",
+    "kindPractice": "Your first activity",
+    "inUnit": "Using phrases from",
+    "begin": "Begin",
+    "changeAnswers": "Change my answers",
+    "saved": "Saved on this device. You can change it any time from Start Here."
   },
   "games": {
     "eyebrow": "Practice",
-    "title": "Learn by playing, not memorizing",
-    "subtitle": "Short, addictive games after every lesson — built to keep the dialect sticking.",
+    "title": "Practise until it comes out on its own",
+    "subtitle": "One guided daily session, plus seven drills built from the same phrases as the lessons.",
     "pageTitle": "Practice",
-    "pageSubtitle": "Every game is built from the same phrase bank as the lessons. Your progress is saved on this device.",
+    "pageSubtitle": "Start with the guided session, or pick the skill you want to work on. Your progress is saved on this device.",
     "play": "Play",
     "listenTitle": "Listen & Choose",
     "listenBlurb": "Hear it, pick what it means",
@@ -154,8 +341,74 @@
     "srsDue": "Due for review",
     "srsLearned": "Learned"
   },
+  "classes": {
+    "facts": [
+      {
+        "label": "Format",
+        "value": "One-to-one, or a small group if you'd rather learn with someone you know."
+      },
+      {
+        "label": "Taught in",
+        "value": "Spoken Lebanese, explained in English. No Arabic reading required."
+      },
+      {
+        "label": "Who it's for",
+        "value": "Complete beginners through to intermediate, including heritage speakers who understand more than they say."
+      },
+      {
+        "label": "What's included",
+        "value": "Speaking practice with correction, the same units and phrases as the free course, and answers to whatever you bring from the week."
+      },
+      { "label": "Class length", "value": "tbc" },
+      { "label": "Price", "value": "tbc" },
+      { "label": "Trial class", "value": "tbc" },
+      {
+        "label": "How to book",
+        "value": "Send the form below and you'll get a reply by email to agree a time."
+      }
+    ],
+    "pending": "Ask when you book — this isn't set in stone yet.",
+    "note": "The free lessons, audio and practice on this site stay free whether or not you ever book a class."
+  },
+  "faq": {
+    "eyebrow": "Questions",
+    "title": "The things people ask first",
+    "subtitle": "Short answers, no small print.",
+    "items": [
+      {
+        "q": "Do I need to read Arabic?",
+        "a": "No. Every phrase on this site is written in Latin letters as well as Arabic script, and every phrase has audio. You can do the whole course without reading a word of Arabic."
+      },
+      {
+        "q": "Is this Modern Standard Arabic?",
+        "a": "No. Hkeeli teaches spoken Lebanese — the dialect people actually use with each other. Modern Standard Arabic is the written and broadcast language; it is not what you'll hear at a Lebanese dinner table."
+      },
+      {
+        "q": "Will I learn the Arabic alphabet?",
+        "a": "Not as a goal here. The Arabic script sits next to every phrase, so you'll start recognising words if you want to — but the lessons, the games and the audio all work from transliteration."
+      },
+      {
+        "q": "Is this suitable for complete beginners?",
+        "a": "Yes. Unit 1 starts at hello, and the Start Here questions will send you straight to it if you've never learned any Arabic."
+      },
+      {
+        "q": "What variety of Lebanese is taught?",
+        "a": "Everyday spoken Lebanese, taught by a native speaker who grew up with it in Beirut. Where a phrase is casual, polite, affectionate or family-only, the lesson says so."
+      },
+      {
+        "q": "How do online classes work?",
+        "a": "Classes are one-to-one, or a small group if you'd rather learn with someone you know. Send the booking form and you'll get a reply by email to agree a time; length, price and trial details are confirmed there."
+      },
+      {
+        "q": "Where should I begin?",
+        "a": "Try the free mini-lesson on the home page. If you'd rather be pointed somewhere specific, answer the three questions on Start Here and you'll get one lesson or activity to begin with."
+      }
+    ]
+  },
   "book": {
-    "eyebrow": "Book",
+    "eyebrow": "Classes",
+    "title": "One-to-one classes with a native teacher",
+    "subtitle": "The free course gets you speaking. A class gets you corrected — and gets you the phrases your life actually needs.",
     "bandTitle": "Ready to actually speak Lebanese?",
     "bandBody": "Book a 1-on-1 or small group session and start with the phrases that matter to you.",
     "bandCta": "Book Your First Class",
