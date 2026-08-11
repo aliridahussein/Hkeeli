@@ -38,5 +38,10 @@ jobs:
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
+          # The action defaults to wrangler 3.90.0, which is one release older
+          # than JSON config support — it ignores wrangler.jsonc, finds no
+          # wrangler.toml, and fails with a bare "exit code 1". Pin a current
+          # major instead of inheriting that default.
+          wranglerVersion: "4"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
