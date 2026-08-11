@@ -16,4 +16,5 @@ node_modules/
 # Never serve the repository itself. Deploying from a local folder uploads what
 # is on disk, and .git holds the full history.
 .git/
+.github/
 run.cmd

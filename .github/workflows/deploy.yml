@@ -1,0 +1,42 @@
+# Deploy the site to Cloudflare Workers on every push to master.
+#
+# This does from GitHub exactly what `npx wrangler deploy` does from a laptop:
+# uploads the repo as static assets to the `hkeeli` Worker named in
+# wrangler.jsonc. There is no build step because there is nothing to build.
+#
+# Cloudflare's own Git integration would also work, but its setup form is
+# currently broken (a validation error on the preview build config), and this
+# keeps the deploy under our control either way.
+#
+# Requires two repository secrets — Settings > Secrets and variables > Actions:
+#   CLOUDFLARE_API_TOKEN   a token with the "Edit Cloudflare Workers" template
+#   CLOUDFLARE_ACCOUNT_ID  the account ID from the Workers dashboard sidebar
+
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [master]
+  # Lets you re-run a deploy from the Actions tab without making a commit —
+  # useful when a deploy failed for a reason that had nothing to do with the code.
+  workflow_dispatch:
+
+# Two pushes in quick succession would otherwise race, and whichever finished
+# last would win regardless of which commit was newer.
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
