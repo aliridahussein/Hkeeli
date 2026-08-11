@@ -94,6 +94,10 @@
   /* Height of the sticky nav. Anything scrolled to by a link or by script has
      to clear it, so the number lives here rather than being guessed twice. */
   --nav-h: 85px;
+
+  /* Hero postcard width. The scatter positions cards relative to it, so the two
+     must not drift apart. */
+  --postcard-w: 280px;
 }
 
 /* Motion is decoration; honour the OS setting. */
