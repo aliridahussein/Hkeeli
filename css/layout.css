@@ -164,6 +164,10 @@ section {
 }
 
 @media (min-width: 860px) {
+  /* The hero runs edge to edge on purpose — it is the one block that isn't
+     capped at --measure, and the full bleed is what gives it its scale. The
+     slack that creates on a wide screen is absorbed by the postcard scatter
+     below, not by narrowing the hero. */
   .hero {
     padding: var(--space-9) 0 var(--space-8);
     display: grid;
@@ -182,14 +186,28 @@ section {
      1. each card sits ABOVE the one before it, so nothing is buried;
      2. the vertical step is larger than a card's content block, so a card
         only ever overlaps the empty bottom padding of the card beneath. */
+  /* The scatter below is hand-set in pixels, so the group has one fixed visual
+     width: the furthest card offset, plus a card, plus a little for the rotation
+     overhang. Sized here so the group can be pushed to the end of its track —
+     the three cards stay clustered exactly as drawn, and the slack a wide screen
+     creates opens up between the copy and the cards instead of stranding one
+     card away from the other two. */
   .postcard-stack {
     position: relative;
     display: block;
+    width: calc(140px + var(--postcard-w) + var(--space-4));
     height: 560px;
     overflow: visible;
     padding: 0;
-    margin: 0;
-    margin-inline-end: var(--gutter);
+    margin-block: 0;
+    /* Pushed to the end of the track, then pulled back off it. Anchored hard to
+       the gutter, the cards drift far from the copy on a wide screen; pulled too
+       far, the hole just moves to the page edge. The slack is finite, so this
+       splits it — the pull is a share of the width past 1000px, which is nothing
+       at the narrow end where there is no slack to give, and ~110px at 1900,
+       leaving the outer margin smaller than the gap it opens in the middle so
+       the cards still read as belonging to the right side of the page. */
+    margin-inline: auto calc(var(--gutter) + clamp(0px, (100vw - 1000px) * 0.12, 130px));
   }
 
   .postcard-stack .postcard {
