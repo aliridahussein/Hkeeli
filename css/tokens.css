@@ -90,6 +90,10 @@
 
   /* ---- Touch ---- */
   --tap: 44px;
+
+  /* Height of the sticky nav. Anything scrolled to by a link or by script has
+     to clear it, so the number lives here rather than being guessed twice. */
+  --nav-h: 85px;
 }
 
 /* Motion is decoration; honour the OS setting. */

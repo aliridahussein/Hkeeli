@@ -335,9 +335,11 @@ To add real ones, put matching objects in both bundles:
 `js/journey.js` is the model behind every "what next?" on the site. It holds:
 
 - **`STAGES`** — the five stages a learner moves through. A unit joins one by
-  declaring `stage` in `lessons.json`. Stages with no units yet still render,
-  marked as planned, so the path is visible without pretending the material is
-  there.
+  declaring `stage` in `lessons.json`. Stages with no units yet are still named,
+  so the path is visible without pretending the material is there — collapsed
+  into one closing "Still to come" row on the home page, and listed under
+  "Coming soon" on the Lessons page. Writing units for a stage promotes it to a
+  full row automatically; no code changes.
 - **`GOALS`** — the five reasons on the home page, each pointing at a unit that
   exists today and the game that drills it.
 - **`recommend({goal, level, first})`** — the single rule that turns the Start
@@ -357,6 +359,11 @@ no account and nothing is sent anywhere.
 
 `prefs` is deliberately separate from `progress`: clearing one should never
 clear the other.
+
+Start Here is reached from the hero's quiet "Not sure where to begin?" link and
+from the footer, not from the primary nav. The home page already answers the
+same question in place with the goal picker, and a nav item pointing away from
+the free mini-lesson was sending first-time visitors in the wrong direction.
 
 ### The mini-lesson
 
@@ -517,9 +524,10 @@ media queries only enhance upward (600 / 860 / 1000px).
 - The hero postcard stack is a swipeable scroll-snap rail with dots on phones,
   and the mock's scattered rotated stack from 860px up.
 - Nav links move into a drawer below 860px — including the Book a Class link,
-  so nothing is lost. The five items are Start Here, Lessons, Practice, About
-  and Book a Class; the two that are home-page sections are marked current only
-  while their hash is the target.
+  so nothing is lost. The four items are Lessons, Practice, About and Book a
+  Class; the two that are home-page sections are marked current only while their
+  hash is the target. Start Here is deliberately *not* in the primary nav — see
+  "Start Here" above.
 - Every game is tap-first, with the check/next actions in a sticky bar within
   thumb reach.
 - Hover lifts are wrapped in `@media (hover: hover)` so touch devices get press

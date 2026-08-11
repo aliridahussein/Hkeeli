@@ -40,6 +40,8 @@ async function main() {
     if (journey) errorState(journey, () => location.reload());
   }
 
+  honourHash();
+
   onLangChange(() => {
     renderHero();
     initMiniLesson(document.querySelector('#mini-host'));
@@ -49,6 +51,23 @@ async function main() {
     renderClassFacts();
     renderFaq();
   });
+}
+
+/**
+ * Land on the section a cross-page link asked for.
+ *
+ * Arriving at index.html#book, the browser jumps the moment the markup parses —
+ * while the mini-lesson, the goals, the journey and the FAQ are still empty
+ * containers. Every one of them then renders and pushes #book thousands of
+ * pixels down, leaving the visitor stranded mid-page. Re-honouring the hash once
+ * the content is in place is the fix; `instant` because the jump has already
+ * visibly happened and animating the correction would only look like a glitch.
+ */
+function honourHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (!id) return;
+  const target = document.getElementById(id);
+  if (target) target.scrollIntoView({ block: 'start', behavior: 'instant' });
 }
 
 /* --------------------------------------------------------------------------
@@ -246,34 +265,58 @@ async function renderJourney() {
   if (!host) return;
 
   const stages = await getJourney();
+  const live = stages.filter((stage) => !stage.planned);
+  const planned = stages.filter((stage) => stage.planned);
+
+  /* Unwritten stages are named, once, in a single closing row rather than given
+     a row each. Two "being written" rows among five made three finished units
+     read as an abandoned course; one line is the same admission, honestly, in
+     the space it deserves. The full path is still on the Lessons page. */
   clear(host).append(
-    ...stages.map((stage, index) =>
+    ...live.map((stage, index) =>
       el(
         'li',
-        { class: 'journey-stage', dataset: { state: stage.planned ? 'planned' : 'live' } },
+        { class: 'journey-stage', dataset: { state: 'live' } },
         el('span', { class: 'journey-index', 'aria-hidden': 'true' }, String(index + 1)),
         el(
           'div',
           { class: 'journey-body' },
           el('h3', {}, t(stage.titleKey)),
           el('p', { class: 'journey-outcome' }, t(stage.outcomeKey)),
-          stage.planned
-            ? el('p', { class: 'journey-planned' }, t('journey.planned'))
-            : el(
-                'ul',
-                { class: 'journey-units' },
-                ...stage.units.map((unit) =>
-                  el(
-                    'li',
-                    {},
-                    el('a', { href: `learn.html#${unit.id}` }, pick(unit.title)),
-                    el('span', { class: 'journey-unit-outcome' }, pick(unit.outcome || unit.description))
-                  )
-                )
+          el(
+            'ul',
+            { class: 'journey-units' },
+            ...stage.units.map((unit) =>
+              el(
+                'li',
+                {},
+                el('a', { href: `learn.html#${unit.id}` }, pick(unit.title)),
+                el('span', { class: 'journey-unit-outcome' }, pick(unit.outcome || unit.description))
               )
+            )
+          )
         )
       )
-    )
+    ),
+    planned.length
+      ? el(
+          'li',
+          { class: 'journey-stage journey-stage--more', dataset: { state: 'planned' } },
+          el('span', { class: 'journey-index', 'aria-hidden': 'true' }, '+'),
+          el(
+            'div',
+            { class: 'journey-body' },
+            el('h3', {}, t('journey.moreTitle')),
+            el(
+              'p',
+              { class: 'journey-outcome' },
+              t('journey.moreBody', {
+                stages: planned.map((stage) => t(stage.titleKey)).join(t('journey.moreJoin'))
+              })
+            )
+          )
+        )
+      : null
   );
 }
 

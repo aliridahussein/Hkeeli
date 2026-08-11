@@ -96,6 +96,13 @@ function reflectDocument() {
     ? `${t('site.nameEn')} — ${t(titleKey)}`
     : `${t('site.nameEn')} — ${t('site.tagline')}`;
 
+  // The description follows the title, so the document never describes itself in
+  // one language while naming itself in another. Note the limit: link-preview
+  // scrapers read the served HTML and never run this, and og:* tags are left
+  // alone for that reason — this is for the rendered document, not for sharing.
+  const description = document.querySelector('meta[name="description"]');
+  if (description) description.setAttribute('content', t('site.metaDescription'));
+
   document.querySelectorAll('.lang-switch button[data-lang]').forEach((btn) => {
     btn.setAttribute('aria-pressed', String(btn.dataset.lang === current));
   });

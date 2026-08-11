@@ -55,6 +55,11 @@ section {
   .site-nav {
     position: static;
   }
+
+  /* Nothing is covering the targets any more, so drop the clearance with it. */
+  main [id] {
+    scroll-margin-block-start: 0;
+  }
 }
 
 @media (min-width: 860px) {

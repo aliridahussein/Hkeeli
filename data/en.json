@@ -6,7 +6,8 @@
   "site": {
     "nameEn": "Hkeeli",
     "nameAr": "إحكيلي",
-    "tagline": "Lebanese Arabic, taught the way it's actually spoken."
+    "tagline": "Lebanese Arabic, taught the way it's actually spoken.",
+    "metaDescription": "Speak useful Lebanese Arabic from your first lesson — even if you can't read Arabic. Spoken Lebanese with a native teacher: free lessons, audio, practice, and one-to-one classes."
   },
   "nav": {
     "home": "Home",
@@ -104,7 +105,9 @@
     "title": "Where this takes you",
     "subtitle": "Five stages, from your first hello to holding your own in a Lebanese conversation. Each unit belongs to a stage, so you always know what it's building towards.",
     "viewAll": "See the full curriculum",
-    "planned": "Being written — the units above come first.",
+    "moreTitle": "Still to come",
+    "moreBody": "{stages} — being written now. The units above come first.",
+    "moreJoin": ", then ",
     "s1Title": "First conversations",
     "s1Outcome": "Greet people, say how you are, and say goodbye without switching to English.",
     "s2Title": "Everyday situations",

@@ -875,11 +875,13 @@
 /* --------------------------------------------------------------------------
    Hero addition
    -------------------------------------------------------------------------- */
+/* Deliberately quiet. The hero already asks for two decisions; this is the
+   third door, and it has to read as a footnote rather than compete with the
+   buttons above it. */
 .hero-aside {
-  margin-block-start: var(--space-5);
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--sea);
+  margin-block-start: var(--space-4);
+  font-size: 0.88rem;
+  color: var(--ink-muted);
 }
 
 /* Inline-flex with a tap-sized box: a bare text link is ~24px tall, which is
@@ -888,7 +890,14 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);
-  border-block-end: 2px solid var(--citrus);
+  color: inherit;
+  border-block-end: 1px solid var(--citrus);
+}
+
+@media (hover: hover) {
+  .hero-aside a:hover {
+    color: var(--sea);
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -1273,9 +1282,15 @@
   color: var(--ink-soft);
 }
 
-.journey-planned {
-  margin-block-start: var(--space-3);
-  font-size: 0.85rem;
+/* The one closing row that stands for every unwritten stage. Quieter than a
+   real stage — it is a note about the future, not a step you can take. */
+.journey-stage--more .journey-body h3 {
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+
+.journey-stage--more .journey-outcome {
+  font-size: 0.9rem;
   color: var(--ink-soft);
   font-style: italic;
 }
@@ -1364,9 +1379,14 @@
 /* Two columns once there is room. The rule then has to move onto the label as
    well, or it would cut across the middle of each row. */
 @media (min-width: 700px) {
+  /* Both cells must fill the row height, or their bottom rules land at
+     different heights the moment a value wraps to more lines than its label —
+     which is exactly what "What's included" does. Baseline alignment looks
+     right until then. The labels stay level with the first line of the value
+     anyway, because both cells carry the same padding. */
   .class-facts {
     grid-template-columns: minmax(150px, 0.4fr) 1fr;
-    align-items: baseline;
+    align-items: stretch;
   }
 
   .class-facts dt {
