@@ -1,0 +1,32 @@
+{
+  // Cloudflare deployment config.
+  //
+  // The site is plain static files with no build step, so this Worker has no
+  // script at all — no `main` entry. It exists only to declare the repo root as
+  // a bundle of static assets, which is what makes `npx wrangler deploy` work
+  // from the dashboard's Git integration.
+  //
+  // Nothing here affects local development: `npx serve .` still serves the same
+  // files, and serve.json still handles rewrites for that.
+  "name": "hkeeli",
+
+  // Pins the Workers runtime behaviour. Bump it deliberately, never casually —
+  // it is not a "last deployed" date.
+  "compatibility_date": "2025-01-01",
+
+  // Serve the site on hkeeli.<subdomain>.workers.dev. Without this the deploy
+  // succeeds but the site has no address, which is the state the dashboard's
+  // half-finished project was left in.
+  "workers_dev": true,
+
+  "assets": {
+    // The site root is the repo root: index.html sits at the top level.
+    // See .assetsignore for the handful of files that are in the repo but are
+    // not part of the site.
+    "directory": "./",
+
+    // Serves /learn from learn.html, which is what the nav links expect. This
+    // is the default, stated explicitly because the whole site depends on it.
+    "html_handling": "auto-trailing-slash"
+  }
+}

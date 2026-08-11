@@ -1,0 +1,19 @@
+# Files that live in the repo but are not part of the published site.
+# Everything else under the repo root is uploaded and served as-is.
+
+wrangler.jsonc
+.assetsignore
+.gitignore
+README.md
+
+# Config for other hosts / local tooling — inert on Cloudflare, but no reason
+# to serve them.
+serve.json
+vercel.json
+.claude/
+node_modules/
+
+# Never serve the repository itself. Deploying from a local folder uploads what
+# is on disk, and .git holds the full history.
+.git/
+run.cmd
