@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hkeeli — Practice</title>
-  <meta name="description" content="Seven games for practising spoken Lebanese Arabic — listening, matching, sentence building, conversation order and daily flashcards. Free, no signup.">
+  <title>Hkeeli — Start Here</title>
+  <meta name="description" content="Three quick questions and you'll know exactly which Lebanese Arabic lesson or practice activity to start with. No account needed.">
   <meta name="theme-color" content="#153534">
-  <link rel="canonical" href="https://hkeeli.com/practice.html">
+  <link rel="canonical" href="https://hkeeli.com/start.html">
 
   <!-- Icons. The SVG is preferred where supported; the .ico covers the rest. -->
   <link rel="icon" href="favicon.ico" sizes="any">
@@ -16,21 +16,21 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <!-- Link previews. og:image must be absolute — scrapers don't resolve
-       relative paths reliably. Change the domain in all three pages together. -->
+       relative paths reliably. Change the domain in all four pages together. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Hkeeli">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="ar_LB">
-  <meta property="og:url" content="https://hkeeli.com/practice.html">
-  <meta property="og:title" content="Practise Lebanese Arabic with seven playable games">
-  <meta property="og:description" content="Seven games for practising spoken Lebanese Arabic — listening, matching, sentence building, conversation order and daily flashcards. Free, no signup.">
+  <meta property="og:url" content="https://hkeeli.com/start.html">
+  <meta property="og:title" content="Start Here — find your first Lebanese Arabic lesson">
+  <meta property="og:description" content="Three quick questions and you'll know exactly where to start. No account needed.">
   <meta property="og:image" content="https://hkeeli.com/assets/images/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Hkeeli — learn spoken Lebanese Arabic">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Practise Lebanese Arabic with seven playable games">
-  <meta name="twitter:description" content="Seven games for practising spoken Lebanese Arabic — listening, matching, sentence building, conversation order and daily flashcards. Free, no signup.">
+  <meta name="twitter:title" content="Start Here — find your first Lebanese Arabic lesson">
+  <meta name="twitter:description" content="Three quick questions and you'll know exactly where to start. No account needed.">
   <meta name="twitter:image" content="https://hkeeli.com/assets/images/og-image.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,9 +41,8 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/games.css">
 </head>
-<body data-title-key="games.pageTitle">
+<body data-title-key="start.pageTitle">
 
 <a class="skip-link" href="#main" data-i18n="nav.skip">Skip to main content</a>
 
@@ -80,31 +79,19 @@
 
 <main id="main">
   <header class="page-head">
-    <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
-    <h1 data-i18n="games.pageTitle">Practice</h1>
-    <p data-i18n="games.pageSubtitle"></p>
+    <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="start.eyebrow">Start here</span></p>
+    <h1 data-i18n="start.pageTitle">Start Here</h1>
+    <p data-i18n="start.pageSubtitle"></p>
   </header>
 
-  <section style="padding-block-start: var(--space-4);">
-    <div class="practice-layout">
-      <!-- The recommended session. Built by js/practice.js from your progress. -->
-      <div id="daily-card"></div>
+  <section class="onboarding-section">
+    <!-- Three questions, then a recommendation. Built by js/start.js; answers
+         are kept on this device only. -->
+    <div class="onboarding" id="onboarding"></div>
 
-      <!-- Scopes every game and the daily session to one unit; driven by ?unit= -->
-      <div class="unit-filter" id="unit-filter"></div>
-
-      <!-- Daily Practice or a single game mounts here -->
-      <div id="game-host">
-        <div class="game-loading"><p data-i18n="game.loading">Loading phrases…</p></div>
-      </div>
-
-      <!-- Secondary: the seven games, grouped by the skill they train -->
-      <section class="game-catalogue" id="game-catalogue" aria-labelledby="catalogue-title">
-        <h2 id="catalogue-title" data-i18n="practice.catalogueTitle">Choose a game</h2>
-        <p class="catalogue-note" data-i18n="practice.catalogueBody"></p>
-        <div id="game-groups"></div>
-      </section>
-    </div>
+    <p class="center-text onboarding-skip">
+      <a href="learn.html#unit-1" data-i18n="start.skip">Skip this — just show me Unit 1</a>
+    </p>
   </section>
 </main>
 
@@ -124,6 +111,6 @@
   <p class="form-note" data-i18n="footer.rights"></p>
 </footer>
 
-<script type="module" src="js/practice.js"></script>
+<script type="module" src="js/start.js"></script>
 </body>
 </html>

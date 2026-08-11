@@ -121,6 +121,27 @@ class LocalStorageProgress {
     return { ...blankGame(), ...(this.state.games[gameId] || {}) };
   }
 
+  /**
+   * How far through a unit a learner is, measured in phrases they have actually
+   * answered at least once. Nothing here is a claim about mastery — it is the
+   * honest count of what this device has seen.
+   */
+  getUnitProgress(unit) {
+    const phrases = (unit && unit.phrases) || [];
+    const total = phrases.length;
+    const seen = phrases.filter((phrase) => this.getPhraseState(phrase.id).seen > 0).length;
+    // "Learned" means the card has survived enough correct answers to sit in a
+    // long Leitner box, not merely that it was shown once.
+    const learned = phrases.filter((phrase) => this.getPhraseState(phrase.id).box >= 3).length;
+    return {
+      total,
+      seen,
+      learned,
+      ratio: total ? seen / total : 0,
+      status: seen === 0 ? 'new' : seen < total ? 'started' : 'complete'
+    };
+  }
+
   recordSession(gameId, score, total) {
     const game = { ...blankGame(), ...(this.state.games[gameId] || {}) };
     game.plays += 1;
@@ -142,3 +163,55 @@ class LocalStorageProgress {
 
 export const progress = new LocalStorageProgress();
 export { LocalStorageProgress };
+
+/* --------------------------------------------------------------------------
+   Learner preferences
+   --------------------------------------------------------------------------
+   What the onboarding flow and the goal picker remember: why someone is
+   learning, roughly where they are, and what they wanted to do first. It is
+   kept apart from `progress` because it is answers, not performance — and
+   because clearing progress should never clear who the learner is.
+
+   Everything is optional. Every page must work for someone who has never
+   answered a question, so `get()` always returns a complete object.
+   -------------------------------------------------------------------------- */
+
+const EMPTY_PREFS = { version: 1, goal: null, level: null, first: null, onboardedAt: null };
+
+class LocalPrefs {
+  constructor(key = CONFIG.prefsKey) {
+    this.key = key;
+  }
+
+  get() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(this.key) || 'null');
+      if (!parsed || typeof parsed !== 'object' || parsed.version !== EMPTY_PREFS.version) {
+        return { ...EMPTY_PREFS };
+      }
+      return { ...EMPTY_PREFS, ...parsed };
+    } catch {
+      return { ...EMPTY_PREFS };
+    }
+  }
+
+  set(patch) {
+    const next = { ...this.get(), ...patch, version: EMPTY_PREFS.version };
+    try {
+      localStorage.setItem(this.key, JSON.stringify(next));
+    } catch {
+      /* private mode — the choice just won't outlive the session */
+    }
+    return next;
+  }
+
+  clear() {
+    try {
+      localStorage.removeItem(this.key);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+export const prefs = new LocalPrefs();

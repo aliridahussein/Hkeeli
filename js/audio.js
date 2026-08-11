@@ -20,11 +20,25 @@ const resolved = new Map();
 let currentAudio = null;
 let noticeShown = false;
 
-/** Absolute-ish URL for a phrase recording. The one place paths are built. */
-export function audioUrl(phrase) {
-  if (!phrase || !phrase.audio) return null;
-  if (/^(https?:)?\/\//.test(phrase.audio)) return phrase.audio; // already hosted
-  return `${CONFIG.audioBase}${phrase.audio}`;
+/**
+ * Absolute-ish URL for a phrase recording. The one place paths are built.
+ *
+ * A phrase may carry a second, slower recording as `audioSlow`. There is no
+ * synthetic stand-in for it: a slow button that plays the same speed teaches
+ * nothing, so callers ask `hasSlowAudio()` first and simply don't offer the
+ * control until the recording exists.
+ */
+export function audioUrl(phrase, { slow = false } = {}) {
+  if (!phrase) return null;
+  const file = slow ? phrase.audioSlow : phrase.audio;
+  if (!file) return null;
+  if (/^(https?:)?\/\//.test(file)) return file; // already hosted
+  return `${CONFIG.audioBase}${file}`;
+}
+
+/** Does this phrase have a real slow recording? */
+export function hasSlowAudio(phrase) {
+  return Boolean(phrase && phrase.audioSlow);
 }
 
 function stopAll() {
@@ -104,24 +118,27 @@ function playFile(url) {
  *
  * @param {object} phrase  a phrase object from lessons.json
  * @param {HTMLElement} [trigger]
+ * @param {{slow?: boolean}} [options]  play the slow recording, if there is one
  * @returns {Promise<boolean>} whether anything was actually heard
  */
-export async function playPhrase(phrase, trigger) {
+export async function playPhrase(phrase, trigger, { slow = false } = {}) {
   if (!phrase) return false;
   stopAll();
   if (trigger) trigger.dataset.state = 'playing';
 
   try {
-    const url = audioUrl(phrase);
-    const known = resolved.get(phrase.id);
+    const url = audioUrl(phrase, { slow });
+    // Keyed per speed: a missing slow file says nothing about the normal one.
+    const cacheKey = `${phrase.id}:${slow ? 'slow' : 'normal'}`;
+    const known = resolved.get(cacheKey);
 
     if (url && known !== 'tts') {
       const played = await playFile(url);
       if (played) {
-        resolved.set(phrase.id, 'file');
+        resolved.set(cacheKey, 'file');
         return true;
       }
-      resolved.set(phrase.id, 'tts'); // file is missing — don't probe it again
+      resolved.set(cacheKey, 'tts'); // file is missing — don't probe it again
     }
 
     const spoken = await speak(phrase);

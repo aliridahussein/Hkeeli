@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hkeeli — Learn Spoken Lebanese Arabic</title>
-  <meta name="description" content="Hkeeli (إحكيلي) — learn spoken Lebanese Arabic with a native teacher. Lessons, games, and audio for people who don't read Arabic yet.">
+  <meta name="description" content="Speak useful Lebanese Arabic from your first lesson — even if you can't read Arabic. Spoken Lebanese with a native teacher: free lessons, audio, practice, and one-to-one classes.">
   <meta name="theme-color" content="#153534">
   <link rel="canonical" href="https://hkeeli.com/">
 
@@ -16,21 +16,21 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <!-- Link previews. og:image must be absolute — scrapers don't resolve
-       relative paths reliably. Change the domain in all three pages together. -->
+       relative paths reliably. Change the domain in all four pages together. -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Hkeeli">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="ar_LB">
   <meta property="og:url" content="https://hkeeli.com/">
-  <meta property="og:title" content="Hkeeli — Speak Lebanese like you grew up on the block">
-  <meta property="og:description" content="Hkeeli (إحكيلي) — learn spoken Lebanese Arabic with a native teacher. Lessons, games, and audio for people who don't read Arabic yet.">
+  <meta property="og:title" content="Hkeeli — Speak useful Lebanese Arabic from your first lesson">
+  <meta property="og:description" content="Spoken Lebanese Arabic with a native teacher. Real situations, audio, and practice — built for people who don't read Arabic yet.">
   <meta property="og:image" content="https://hkeeli.com/assets/images/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Hkeeli — learn spoken Lebanese Arabic">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Hkeeli — Speak Lebanese like you grew up on the block">
-  <meta name="twitter:description" content="Hkeeli (إحكيلي) — learn spoken Lebanese Arabic with a native teacher. Lessons, games, and audio for people who don't read Arabic yet.">
+  <meta name="twitter:title" content="Hkeeli — Speak useful Lebanese Arabic from your first lesson">
+  <meta name="twitter:description" content="Spoken Lebanese Arabic with a native teacher. Real situations, audio, and practice — built for people who don't read Arabic yet.">
   <meta name="twitter:image" content="https://hkeeli.com/assets/images/og-image.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +44,9 @@
 
   <!-- Structured data. Deliberately no Person entry yet: the teacher's real
        name and photo are still placeholders in data/en.json, and inventing them
-       here would put false claims in front of search engines. -->
+       here would put false claims in front of search engines. No FAQPage entry
+       either: the questions live in data/*.json in two languages, and copying
+       them here would be a second copy to keep in step. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -55,7 +57,7 @@
         "url": "https://hkeeli.com/",
         "name": "Hkeeli",
         "alternateName": "إحكيلي",
-        "description": "Learn spoken Lebanese Arabic with lessons, games and audio.",
+        "description": "Speak useful Lebanese Arabic from your first lesson — even if you can't read Arabic.",
         "inLanguage": ["en", "ar"]
       },
       {
@@ -88,9 +90,9 @@
   </a>
 
   <div class="nav-links">
-    <a href="index.html#about" data-i18n="nav.about">Meet the Teacher</a>
-    <a href="learn.html" data-i18n="nav.learn">Learn</a>
+    <a href="learn.html" data-i18n="nav.learn">Lessons</a>
     <a href="practice.html" data-i18n="nav.practice">Practice</a>
+    <a href="index.html#about" data-i18n="nav.about">About</a>
   </div>
 
   <div class="nav-actions">
@@ -105,19 +107,19 @@
   </div>
 
   <div class="nav-drawer" id="nav-drawer" hidden>
-    <a href="index.html#about" data-i18n="nav.about">Meet the Teacher</a>
-    <a href="learn.html" data-i18n="nav.learn">Learn</a>
+    <a href="learn.html" data-i18n="nav.learn">Lessons</a>
     <a href="practice.html" data-i18n="nav.practice">Practice</a>
+    <a href="index.html#about" data-i18n="nav.about">About</a>
     <a href="index.html#book" data-i18n="nav.book">Book a Class</a>
   </div>
 </nav>
 
 <main id="main">
 
-  <!-- HERO --------------------------------------------------------------- -->
+  <!-- 1. HERO ------------------------------------------------------------ -->
   <section class="hero">
     <div class="hero-copy">
-      <p class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Lebanese Arabic, taught by a native speaker</span></p>
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Spoken Lebanese, taught by a native speaker</span></p>
       <h1>
         <span data-i18n="hero.titleBefore"></span>
         <span class="arabic-word" lang="ar" dir="rtl" data-i18n="hero.titleArabic">إحكي</span>
@@ -125,9 +127,12 @@
       </h1>
       <p data-i18n="hero.body"></p>
       <div class="hero-ctas">
-        <a href="learn.html" class="btn-primary" data-i18n="hero.ctaPrimary">Start Learning Free</a>
-        <a href="#book" class="btn-secondary" data-i18n="hero.ctaSecondary">Book a 1-on-1</a>
+        <a href="#mini-lesson" class="btn-primary" data-i18n="hero.ctaPrimary">Try a Free Mini-Lesson</a>
+        <a href="#book" class="btn-secondary" data-i18n="hero.ctaSecondary">Book a Class</a>
       </div>
+      <p class="hero-aside">
+        <a href="start.html" data-i18n="hero.startLink">Not sure where to begin? Start here →</a>
+      </p>
     </div>
 
     <div>
@@ -137,15 +142,80 @@
     </div>
   </section>
 
+  <!-- 2. MINI-LESSON ----------------------------------------------------- -->
+  <section class="mini-section" id="mini-lesson">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="mini.eyebrow">Free mini-lesson</span></p>
+      <h2 data-i18n="mini.sectionTitle"></h2>
+      <p data-i18n="mini.sectionBody"></p>
+    </div>
+    <!-- A working lesson, built by js/mini-lesson.js from the same phrase bank
+         and audio path the course uses. -->
+    <div class="mini-host" id="mini-host"></div>
+  </section>
+
   <!-- COASTLINE ---------------------------------------------------------- -->
-  <div class="coastline" aria-hidden="true">
+  <div class="coastline coastline--sand" aria-hidden="true">
     <svg viewBox="0 0 1200 70" preserveAspectRatio="none" focusable="false">
       <path d="M0,35 C150,10 300,60 450,35 C600,10 750,60 900,35 C1050,10 1150,50 1200,35 L1200,70 L0,70 Z" fill="#1F4B4A" opacity="0.08"/>
       <path d="M0,45 C150,20 300,68 450,45 C600,20 750,68 900,45 C1050,22 1150,58 1200,45 L1200,70 L0,70 Z" fill="#E8A33D" opacity="0.15"/>
     </svg>
   </div>
 
-  <!-- ABOUT -------------------------------------------------------------- -->
+  <!-- 3. GOALS ----------------------------------------------------------- -->
+  <section id="goals">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="goals.eyebrow">Your reason</span></p>
+      <h2 data-i18n="goals.title"></h2>
+      <p data-i18n="goals.subtitle"></p>
+    </div>
+    <!-- Cards and the resulting recommendation are built by js/main.js -->
+    <div class="goal-grid" id="goal-grid" role="group" data-i18n-attr="aria-label:goals.title"></div>
+    <div class="goal-result" id="goal-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- 4. METHOD ---------------------------------------------------------- -->
+  <section class="method" id="method">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="method.eyebrow">How it works</span></p>
+      <h2 data-i18n="method.title"></h2>
+      <p data-i18n="method.subtitle"></p>
+    </div>
+    <ol class="method-steps">
+      <li>
+        <span class="method-index" aria-hidden="true">1</span>
+        <h3 data-i18n="method.s1Title">Hear it</h3>
+        <p data-i18n="method.s1Body"></p>
+      </li>
+      <li>
+        <span class="method-index" aria-hidden="true">2</span>
+        <h3 data-i18n="method.s2Title">Understand it</h3>
+        <p data-i18n="method.s2Body"></p>
+      </li>
+      <li>
+        <span class="method-index" aria-hidden="true">3</span>
+        <h3 data-i18n="method.s3Title">Use it in a real conversation</h3>
+        <p data-i18n="method.s3Body"></p>
+      </li>
+    </ol>
+    <p class="method-note" data-i18n="method.note"></p>
+  </section>
+
+  <!-- 5. LEARNING JOURNEY ------------------------------------------------ -->
+  <section id="journey">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="journey.eyebrow">The journey</span></p>
+      <h2 data-i18n="journey.title"></h2>
+      <p data-i18n="journey.subtitle"></p>
+    </div>
+    <!-- Stages and their units come from js/journey.js + lessons.json -->
+    <ol class="journey-list" id="journey-list"></ol>
+    <p class="center-text" style="margin-block-start: var(--space-6);">
+      <a href="learn.html" class="btn-secondary" data-i18n="journey.viewAll">See the full curriculum</a>
+    </p>
+  </section>
+
+  <!-- 6. TEACHER --------------------------------------------------------- -->
   <section class="about" id="about">
     <div class="about-grid">
       <!-- The voice stands in for a portrait: for a language teacher it is the
@@ -167,39 +237,50 @@
       </div>
     </div>
 
+    <!-- What a learner gets out of the teaching, rather than more biography. -->
+    <div class="teach-grid">
+      <article>
+        <h3 data-i18n="about.valueApproachTitle"></h3>
+        <p data-i18n="about.valueApproachBody"></p>
+      </article>
+      <article>
+        <h3 data-i18n="about.valueDialectTitle"></h3>
+        <p data-i18n="about.valueDialectBody"></p>
+      </article>
+      <article>
+        <h3 data-i18n="about.valuePronunciationTitle"></h3>
+        <p data-i18n="about.valuePronunciationBody"></p>
+      </article>
+      <article>
+        <h3 data-i18n="about.valueClassTitle"></h3>
+        <p data-i18n="about.valueClassBody"></p>
+      </article>
+      <article>
+        <h3 data-i18n="about.valueWhoTitle"></h3>
+        <p data-i18n="about.valueWhoBody"></p>
+      </article>
+    </div>
+
     <!-- Testimonials render only when data/*.json carries real ones. An empty
          array hides the whole block: invented quotes cost more trust than an
          absent section. -->
     <div id="testimonials"></div>
   </section>
 
-  <!-- LEARN -------------------------------------------------------------- -->
-  <section id="learn">
-    <div class="section-head">
-      <p class="eyebrow"><span class="dot"></span><span data-i18n="learn.eyebrow">Learn</span></p>
-      <h2 data-i18n="learn.title"></h2>
-      <p data-i18n="learn.subtitle"></p>
-    </div>
-    <!-- Populated from lessons.json -->
-    <div class="learn-grid" id="learn-grid"></div>
-    <p class="center-text" style="margin-block-start: var(--space-6);">
-      <a href="learn.html" class="btn-secondary" data-i18n="learn.viewAll">See all lessons</a>
-    </p>
-  </section>
-
-  <!-- PRACTICE ----------------------------------------------------------- -->
-  <section class="games" id="games">
-    <div class="section-head">
-      <p class="eyebrow"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
-      <h2 data-i18n="games.title"></h2>
-      <p data-i18n="games.subtitle"></p>
-    </div>
-    <!-- Populated from the game registry -->
-    <div class="games-grid" id="games-grid"></div>
-  </section>
-
-  <!-- BOOK --------------------------------------------------------------- -->
+  <!-- 7. CLASSES + BOOKING ----------------------------------------------- -->
   <section id="book">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="book.eyebrow">Classes</span></p>
+      <h2 data-i18n="book.title"></h2>
+      <p data-i18n="book.subtitle"></p>
+    </div>
+
+    <!-- Class facts. Rows whose value is still unknown are rendered as "ask
+         when you book" by js/main.js rather than filled with a guess — see
+         `classes` in data/en.json and the owner checklist in README.md. -->
+    <dl class="class-facts" id="class-facts"></dl>
+    <p class="class-note" data-i18n="classes.note"></p>
+
     <div class="book-band">
       <div>
         <h2 data-i18n="book.bandTitle"></h2>
@@ -249,6 +330,17 @@
     </form>
   </section>
 
+  <!-- 8. FAQ ------------------------------------------------------------- -->
+  <section class="faq-section" id="faq">
+    <div class="section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="faq.eyebrow">Questions</span></p>
+      <h2 data-i18n="faq.title"></h2>
+      <p data-i18n="faq.subtitle"></p>
+    </div>
+    <!-- Built from `faq.items` in the language bundles by js/main.js -->
+    <div class="faq" id="faq-list"></div>
+  </section>
+
 </main>
 
 <footer class="site-footer">
@@ -258,9 +350,10 @@
   </div>
   <p data-i18n="site.tagline"></p>
   <nav class="footer-links" data-i18n-attr="aria-label:footer.nav">
-    <a href="index.html#about" data-i18n="nav.about"></a>
+    <a href="start.html" data-i18n="nav.start"></a>
     <a href="learn.html" data-i18n="nav.learn"></a>
     <a href="practice.html" data-i18n="nav.practice"></a>
+    <a href="index.html#about" data-i18n="nav.about"></a>
     <a href="index.html#book" data-i18n="nav.book"></a>
   </nav>
   <p class="form-note" data-i18n="footer.rights"></p>

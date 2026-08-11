@@ -23,7 +23,10 @@ export default {
   hudMode: 'review',
 
   start(shell) {
-    const queue = progress.getDueCards(shell.phrases, CONFIG.games.flashcardSession);
+    const queue = progress.getDueCards(
+      shell.phrases,
+      shell.roundSize(CONFIG.games.flashcardSession, shell.phrases.length)
+    );
     if (!queue.length) {
       shell.renderBoard(el('div', { class: 'game-empty' }, el('p', {}, t('game.empty'))));
       return;

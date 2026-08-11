@@ -37,7 +37,7 @@ export default {
       return;
     }
 
-    const round = sample(pairs, Math.min(CONFIG.games.roundLength, pairs.length));
+    const round = sample(pairs, shell.roundSize(CONFIG.games.roundLength, pairs.length));
     let index = 0;
     // Read fresh on every keypress, so the keys always drive the live question.
     let keyState = {};

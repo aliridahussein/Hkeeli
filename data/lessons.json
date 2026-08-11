@@ -6,7 +6,7 @@
       "ar": "لبناني للحياة اليومية"
     },
     "totalUnitsPlanned": 12,
-    "note": "Units 4-12 get appended to `units` below. No code changes are needed - the Learn page and all four games read from this file. See README.md.",
+    "note": "Units 4-12 get appended to `units` below. No code changes are needed - the Learn page and all seven games read from this file. See README.md. A unit's `stage` places it on the learning journey (stage ids live in js/journey.js); `outcome` and `skills` drive the curriculum cards on the Lessons page.",
     "intro": {
       "id": "intro-hello",
       "ar": "أهلا وسهلا! أنا معلّمتك، ويلا نبدا نحكي لبناني.",
@@ -22,6 +22,7 @@
       "order": 1,
       "slug": "first-words",
       "featured": true,
+      "stage": "first-conversations",
       "level": {
         "en": "Beginner",
         "ar": "مبتدئ"
@@ -34,6 +35,16 @@
         "en": "Greetings, please & thank you, the basics you need on day one.",
         "ar": "التحيّات، من فضلك وشكراً — الأساسيات يلي بتلزمك من أول يوم."
       },
+      "outcome": {
+        "en": "Greet someone, say how you are, ask how they are, and say goodbye — without switching to English.",
+        "ar": "تسلّم، تقول كيفك، تسأل الشخص كيفو، وتودّع — كلو بالعربي بلا ما ترجع عالإنجليزي."
+      },
+      "skills": [
+        { "en": "Greeting a man vs a woman", "ar": "التحية لرجّال ولمرا" },
+        { "en": "Please and thank you", "ar": "من فضلك وشكراً" },
+        { "en": "Small talk openers", "ar": "فواتح الحكي" },
+        { "en": "Saying goodbye", "ar": "الوداع" }
+      ],
       "tip": {
         "en": "Lebanese greetings are gendered: you say kifak to a man and kifik to a woman. Get this one right and people immediately hear that you learned from a person, not an app.",
         "ar": "التحية بتتغيّر حسب الشخص: بتقول كيفك لرجّال وكيفِك لمرا. هيدي أول شي بيخلّي الناس تحس إنك تعلّمت من ناس، مش من تطبيق."
@@ -221,7 +232,11 @@
           "id": "u1-p9",
           "ar": "تكرم عينك",
           "translit": "tikram 3ainak",
-          "en": "\"bless your eyes\" — you're welcome",
+          "en": "you're welcome",
+          "literal": {
+            "en": "bless your eyes",
+            "ar": "تكرم عينك"
+          },
           "audio": "lessons/unit-1/tikram-3ainak.mp3",
           "accept": [
             "tikram 3ainak",
@@ -259,7 +274,11 @@
           "id": "u1-p11",
           "ar": "بخاطرك",
           "translit": "b khatrak",
-          "en": "goodbye (said by the person leaving)",
+          "en": "goodbye",
+          "note": {
+            "en": "Said by the person who is leaving.",
+            "ar": "بيقولا الشخص يلي عم يمشي."
+          },
           "audio": "lessons/unit-1/b-khatrak.mp3",
           "accept": [
             "b khatrak",
@@ -295,6 +314,7 @@
       "order": 2,
       "slug": "ordering-like-a-local",
       "featured": true,
+      "stage": "everyday-situations",
       "level": {
         "en": "Everyday",
         "ar": "يوميّات"
@@ -307,6 +327,16 @@
         "en": "Café orders, street food, and how to actually get the bill.",
         "ar": "طلبات القهوة، أكل الشارع، وكيف بتطلب الحساب."
       },
+      "outcome": {
+        "en": "Order coffee and food the way Lebanese people order it, ask what's good, ask the price, and get the bill.",
+        "ar": "تطلب قهوة وأكل متل ما بيطلبوا اللبنانيين، تسأل شو منيح، تسأل قديش، وتطلب الحساب."
+      },
+      "skills": [
+        { "en": "Coffee by sugar level", "ar": "القهوة حسب السكّر" },
+        { "en": "Ordering street food", "ar": "طلب أكل الشارع" },
+        { "en": "Asking what's recommended", "ar": "شو بتنصحني" },
+        { "en": "Asking the price and paying", "ar": "السعر والدفع" }
+      ],
       "tip": {
         "en": "Coffee in Lebanon is ordered by sugar level, not size: 2ahwe sada (no sugar), wasat (medium), 7elwe (sweet). And 3al ri7a literally means \"on the scent\" — barely any sugar at all.",
         "ar": "القهوة بلبنان بتنطلب حسب السكّر مش الحجم: سادة، وسط، حلوة. و\"عالريحة\" يعني سكّر شوي كتير قليل."
@@ -350,7 +380,11 @@
           "id": "u2-p1",
           "ar": "قهوة عالريحة",
           "translit": "2ahwe 3al ri7a",
-          "en": "coffee with barely any sugar (\"on the scent\")",
+          "en": "coffee with barely any sugar",
+          "literal": {
+            "en": "coffee on the scent",
+            "ar": "قهوة عالريحة"
+          },
           "audio": "lessons/unit-2/ahwe-3al-riha.mp3",
           "accept": [
             "2ahwe 3al riha",
@@ -561,6 +595,7 @@
       "order": 3,
       "slug": "teta-and-jiddo",
       "featured": true,
+      "stage": "family-and-social",
       "level": {
         "en": "Family",
         "ar": "عيلة"
@@ -573,6 +608,16 @@
         "en": "The phrases that make grandparents light up on the phone.",
         "ar": "الجمل يلي بتضوّي وج تيتا وجدو عالتلفون."
       },
+      "outcome": {
+        "en": "Keep the first two minutes of a phone call with a Lebanese relative entirely in Lebanese — greeting, health, affection, blessings.",
+        "ar": "تخلّي أول دقيقتين من مكالمة مع قريب لبناني كلها بالعربي — تحية، صحة، حنان، ودعوات."
+      },
+      "skills": [
+        { "en": "Family words", "ar": "كلمات العيلة" },
+        { "en": "Blessings instead of compliments", "ar": "الدعوات بدل المجاملات" },
+        { "en": "Saying you miss someone", "ar": "كيف تقول اشتقتلك" },
+        { "en": "Phone-call openings and goodbyes", "ar": "بداية ونهاية المكالمة" }
+      ],
       "tip": {
         "en": "Half of Lebanese affection is blessings, not compliments. Allah ykhallik and Allah ya3tik el 3afye do more work than \"thank you\" ever will — use them constantly.",
         "ar": "نص الحنان اللبناني دعوات مش مجاملات. \"الله يخليك\" و\"الله يعطيك العافية\" بيعملوا أكتر من \"شكراً\" بكتير."
@@ -645,7 +690,11 @@
           "id": "u3-p3",
           "ar": "الله يخليك",
           "translit": "Allah ykhallik",
-          "en": "may God keep you — thank you / bless you",
+          "en": "thank you / bless you",
+          "literal": {
+            "en": "may God keep you",
+            "ar": "الله يخليك"
+          },
           "audio": "lessons/unit-3/allah-ykhallik.mp3",
           "accept": [
             "allah ykhallik",
@@ -725,7 +774,11 @@
           "id": "u3-p7",
           "ar": "حبيبي / حبيبتي",
           "translit": "7abibe / 7abibte",
-          "en": "my love (said to absolutely everyone)",
+          "en": "my love",
+          "note": {
+            "en": "Said to absolutely everyone — family, friends, the man selling you bread.",
+            "ar": "بتنقال لكل الناس — العيلة، الرفقا، وحتى الفرّان."
+          },
           "audio": "lessons/unit-3/habibe.mp3",
           "accept": [
             "7abibe",
@@ -742,7 +795,11 @@
           "id": "u3-p8",
           "ar": "الله يعطيك العافية",
           "translit": "Allah ya3tik el 3afye",
-          "en": "may God give you strength (said to someone working)",
+          "en": "may God give you strength",
+          "note": {
+            "en": "Said to someone who is working — the everyday way to thank them for the effort.",
+            "ar": "بتنقال لحدا عم يشتغل — أسهل طريقة تشكرو على تعبو."
+          },
           "audio": "lessons/unit-3/allah-ya3tik-el-3afye.mp3",
           "accept": [
             "allah ya3tik el 3afye",

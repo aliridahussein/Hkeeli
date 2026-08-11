@@ -4,6 +4,7 @@
   "rewrites": [
     { "source": "/", "destination": "/index.html" },
     { "source": "/index", "destination": "/index.html" },
+    { "source": "/start", "destination": "/start.html" },
     { "source": "/learn", "destination": "/learn.html" },
     { "source": "/practice", "destination": "/practice.html" }
   ]

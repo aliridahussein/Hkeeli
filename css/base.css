@@ -17,6 +17,15 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Anything a link or a script can scroll to has to clear the sticky nav, or it
+   lands with its first line hidden behind it. Set on the targets rather than as
+   scroll-padding on a scroll container: `body` carries its own overflow here, so
+   which element actually scrolls isn't guaranteed, and scroll-margin works on
+   hash jumps and scrollIntoView() alike. */
+main [id] {
+  scroll-margin-block-start: calc(var(--nav-h) + var(--space-5));
+}
+
 body {
   background: var(--sand-light);
   color: var(--ink);
