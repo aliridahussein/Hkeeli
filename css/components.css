@@ -630,84 +630,341 @@
 }
 
 /* --------------------------------------------------------------------------
-   Booking band
+   Booking section
+   --------------------------------------------------------------------------
+   Two columns on desktop: the reason to book on the left, the handover to
+   Preply on the right. The card is the only raised surface on the page here,
+   so the eye lands on it without the section shouting.
    -------------------------------------------------------------------------- */
-.book-band {
-  background: var(--citrus);
-  border-radius: var(--radius-xl);
+.booking-grid {
+  display: grid;
+  gap: var(--space-7);
   max-width: var(--measure);
   margin-inline: auto;
-  padding: var(--space-8) var(--gutter);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-6);
-  flex-wrap: wrap;
 }
 
-.book-band h2 {
+.booking-copy h2 {
   font-size: var(--step-3);
-  max-width: 420px;
+  max-width: 18ch;
 }
 
-.book-band p {
-  color: var(--citrus-ink);
+.booking-lede {
+  font-size: 1.05rem;
+  color: var(--ink-muted);
+  margin-block: var(--space-4);
+}
+
+.booking-copy > p {
+  color: var(--ink-muted);
+}
+
+/* ---- "What would you like help with?" ---- */
+.goal-help,
+.trial-benefits {
+  margin-block-start: var(--space-6);
+  padding-block-start: var(--space-5);
+  border-block-start: 1px solid var(--hairline);
+}
+
+.goal-help h3,
+.trial-benefits h3 {
+  font-size: 1.05rem;
+  margin-block-end: var(--space-4);
+}
+
+.goal-help-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.goal-help-option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 10px 18px;
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--sea-deep);
+  /* 180ms: long enough to read as a state change, short enough that a keyboard
+     user tabbing through three options never waits for it. */
+  transition: border-color 180ms var(--ease), background 180ms var(--ease),
+    transform 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.goal-help-option[aria-pressed='true'] {
+  border-color: var(--citrus);
+  background: var(--sand);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(21, 53, 52, 0.1);
+}
+
+/* The tick only exists once the option is chosen, so the row doesn't reflow
+   around an invisible placeholder. */
+.goal-help-tick {
+  display: none;
+}
+
+.goal-help-option[aria-pressed='true'] .goal-help-tick {
+  display: inline-flex;
+  align-items: center;
+  color: var(--citrus-shadow);
+  font-weight: 700;
+}
+
+.goal-help-option[aria-pressed='true'] .goal-help-tick::before {
+  content: '\2713';
+}
+
+@media (hover: hover) {
+  .goal-help-option:hover {
+    border-color: var(--olive);
+    background: var(--olive-wash);
+  }
+}
+
+.goal-help-message {
+  margin-block-start: var(--space-4);
+  padding: var(--space-4);
+  border-inline-start: 3px solid var(--olive);
+  border-radius: var(--radius-md);
+  background: var(--olive-wash);
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+/* No chosen goal, no empty box. The live region stays in the DOM either way so
+   the announcement isn't lost with it. */
+.goal-help-message:empty {
+  display: none;
+}
+
+.goal-help-message[data-shown='true'] {
+  animation: goal-reveal 200ms var(--ease) both;
+}
+
+@keyframes goal-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ---- Trial benefits ---- */
+.trial-benefits ul {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.trial-benefits li {
+  position: relative;
+  padding-inline-start: var(--space-6);
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.trial-benefits li::before {
+  content: '\2713';
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--olive);
+  font-weight: 700;
+}
+
+/* ---- The Preply card ---- */
+.booking-card {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-block-start: 3px solid var(--citrus);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  padding: var(--space-6);
+}
+
+/* Deeper than the olive used by the page's other eyebrows: at 0.72rem and
+   letter-spaced, olive on the card sits at ~2.9:1, which is not readable
+   enough for a label that names where the button is about to send you. */
+.booking-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sea);
+}
+
+/* The Arabic label is the only eyebrow on the site containing a Latin word, and
+   uppercasing turns it into "PREPLY" — a second spelling of a brand name that
+   appears as "Preply" three lines below. */
+[lang='ar'] .booking-card-label {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.booking-card h3 {
+  font-size: 1.35rem;
+  margin-block: var(--space-3);
+}
+
+/* The label is also a <p>, and `.booking-card > p` outranks a single class —
+   without the exclusion it silently repaints the label as body copy. */
+.booking-card > p:not(.booking-card-label) {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.booking-steps {
+  counter-reset: booking-step;
+  display: grid;
+  gap: var(--space-3);
+  margin-block: var(--space-5);
+}
+
+.booking-steps li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.92rem;
+  color: var(--sea-deep);
+}
+
+.booking-steps li::before {
+  counter-increment: booking-step;
+  content: counter(booking-step);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sea-deep);
+  color: var(--citrus);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+/* ---- The handover ---- */
+.booking-cta {
+  width: 100%;
+}
+
+/* A 1-2px lift, not the 3px the page's other primary buttons take: this button
+   sits directly above its own disclosure, and a bigger jump reads as the text
+   moving too. */
+@media (hover: hover) {
+  .booking-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 var(--citrus-shadow);
+  }
+}
+
+.cta-arrow {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* The arrow points away from the reading direction — mirror it in Arabic. */
+[dir='rtl'] .cta-arrow {
+  transform: scaleX(-1);
+}
+
+/* Only ever seen when CONFIG.preply.profileUrl is unset: a plainly inert
+   control beats a live-looking one that goes nowhere. */
+.booking-cta--disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.booking-unconfigured {
   margin-block-start: var(--space-3);
-  max-width: 420px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--bad);
+}
+
+/* Sits tight under the button with no rule between them: the disclosure has to
+   read as part of the action, not as the next paragraph. */
+.booking-disclosure {
+  margin-block-start: var(--space-4);
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+.booking-note {
+  margin-block-start: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--sand-light);
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+}
+
+.booking-contact {
+  margin-block-start: var(--space-4);
+  font-size: 0.85rem;
+}
+
+.booking-contact a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-weight: 700;
+  color: var(--sea-deep);
+  border-block-end: 2px solid var(--citrus);
+}
+
+/* ---- Bottom reassurance ---- */
+.booking-reassurance {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3) var(--space-6);
+  max-width: var(--measure);
+  margin-inline: auto;
+  margin-block-start: var(--space-7);
+  padding-block-start: var(--space-6);
+  border-block-start: 1px solid var(--hairline);
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+}
+
+.booking-reassurance li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.booking-reassurance .tick::before {
+  content: '\2713';
+  color: var(--olive);
+  font-weight: 700;
+}
+
+/* Full-width goal buttons on a narrow phone: three pills wrapping mid-label
+   read as broken rather than as a set. */
+@media (max-width: 559px) {
+  .goal-help-option {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 900px) {
+  .booking-grid {
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: var(--space-8);
+    align-items: start;
+  }
 }
 
 /* --------------------------------------------------------------------------
    Forms
    -------------------------------------------------------------------------- */
-.form-card {
-  background: var(--card);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  max-width: 640px;
-  margin-inline: auto;
-  margin-block-start: var(--space-7);
-}
-
-.field {
-  display: grid;
-  gap: var(--space-2);
-  margin-block-end: var(--space-4);
-  min-width: 0;
-}
-
-.field label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--sea-deep);
-}
-
-/* A <select> sizes itself to its longest option; without this the level
-   dropdown widens the whole form past the viewport on phones. */
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  min-width: 0;
-  min-height: var(--tap);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--radius-md);
-  background: var(--sand-light);
-  font-size: var(--step-0);
-}
-
-.field textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-  border-color: var(--olive);
-}
-
 .form-note {
   font-size: 0.82rem;
   color: var(--ink-soft);
@@ -1329,78 +1586,6 @@
   color: var(--on-dark-muted);
   font-size: 0.92rem;
   margin: 0;
-}
-
-/* --------------------------------------------------------------------------
-   Classes
-   -------------------------------------------------------------------------- */
-.class-facts {
-  display: grid;
-  max-width: 720px;
-  margin-inline: auto;
-  background: var(--card);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.class-facts dt {
-  padding: var(--space-4) var(--space-5) var(--space-1);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--olive);
-}
-
-.class-facts dd {
-  padding: 0 var(--space-5) var(--space-4);
-  color: var(--ink-muted);
-  border-block-end: 1px solid var(--hairline);
-}
-
-.class-facts dd:last-of-type {
-  border-block-end: none;
-}
-
-.class-fact--pending {
-  color: var(--ink-soft);
-  font-style: italic;
-}
-
-.class-note {
-  max-width: 720px;
-  margin-inline: auto;
-  margin-block-start: var(--space-4);
-  font-size: 0.9rem;
-  color: var(--ink-soft);
-}
-
-/* Two columns once there is room. The rule then has to move onto the label as
-   well, or it would cut across the middle of each row. */
-@media (min-width: 700px) {
-  /* Both cells must fill the row height, or their bottom rules land at
-     different heights the moment a value wraps to more lines than its label —
-     which is exactly what "What's included" does. Baseline alignment looks
-     right until then. The labels stay level with the first line of the value
-     anyway, because both cells carry the same padding. */
-  .class-facts {
-    grid-template-columns: minmax(150px, 0.4fr) 1fr;
-    align-items: stretch;
-  }
-
-  .class-facts dt {
-    padding: var(--space-4) var(--space-5);
-    border-block-end: 1px solid var(--hairline);
-  }
-
-  .class-facts dd {
-    padding: var(--space-4) var(--space-5);
-  }
-
-  .class-facts dt:last-of-type {
-    border-block-end: none;
-  }
 }
 
 /* --------------------------------------------------------------------------

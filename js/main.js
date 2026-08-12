@@ -13,7 +13,7 @@ import { getAllPhrases, getIntro } from './data.js';
 import { getJourney, GOALS, getGoal } from './journey.js';
 import { initMiniLesson } from './mini-lesson.js';
 import { prefs } from './storage.js';
-import { initBookingForm } from './booking.js';
+import { initBookingSection } from './booking.js';
 
 /* The three phrases on the hero postcards, by id. Change these to feature
    different words — no markup edits needed. */
@@ -22,7 +22,9 @@ const HERO_PHRASE_IDS = ['u1-p10', 'u1-p12', 'u1-p9'];
 async function main() {
   await initI18n();
   initChrome();
-  initBookingForm();
+  // Reads only the language bundles and CONFIG, so it doesn't wait on
+  // lessons.json with the sections below.
+  initBookingSection();
 
   try {
     await Promise.all([
@@ -31,7 +33,6 @@ async function main() {
       renderGoals(),
       renderJourney(),
       renderAbout(),
-      renderClassFacts(),
       renderFaq()
     ]);
   } catch (error) {
@@ -48,7 +49,7 @@ async function main() {
     renderGoals();
     renderJourney();
     renderAbout();
-    renderClassFacts();
+    initBookingSection();
     renderFaq();
   });
 }
@@ -392,34 +393,6 @@ function renderTestimonials() {
         )
       )
     )
-  );
-}
-
-/* --------------------------------------------------------------------------
-   Classes
-   --------------------------------------------------------------------------
-   Each row is a fact about the class offer. A row whose value is the literal
-   string "tbc" renders as "ask when you book" — the honest answer until the
-   owner fills it in, and a single place to change once they do.
-   -------------------------------------------------------------------------- */
-
-function renderClassFacts() {
-  const host = document.querySelector('#class-facts');
-  if (!host) return;
-
-  const rows = t('classes.facts');
-  clear(host);
-  if (!Array.isArray(rows)) return;
-
-  host.append(
-    ...rows.flatMap((row) => [
-      el('dt', {}, row.label),
-      el(
-        'dd',
-        { class: row.value === 'tbc' ? 'class-fact--pending' : '' },
-        row.value === 'tbc' ? t('classes.pending') : row.value
-      )
-    ])
   );
 }
 

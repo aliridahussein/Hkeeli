@@ -267,67 +267,54 @@
     <div id="testimonials"></div>
   </section>
 
-  <!-- 7. CLASSES + BOOKING ----------------------------------------------- -->
-  <section id="book">
-    <div class="section-head">
-      <p class="eyebrow"><span class="dot"></span><span data-i18n="book.eyebrow">Classes</span></p>
-      <h2 data-i18n="book.title"></h2>
-      <p data-i18n="book.subtitle"></p>
+  <!-- 7. BOOKING ---------------------------------------------------------- -->
+  <!-- Hkeeli's job here is trust, not transaction: Preply owns accounts,
+       current pricing, availability, scheduling, payment and the trial lesson.
+       Everything variable (the profile URL, the teacher's name, whether a
+       contact address exists) comes from CONFIG.preply — see js/booking.js. -->
+  <section id="book" class="booking">
+    <div class="booking-grid">
+
+      <!-- Left: why a private lesson, and what the trial actually is -->
+      <div class="booking-copy">
+        <p class="eyebrow"><span class="dot"></span><span data-i18n="book.eyebrow">Personal online lessons</span></p>
+        <h2 data-i18n="book.title">Bring one conversation you wish you could have.</h2>
+        <p class="booking-lede" data-i18n="book.p1"></p>
+        <p data-i18n="book.p2"></p>
+
+        <div class="goal-help">
+          <h3 id="booking-goal-label" data-i18n="book.goalLabel">What would you like help with?</h3>
+          <!-- Buttons and the response are built by js/booking.js from
+               `book.goals` in the language bundles. The choice never leaves
+               this element: it isn't stored, sent, or added to the Preply URL. -->
+          <div class="goal-help-options" id="booking-goals" role="group" aria-labelledby="booking-goal-label"></div>
+          <p class="goal-help-message" id="booking-goal-message" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="trial-benefits">
+          <h3 data-i18n="book.benefitsTitle">Your trial gives you:</h3>
+          <ul id="booking-benefits"></ul>
+        </div>
+      </div>
+
+      <!-- Right: the handover.
+           #booking-form is kept as an id so older links to the removed form
+           still land on the booking card rather than nowhere. -->
+      <div class="booking-card" id="booking-form">
+        <p class="booking-card-label" data-i18n="book.cardLabel">Book through Preply</p>
+        <h3 data-i18n="book.cardTitle">Ready to try a real conversation?</h3>
+        <p data-i18n="book.cardBody"></p>
+
+        <ol class="booking-steps" id="booking-steps"></ol>
+
+        <!-- The link, the disclosure under it and the optional contact line are
+             all rendered by js/booking.js, so an unconfigured profile URL can
+             never ship as a live-looking button that goes nowhere. -->
+        <div class="booking-action" id="booking-action"></div>
+      </div>
     </div>
 
-    <!-- Class facts. Rows whose value is still unknown are rendered as "ask
-         when you book" by js/main.js rather than filled with a guess — see
-         `classes` in data/en.json and the owner checklist in README.md. -->
-    <dl class="class-facts" id="class-facts"></dl>
-    <p class="class-note" data-i18n="classes.note"></p>
-
-    <div class="book-band">
-      <div>
-        <h2 data-i18n="book.bandTitle"></h2>
-        <p data-i18n="book.bandBody"></p>
-      </div>
-      <a href="#booking-form" class="btn-secondary" data-i18n="book.bandCta">Book Your First Class</a>
-    </div>
-
-    <!-- Placeholder submission: composes a mailto: draft until a real booking
-         backend exists. See CONFIG.formEndpoint in js/config.js. -->
-    <form class="form-card" id="booking-form" novalidate>
-      <h3 data-i18n="book.formTitle"></h3>
-      <p class="form-note" data-i18n="book.formBody"></p>
-
-      <div class="field">
-        <label for="bf-name" data-i18n="book.name">Your name</label>
-        <input id="bf-name" name="name" type="text" autocomplete="name" required>
-      </div>
-
-      <div class="field">
-        <label for="bf-email" data-i18n="book.email">Email</label>
-        <input id="bf-email" name="email" type="email" autocomplete="email" required>
-      </div>
-
-      <div class="field">
-        <label for="bf-level" data-i18n="book.level">Your level</label>
-        <select id="bf-level" name="level">
-          <option value="beginner" data-i18n="book.levelBeginner"></option>
-          <option value="some" data-i18n="book.levelSome"></option>
-          <option value="heritage" data-i18n="book.levelHeritage"></option>
-          <option value="intermediate" data-i18n="book.levelIntermediate"></option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="bf-goals" data-i18n="book.goals">What do you want to be able to say?</label>
-        <textarea id="bf-goals" name="goals" data-i18n-attr="placeholder:book.goalsPlaceholder"></textarea>
-      </div>
-
-      <div class="field">
-        <label for="bf-availability" data-i18n="book.availability">When are you usually free?</label>
-        <input id="bf-availability" name="availability" type="text" data-i18n-attr="placeholder:book.availabilityPlaceholder">
-      </div>
-
-      <button type="submit" class="btn-primary" data-i18n="book.submit">Send my request</button>
-      <p class="form-note" data-i18n="book.note"></p>
-    </form>
+    <ul class="booking-reassurance" id="booking-reassurance"></ul>
   </section>
 
   <!-- 8. FAQ ------------------------------------------------------------- -->

@@ -70,10 +70,33 @@ export const CONFIG = {
   },
 
   /* ---- Booking ----------------------------------------------------------
-   * `formEndpoint: 'https://formspree.io/f/xxxx'` switches the booking form
-   * from a mailto: draft to a real POST without touching the markup. */
-  bookingEmail: 'hello@hkeeli.example',
-  formEndpoint: null
+   * Booking is handled by Preply: it owns accounts, current pricing,
+   * availability, scheduling, payment and the trial lesson itself. Hkeeli's
+   * job is only to explain what a lesson is and hand over cleanly.
+   *
+   * These three values are the whole configuration of the booking section.
+   * Nothing else in the codebase names Preply, an address, or a price. */
+  preply: {
+    /* The teacher's first name, used throughout the booking copy.
+     * Empty string = the copy falls back to a neutral phrase ("your teacher" /
+     * "معلّمتك"), which is how the rest of the site already refers to her. Set
+     * a name here and every string picks it up in both languages. */
+    teacherFirstName: '',
+
+    /* TODO before launch: replace with the teacher's DIRECT Preply Share
+     * Profile URL (https://preply.com/en/tutor/…). This is currently the
+     * Preply homepage — a proof-of-concept destination only. A general
+     * homepage, search page or referral link sends the visitor to a
+     * marketplace instead of to her, which is the whole point of the handover.
+     *
+     * Leave this empty and the call to action renders in a plainly disabled
+     * state rather than shipping a link that goes nowhere. */
+    profileUrl: 'https://preply.com/',
+
+    /* Optional. Empty string = the "ask a question first" link is not rendered
+     * at all. Only put a real, monitored address here. */
+    contactEmail: ''
+  }
 };
 
 export default CONFIG;
