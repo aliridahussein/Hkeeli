@@ -1,0 +1,130 @@
+{
+  "note": "The only places Zee is allowed to send anyone. The Worker validates every navigation action against the `id` values below and drops anything else, so the model can never invent a URL. Paths are the real routes served by wrangler.jsonc (html_handling: auto-trailing-slash), and every anchor here exists in the markup — check before adding one.",
+  "pages": [
+    {
+      "id": "home",
+      "title": "Home",
+      "url": "/",
+      "purpose": "The whole offer on one page: what Hkeeli teaches, a free mini-lesson you can try immediately, the learning journey, the teacher, and booking.",
+      "sections": [
+        "Free mini-lesson — three real phrases with audio",
+        "Why are you learning Lebanese? — goal picker",
+        "How it works — hear it, understand it, use it",
+        "The learning journey — five stages",
+        "About the teacher",
+        "Booking",
+        "FAQ"
+      ]
+    },
+    {
+      "id": "mini-lesson",
+      "title": "Free mini-lesson",
+      "url": "/#mini-lesson",
+      "purpose": "A working three-phrase lesson on the home page. Listen, choose the meaning, see the literal meaning and how the phrase is used. The fastest thing to try for someone who has just arrived.",
+      "sections": []
+    },
+    {
+      "id": "start",
+      "title": "Start Here",
+      "url": "/start",
+      "purpose": "Three quick questions — why you are learning, your level, what you want to do first — that end in one specific lesson or activity to begin with. Best answer for 'where do I start?'.",
+      "sections": []
+    },
+    {
+      "id": "learn",
+      "title": "Lessons",
+      "url": "/learn",
+      "purpose": "The curriculum. Every unit says what you will be able to do, what it covers, how many phrases it has, and how far through it you are. Open a unit for its dialogue, vocabulary with audio, teacher's tip, speaking challenge and homework.",
+      "sections": [
+        "Unit 1 — First Words in Lebanon",
+        "Unit 2 — Ordering Like a Local",
+        "Unit 3 — Talking to Teta & Jiddo"
+      ]
+    },
+    {
+      "id": "unit-1",
+      "title": "Unit 1 — First Words in Lebanon",
+      "url": "/learn#unit-1",
+      "purpose": "Greetings, please and thank you. You will be able to greet someone, say how you are, ask how they are, and say goodbye without switching to English. Covers kifak vs kifik, small talk openers and goodbyes.",
+      "sections": []
+    },
+    {
+      "id": "unit-2",
+      "title": "Unit 2 — Ordering Like a Local",
+      "url": "/learn#unit-2",
+      "purpose": "Cafés, street food and the bill. Ordering coffee by sugar level, asking what's recommended, asking the price and paying.",
+      "sections": []
+    },
+    {
+      "id": "unit-3",
+      "title": "Unit 3 — Talking to Teta & Jiddo",
+      "url": "/learn#unit-3",
+      "purpose": "Family and phone calls. Family words, blessings instead of compliments, saying you miss someone, opening and ending a call.",
+      "sections": []
+    },
+    {
+      "id": "practice",
+      "title": "Practice",
+      "url": "/practice",
+      "purpose": "Daily Practice — one short guided session that mixes review, a new phrase, listening, replying and building a sentence — plus seven games grouped by skill. Progress is saved on the device.",
+      "sections": [
+        "Daily Practice (guided session)",
+        "Listening — Listen & Choose",
+        "Understanding — Match the Phrase, Fill the Blank",
+        "Building sentences — Sentence Builder, Order the Conversation",
+        "Responding naturally — What Do You Reply?",
+        "Remembering — Daily Flashcards"
+      ]
+    },
+    {
+      "id": "practice-listening",
+      "title": "Listening practice",
+      "url": "/practice#listen",
+      "purpose": "Listen & Choose: hear a phrase and pick what it means. The drill for training your ear.",
+      "sections": []
+    },
+    {
+      "id": "practice-reply",
+      "title": "Conversation practice",
+      "url": "/practice#reply",
+      "purpose": "What Do You Reply?: someone says a line and you choose the natural Lebanese response. The closest thing on the site to a real conversation.",
+      "sections": []
+    },
+    {
+      "id": "practice-cards",
+      "title": "Flashcards",
+      "url": "/practice#cards",
+      "purpose": "Daily Flashcards: spaced-repetition review of phrases you have already met.",
+      "sections": []
+    },
+    {
+      "id": "about",
+      "title": "About the teacher",
+      "url": "/#about",
+      "purpose": "How the teacher teaches: spoken Lebanese rather than Modern Standard, pronunciation support, what happens in a class, and who classes suit.",
+      "sections": []
+    },
+    {
+      "id": "book",
+      "title": "Book a private lesson",
+      "url": "/#book",
+      "purpose": "Personal one-to-one online lessons with the native teacher, booked through Preply. Explains what a trial lesson includes and links to her Preply profile. The trial is paid; everything else on Hkeeli is free.",
+      "sections": []
+    },
+    {
+      "id": "faq",
+      "title": "FAQ",
+      "url": "/#faq",
+      "purpose": "Do I need to read Arabic, is this Modern Standard Arabic, is it suitable for complete beginners, how online classes work, where to begin.",
+      "sections": []
+    }
+  ],
+  "facts": [
+    "Hkeeli teaches spoken Lebanese dialect, not Modern Standard Arabic.",
+    "Every phrase has audio, Arabic script and Latin transliteration, so no Arabic reading is required.",
+    "The lessons, audio and all seven practice games are free.",
+    "Private one-to-one lessons are booked through Preply and the trial lesson is paid.",
+    "Three units are published so far; units 4-12 are still being written.",
+    "Progress is saved on the learner's own device, with no account."
+  ]
+}

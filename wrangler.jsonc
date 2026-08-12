@@ -1,14 +1,16 @@
 {
   // Cloudflare deployment config.
   //
-  // The site is plain static files with no build step, so this Worker has no
-  // script at all — no `main` entry. It exists only to declare the repo root as
-  // a bundle of static assets, which is what makes `npx wrangler deploy` work
-  // from the dashboard's Git integration.
+  // The site is still plain static files with no build step. The Worker script
+  // exists for exactly one route — /api/zee/chat, which holds the Azure key —
+  // and hands everything else straight back to the asset server, so pages are
+  // delivered the same way they always were.
   //
-  // Nothing here affects local development: `npx serve .` still serves the same
-  // files, and serve.json still handles rewrites for that.
+  // Nothing here affects local development of the pages: `npx serve .` still
+  // serves the same files, and serve.json still handles rewrites for that.
+  // Zee needs the Worker, so use `npx wrangler dev` when testing her.
   "name": "hkeeli",
+  "main": "worker/index.js",
 
   // Pins the Workers runtime behaviour. Bump it deliberately, never casually —
   // it is not a "last deployed" date.
@@ -27,6 +29,22 @@
 
     // Serves /learn from learn.html, which is what the nav links expect. This
     // is the default, stated explicitly because the whole site depends on it.
-    "html_handling": "auto-trailing-slash"
+    "html_handling": "auto-trailing-slash",
+
+    // Lets worker/index.js fall through to the asset server for every path that
+    // isn't /api/…. Without the binding the Worker would have to 404 them.
+    "binding": "ASSETS"
+  },
+
+  // Zee's system instructions are a .txt file so they can be edited as prose;
+  // this rule is what lets the Worker import it as a string. `fallthrough`
+  // keeps Wrangler's own default module rules in place underneath it.
+  "rules": [{ "type": "Text", "globs": ["**/*.txt"], "fallthrough": true }],
+
+  // Non-secret configuration. The API KEY is NOT here and must never be — set
+  // it with `npx wrangler secret put AZURE_OPENAI_API_KEY`. See README.
+  "vars": {
+    "AZURE_OPENAI_ENDPOINT": "https://ali-ne.services.ai.azure.com/openai/v1",
+    "AZURE_OPENAI_DEPLOYMENT": "gpt-5.4-nano"
   }
 }

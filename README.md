@@ -54,6 +54,11 @@ css/
   components.css    Nav, buttons, postcard, lesson card, game tile, forms, footer
   layout.css        Page grids and breakpoints (mobile-first)
   games.css         Practice-page UI (loaded by practice.html only)
+  zee-chat.css      Zee's launcher and chat panel
+
+worker/             Cloudflare Worker — Zee's API only (see "Zee" below)
+  index.js          /api/zee/chat, everything else falls through to assets
+  zee/              chat handler, prompt assembly, limits, rate limiting
 
 js/
   config.js         Everything environment-dependent — audio base, keys, tuning
@@ -72,6 +77,9 @@ js/
   learn.js          Lessons page
   practice.js       Practice page — daily session, game catalogue, mounting
   booking.js        Booking form submission
+  zee-chat.js       Zee's launcher (every page); loads the panel on demand
+  zee-panel.js      Zee's chat UI — streaming, transcript, controls
+  zee-analytics.js  trackZeeEvent(), the seam for a future provider
   games/
     index.js        Game registry + shared shell (score, streak, summary)
     shared.js       Shuffling, answer normalisation, option building
@@ -80,6 +88,7 @@ js/
     sentence-builder.js  order-dialogue.js  reply.js  flashcards.js
 
 data/
+  zee/              Zee's server-side reference — NOT served publicly
   lessons.json      All course content — units, dialogues, phrases, exercises
   en.json           English UI strings
   ar.json           Arabic UI strings
@@ -535,9 +544,214 @@ media queries only enhance upward (600 / 860 / 1000px).
 
 ---
 
+## Zee — the AI Lebanese instructor
+
+Zee is the chat launcher in the corner of every page. She answers in Lebanese,
+explains words using Hkeeli's own glossary, and points learners at real pages of
+the site. She is the only part of Hkeeli with a server behind it.
+
+```
+browser  ──POST /api/zee/chat──>  Cloudflare Worker  ──>  Azure OpenAI
+                                        │                     │
+   validated request, capped   <────────┘   <─── streamed SSE ─┘
+   history, no secrets                       relayed as it arrives
+```
+
+**The Azure key never leaves the Worker.** The browser posts a message to
+`/api/zee/chat` and receives a stream of text; it has no endpoint, no deployment
+name and no key, and nothing it sends can change any of them.
+
+### Files
+
+```
+worker/
+  index.js              Worker entry: /api/zee/chat, everything else -> assets
+  zee/chat.js           the endpoint — validation, Azure call, SSE relay
+  zee/context.js        glossary + site lookup, prompt assembly
+  zee/config.js         every limit, in one object
+  zee/ratelimit.js      per-IP throttling (KV if bound, memory otherwise)
+
+data/zee/
+  lebanese-lexicon.json  canonical Lebanese reference (seeded from lessons.json)
+  site-context.json      the only pages Zee may link to
+  zee-instructions.txt   Zee's system prompt, in prose
+
+js/
+  zee-chat.js           the launcher (loaded on every page, ~2 KB)
+  zee-panel.js          the chat UI (fetched on first open, never before)
+  zee-analytics.js      one function, so a provider can be added later
+
+css/zee-chat.css        all of Zee's styling, on the site's own tokens
+```
+
+`worker/` and `data/zee/` are in `.assetsignore`: the Worker imports them at
+build time, so they ship inside the script. Serving them as public files as well
+would put the system prompt one guessed URL away from anyone.
+
+### Cloudflare configuration
+
+One secret has to exist before Zee will answer:
+
+```bash
+npx wrangler secret put AZURE_OPENAI_API_KEY
+# paste the key from the Azure Foundry deployment page when prompted
+```
+
+The other two values are not secret and live in `wrangler.jsonc` under `vars`:
+
+| Name | Value | Where |
+|---|---|---|
+| `AZURE_OPENAI_API_KEY` | the key | **secret** — `wrangler secret put`, never in Git |
+| `AZURE_OPENAI_ENDPOINT` | `https://ali-ne.services.ai.azure.com/openai/v1` | `vars` in wrangler.jsonc |
+| `AZURE_OPENAI_DEPLOYMENT` | `gpt-5.4-nano` | `vars` in wrangler.jsonc |
+
+Optional, and recommended once Zee gets real traffic — a KV namespace makes the
+rate limits count across every colo instead of per isolate:
+
+```bash
+npx wrangler kv namespace create ZEE_KV
+# then add the returned id to wrangler.jsonc:
+#   "kv_namespaces": [{ "binding": "ZEE_KV", "id": "…" }]
+```
+
+Without it Zee still deploys and still throttles, just more loosely — see the
+comment at the top of `worker/zee/ratelimit.js`.
+
+**Which Azure API.** The deployment page shows the endpoint as
+`…/openai/v1/responses`, but the Responses API is not enabled in this resource's
+region (it answers `NotFound: Azure OpenAI Responses API is not enabled in this
+region`). Zee therefore calls Chat Completions on the same v1 surface, and
+`azureUrl()` in `worker/zee/chat.js` normalises either form of the value. If the
+Responses API is enabled there later, nothing has to change.
+
+### Running it locally
+
+`npx serve .` serves the pages but has no Worker, so Zee's launcher opens and
+then every message fails. To work on Zee:
+
+```bash
+npx wrangler dev
+```
+
+and put the key in a **git-ignored** `.dev.vars` beside `wrangler.jsonc`:
+
+```
+AZURE_OPENAI_API_KEY = "…"
+```
+
+> Wrangler writes its own state into `.wrangler/` inside the asset directory,
+> which its file watcher then notices — on some machines that becomes a reload
+> loop and the dev server stops answering. `.wrangler/` is in `.gitignore` and
+> `.assetsignore`; if the loop still happens, run `wrangler dev` from a copy of
+> the repo outside a syncing folder (OneDrive, Dropbox).
+
+### Limits
+
+All of them are in `worker/zee/config.js`, all enforced server-side:
+
+| Limit | Default | Why |
+|---|---|---|
+| message length | 1000 chars | rejected, not truncated |
+| history sent to Azure | last 8 turns | a long session never grows the prompt |
+| request body | 24 KB | |
+| output | 400 tokens | includes any reasoning tokens |
+| per IP | 5 / minute | stops a burst |
+| per IP | 50 / day | stops a slow drip |
+| glossary entries per turn | 6 | beyond this it's a dictionary dump |
+
+The client has its own copies for the character counter and the disabled send
+button. They are courtesy; the Worker never trusts them.
+
+### How a turn is built
+
+Only what is relevant goes to Azure. A typical turn is a system message, the
+recent history, a small context block and the learner's message:
+
+1. **system** — `data/zee/zee-instructions.txt`, verbatim.
+2. **history** — the last 8 turns, rebuilt from scratch so only `user` and
+   `assistant` roles survive. A client cannot smuggle in a `system` turn.
+3. **developer** — the compact page index, the site facts, the glossary entries
+   whose words appear in *this* message, and which page the learner is on.
+4. **user** — the message.
+5. **developer** — a short style reminder. It is repeated every turn and sits
+   last on purpose: a small model drifts away from a long system prompt within a
+   couple of turns and starts mixing Latin and Arabic script mid-sentence.
+
+The glossary lookup normalises the Arabic chat alphabet the same way the
+practice games normalise typed answers, so `mar7aba`, `marhaba` and `marhabaa`
+all find the same entry. When an entry exists, **its** spelling and meaning are
+what Zee is told to use — Hkeeli's vocabulary is the canonical source, not the
+model's recollection.
+
+### Navigation actions
+
+Zee cannot write a link. She ends a reply with a marker — `<<nav:start>>` — and
+the Worker strips it from the text, looks the id up in `site-context.json`, and
+sends the client a separate `action` event with the real URL. An id that isn't
+in the file produces no button at all. That is what makes it impossible for a
+hallucinated or injected URL to become something a learner clicks.
+
+To add a destination, add a page to `data/zee/site-context.json` with an `id`,
+`title`, `url` and `purpose`. **Check the anchor exists first** — nothing
+validates that the URL resolves.
+
+### Adding vocabulary
+
+`data/zee/lebanese-lexicon.json` was seeded from `data/lessons.json`; entries
+carrying a `phraseId` came from there and should stay in step with it. Entries
+without one were added by hand for words learners type constantly (`shu`, `wen`,
+`baddi`, `khalas`, `merci`). To add one:
+
+```json
+{
+  "canonical": "ma3le",
+  "arabic": "معلش",
+  "meaning": "never mind / it's fine",
+  "variants": ["ma3lesh", "maalesh"],
+  "synonyms": [],
+  "notes": "Softens a refusal or an apology.",
+  "category": "everyday"
+}
+```
+
+`variants` matter more than they look — they are what a learner's own spelling
+gets matched against.
+
+### Analytics
+
+There is no analytics provider on the site. Every notable interaction calls
+`trackZeeEvent(name)`, which fires a DOM event and nothing else:
+
+```js
+document.addEventListener('zee:event', (e) =>
+  yourAnalytics.track(e.detail.name, e.detail.props));
+```
+
+Events: `zee_opened`, `zee_message_sent`, `zee_navigation_clicked`,
+`zee_booking_clicked`, `zee_cleared`, `zee_expanded`. No message text, no
+identifier, no page-by-page trail.
+
+### What Zee will not do
+
+- She never sees the key, the endpoint or the deployment name in anything the
+  browser can read.
+- Model output is placed with `textContent` only. A reply containing markup is
+  shown as markup, never executed.
+- Conversation lives in `sessionStorage` for the tab and is sent to Azure with
+  `store: false`. There is no account, no database and no long-term memory.
+- The learner's message is conversation, never instruction: attempts to override
+  her role or extract the prompt are ignored, and the roles a client may send
+  are filtered server-side.
+
+---
+
 ## Deploying
 
 There is nothing to build. Point any static host at the repository root.
+
+Zee needs one extra step the static pages don't: the Azure key has to exist as a
+Worker secret (`npx wrangler secret put AZURE_OPENAI_API_KEY`). Without it the
+pages all work and Zee answers "Zee is offline for a moment."
 
 **Vercel** needs one piece of configuration, supplied by `vercel.json`:
 
@@ -571,6 +785,7 @@ page says so in neutral wording instead of guessing — these are the gaps:
 | **Testimonials** | `about.testimonials` is an empty array on purpose — see above. |
 | **Teacher's real name / photo / credentials** | Not published anywhere, and no `Person` structured data exists. If they are ever added, add them to `data/*.json` and the JSON-LD together. |
 | **Booking address** | `CONFIG.bookingEmail` still points at `hello@hkeeli.example`. |
+| **Zee's Azure key** | Must be set as a Worker secret before Zee can answer — see [Zee](#zee--the-ai-lebanese-instructor). |
 | **A real booking backend** | Set `CONFIG.formEndpoint`; the form POSTs JSON instead of composing an email. |
 | **Units 4–12** | Not in `lessons.json` yet; units 1–3 are complete. Stages 4 and 5 of the journey show as "being written" until units declare those `stage` ids. |
 | **Domain** | `https://hkeeli.com` is hardcoded in the four pages, `robots.txt` and `sitemap.xml` — see [Domain](#domain). |
