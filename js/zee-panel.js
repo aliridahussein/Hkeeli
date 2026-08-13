@@ -419,6 +419,20 @@ export function createPanel({ onClose } = {}) {
     count.textContent = input.value.length > MAX_CHARS - 200 ? `${input.value.length} / ${MAX_CHARS}` : '';
     count.dataset.state = over ? 'over' : 'ok';
 
+    autosize();
+  }
+
+  /**
+   * Grow the field to fit what's typed.
+   *
+   * Only meaningful once the field is actually laid out: a disconnected or
+   * hidden element reports scrollHeight 0, and writing that back collapsed the
+   * composer to 0px on first open — which the browser then decorated with a
+   * scrollbar, because the (padded) content no longer fit. Leaving the height
+   * alone until it can be measured keeps the CSS `rows="1"` size instead.
+   */
+  function autosize() {
+    if (!input.isConnected || !input.offsetParent) return;
     input.style.height = 'auto';
     input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
   }
@@ -623,6 +637,9 @@ export function createPanel({ onClose } = {}) {
     if (!panel.isConnected) document.body.append(panel);
     panel.hidden = false;
     if (!log.childElementCount) paint();
+    // First chance to measure the composer: everything before this ran while
+    // the panel was still detached.
+    autosize();
     scrollToEnd(true);
     // Not on a phone: focusing the field opens the keyboard over the greeting.
     if (window.matchMedia('(min-width: 560px)').matches) input.focus();
