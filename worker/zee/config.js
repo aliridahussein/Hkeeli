@@ -44,6 +44,30 @@ export const LIMITS = {
 };
 
 /**
+ * Where a conversation is in the funnel, counted in the learner's own turns.
+ *
+ * The journey Zee is steering towards is: answer the question -> get them into
+ * the free lessons and practice -> offer the trial lesson once they are clearly
+ * invested. Counting turns here rather than asking the model to keep track is
+ * deliberate — a small model cannot reliably count its own history, and "never
+ * mention booking twice" is exactly the kind of instruction it forgets by turn
+ * six.
+ *
+ * WARM starts suggesting the free material as a next step. PITCH is where the
+ * trial lesson becomes fair game.
+ */
+export const FUNNEL = {
+  warmAfter: 3,
+  pitchAfter: 6
+};
+
+export function funnelStage(userTurns) {
+  if (userTurns > FUNNEL.pitchAfter) return 'pitch';
+  if (userTurns > FUNNEL.warmAfter) return 'warm';
+  return 'early';
+}
+
+/**
  * Origins allowed to POST to the API. The deployed site is same-origin with the
  * Worker, so in production this is really "the browser says it came from us";
  * the localhost entries exist so the site can be developed against a local

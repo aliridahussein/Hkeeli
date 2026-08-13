@@ -11,7 +11,7 @@
 import lexicon from '../../data/zee/lebanese-lexicon.json';
 import siteContext from '../../data/zee/site-context.json';
 import instructions from '../../data/zee/zee-instructions.txt';
-import { LIMITS } from './config.js';
+import { LIMITS, funnelStage } from './config.js';
 
 export { instructions };
 
@@ -168,11 +168,68 @@ const FACTS = siteContext.facts.map((fact) => `- ${fact}`).join('\n');
  * system instructions, so the model can tell the difference between "who you
  * are" (fixed) and "what is relevant right now" (changes every turn).
  */
-export function buildContextBlock({ message, page }) {
+/* --------------------------------------------------------------------------
+   Where the conversation is going
+   --------------------------------------------------------------------------
+   Zee is not a chatbot for its own sake — she exists to get people into the
+   free lessons and practice, and then into a trial lesson. Left to itself the
+   model will happily trade phrases forever and never suggest anything, so the
+   Worker counts the turns and tells it, every turn, what stage it is at.
+   -------------------------------------------------------------------------- */
+
+const STAGE_GUIDANCE = {
+  early:
+    'STAGE: getting to know them (their first few messages).\n' +
+    '- Just teach. Be genuinely useful and warm, and let them enjoy it.\n' +
+    '- Do NOT pitch the trial lesson yet.\n' +
+    '- If they ask where to start or what to learn, point them at the free ' +
+    'lessons or practice with a <<nav:id>> marker — that is the next step here.',
+  warm:
+    'STAGE: they are engaged (several messages in).\n' +
+    '- Keep teaching, but stop leaving them at a dead end. Most replies should ' +
+    'end with a concrete next step on Hkeeli — the unit that covers what you ' +
+    'just taught, or a practice page to drill it — as a <<nav:id>> marker.\n' +
+    '- Say plainly that the lessons and practice are free.\n' +
+    '- You may mention the trial lesson ONCE here, and only if they ask about ' +
+    'improving, progress, pronunciation, speaking with a person, or getting ' +
+    'ready for a trip.',
+  pitch:
+    'STAGE: invested (a long conversation).\n' +
+    '- They clearly want this. Now it is genuinely useful to tell them about ' +
+    'the trial lesson with a teacher, and you should, using <<nav:book>>.\n' +
+    '- Frame it as the natural next step after the free material, never as a ' +
+    'hard sell: they have been practising with you, a person can hear their ' +
+    'pronunciation and answer back.\n' +
+    '- Still answer their actual question first — the suggestion goes at the ' +
+    'end, in one short line.\n' +
+    '- If you already offered it and they did not take it, drop it and go back ' +
+    'to teaching. Offer at most once every few replies, never twice in a row.'
+};
+
+/**
+ * The reply Zee should be steering towards, whatever the learner asked.
+ *
+ * "How do I get better?" is the moment this site exists for: the honest answer
+ * is the free lessons, the practice games, and — for someone who wants to speak
+ * with a person — the trial. That answer is right at every stage, so it is
+ * stated separately from the stage guidance.
+ */
+const INTENT_GUIDANCE =
+  'IF THEY ASK HOW TO IMPROVE, GET FLUENT, PRACTISE, OR GET READY FOR LEBANON\n' +
+  '- Answer with the path, not a pep talk: the free lessons to learn the ' +
+  'phrases, the practice pages to make them stick, and a trial lesson with a ' +
+  'teacher when they want someone to correct how they actually sound.\n' +
+  '- Give one <<nav:id>> marker for the single best next step — lessons or ' +
+  'practice if they are new, <<nav:book>> if they are asking about speaking ' +
+  'with a person or getting properly fluent.';
+
+export function buildContextBlock({ message, page, userTurns = 1 }) {
   const glossary = findGlossary(message);
   const blocks = [];
 
   blocks.push(`HKEELI FACTS\n${FACTS}`);
+  blocks.push(STAGE_GUIDANCE[funnelStage(userTurns)]);
+  blocks.push(INTENT_GUIDANCE);
   blocks.push(`HKEELI PAGES (the only ids you may use in a <<nav:id>> marker)\n${PAGE_INDEX}`);
 
   if (glossary.length) {
@@ -204,22 +261,29 @@ export function buildContextBlock({ message, page }) {
 export function styleReminder() {
   return (
     'REMINDER, applies to the reply you are about to write:\n' +
-    '1. Talk WITH them, do not just translate. React to what they said, answer ' +
-    'briefly, then ask them something back in easy Lebanese so the conversation ' +
-    'continues.\n' +
-    '2. Your conversational sentences are Latin letters ONLY. Arabic script ' +
-    'appears nowhere except on its own line inside a phrase block.\n' +
-    '   WRONG: "Yalla, قوليلي: baddi shu?"\n' +
+    '1. WRITE TO THEM IN ENGLISH. Assume they know no Arabic. Your reactions, ' +
+    'explanations and questions are English sentences. Lebanese appears only ' +
+    'inside a phrase block, or as a short phrase whose English meaning you give ' +
+    'in the same breath.\n' +
+    '   WRONG: "Yalla, jarrib tu2leeb 7akka in Lebanese: kifak lyom?"\n' +
+    '   RIGHT: "Your turn — try saying \\"kifak lyom?\\" (how are you today?)"\n' +
+    '   WRONG: "Nbad2a bel salaam—2olli: kifak lyom?"\n' +
+    '   RIGHT: "Let\'s start with a greeting. Say this back to me:"\n' +
+    '2. NEVER put Arabic script inside a sentence. It belongs on ONE line only — ' +
+    'the middle line of a phrase block.\n' +
+    '   WRONG: "Shu بدك تدربي أول شي؟"\n' +
     '   WRONG: "Eh mazbout, baddi هيك بتنعاد كتير"\n' +
-    '   RIGHT: "Yalla, 2ouleele: baddi shu?"\n' +
-    '   RIGHT: "Eh mazbout — baddi bteji ktir bel 7ake."\n' +
-    '3. When you teach a phrase, give it as three separate lines and nothing else ' +
-    'on them:\n' +
+    '   RIGHT: "What do you want to practise first?"\n' +
+    '3. Never leave a Lebanese sentence untranslated. If you write it, gloss it.\n' +
+    '4. When you teach or translate a phrase, give it as three separate lines and ' +
+    'nothing else on them:\n' +
     'kifak?\n' +
     'كيفك؟\n' +
     '"how are you?"\n' +
-    '4. Keep it short — 2-5 conversational lines around at most one phrase block.\n' +
-    '5. If a page from HKEELI PAGES answers this, end with its <<nav:id>> marker ' +
+    '5. If they asked you to translate something, the translation IS the answer — ' +
+    'lead with it as a phrase block.\n' +
+    '6. Keep it short — 2-5 conversational lines around at most one phrase block.\n' +
+    '7. If a page from HKEELI PAGES answers this, end with its <<nav:id>> marker ' +
     'on the last line.'
   );
 }

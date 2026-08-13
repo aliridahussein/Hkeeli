@@ -19,6 +19,7 @@
 import { LIMITS, isAllowedOrigin } from './config.js';
 import { buildContextBlock, instructions, styleReminder, PAGES } from './context.js';
 import { checkRateLimit } from './ratelimit.js';
+import { createScriptGuard } from './sanitize.js';
 
 const encoder = new TextEncoder();
 
@@ -170,12 +171,17 @@ function azureUrl(env) {
 }
 
 function azureRequest(env, { message, history, page }) {
+  /* Counted from the history the client sent plus this one. It is capped at
+     maxHistoryMessages, so a very long conversation reports the cap rather than
+     the true total — which is fine: everything past the cap is "invested". */
+  const userTurns = history.filter((turn) => turn.role === 'user').length + 1;
+
   const messages = [
     // Zee's identity is a server-side system message and nothing the client
     // sends can precede or replace it.
     { role: 'system', content: instructions },
     ...history,
-    { role: 'developer', content: buildContextBlock({ message, page }) },
+    { role: 'developer', content: buildContextBlock({ message, page, userTurns }) },
     { role: 'user', content: message },
     // Last position, after the learner's turn: this is the one the model
     // actually obeys. See styleReminder().
@@ -307,18 +313,22 @@ export async function handleChat(request, env, ctx) {
   const stream = new ReadableStream({
     async start(sink) {
       const filter = createMarkerFilter();
+      /* Last thing before the learner sees it: no Arabic script may sit inside a
+         sentence, whatever the model decided to write. See sanitize.js. */
+      const guard = createScriptGuard();
       let produced = false;
 
       try {
         for await (const delta of readAzureStream(upstream)) {
-          const text = filter.push(delta);
+          const text = guard.push(filter.push(delta));
           if (text) {
             produced = true;
             sink.enqueue(sse('delta', { t: text }));
           }
         }
 
-        const { text, navId } = filter.end();
+        const { text: tail, navId } = filter.end();
+        const text = guard.push(tail) + guard.end();
         if (text) {
           produced = true;
           sink.enqueue(sse('delta', { t: text }));

@@ -25,15 +25,19 @@ const SESSION_KEY = 'hkeeli.zee.session.v1';
 const MAX_CHARS = 1000;
 const MAX_HISTORY = 8;
 
+/* English, deliberately. The old greeting was written in Lebanese, which meant
+   the very first thing a complete beginner saw was a paragraph they could not
+   read — on a site whose whole promise is that you don't need to read Arabic. */
 const GREETING =
-  'Marhaba 👋 Ana Zee — Hkeeli\'s AI Lebanese instructor.\n\n' +
-  'Fik tehke ma3e bel libnene, tes2alne shu ya3ne kelme, aw fike sa3dak tla2e ' +
-  'l-dars l-monaseb 3a Hkeeli.\n\n' +
-  'Shu badak net3allam lyom? 😄';
+  'Mar7aba! 👋 That means "hello" — I\'m Zee, your AI Lebanese instructor.\n\n' +
+  "I'll explain everything in English, so you don't need to know any Arabic to " +
+  'start. Ask me what a word means, give me a sentence to translate, or just ' +
+  'practise talking.\n\n' +
+  'What would you like to do?';
 
 const STARTERS = [
-  'Teach me a Lebanese phrase',
-  'Shu ya3ne "kifak"?',
+  'Teach me a phrase',
+  'Translate a sentence for me',
   'Practice with me',
   'Where should I start?'
 ];
