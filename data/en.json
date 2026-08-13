@@ -344,35 +344,6 @@
     "srsDue": "Due for review",
     "srsLearned": "Learned"
   },
-  "classes": {
-    "facts": [
-      {
-        "label": "Format",
-        "value": "One-to-one, or a small group if you'd rather learn with someone you know."
-      },
-      {
-        "label": "Taught in",
-        "value": "Spoken Lebanese, explained in English. No Arabic reading required."
-      },
-      {
-        "label": "Who it's for",
-        "value": "Complete beginners through to intermediate, including heritage speakers who understand more than they say."
-      },
-      {
-        "label": "What's included",
-        "value": "Speaking practice with correction, the same units and phrases as the free course, and answers to whatever you bring from the week."
-      },
-      { "label": "Class length", "value": "tbc" },
-      { "label": "Price", "value": "tbc" },
-      { "label": "Trial class", "value": "tbc" },
-      {
-        "label": "How to book",
-        "value": "Send the form below and you'll get a reply by email to agree a time."
-      }
-    ],
-    "pending": "Ask when you book — this isn't set in stone yet.",
-    "note": "The free lessons, audio and practice on this site stay free whether or not you ever book a class."
-  },
   "faq": {
     "eyebrow": "Questions",
     "title": "The things people ask first",
@@ -409,27 +380,52 @@
     ]
   },
   "book": {
-    "eyebrow": "Classes",
-    "title": "One-to-one classes with a native teacher",
-    "subtitle": "The free course gets you speaking. A class gets you corrected — and gets you the phrases your life actually needs.",
-    "bandTitle": "Ready to actually speak Lebanese?",
-    "bandBody": "Book a 1-on-1 or small group session and start with the phrases that matter to you.",
-    "bandCta": "Book Your First Class",
-    "formTitle": "Tell me what you want to learn",
-    "formBody": "Fill this in and it opens a prefilled email — no account, no payment, no commitment.",
-    "name": "Your name",
-    "email": "Email",
-    "level": "Your level",
-    "levelBeginner": "Complete beginner",
-    "levelSome": "I know some phrases",
-    "levelHeritage": "Heritage speaker — I understand more than I speak",
-    "levelIntermediate": "Intermediate",
-    "goals": "What do you want to be able to say?",
-    "goalsPlaceholder": "e.g. talk to my partner's family, order food in Beirut, understand my grandmother on the phone",
-    "availability": "When are you usually free?",
-    "availabilityPlaceholder": "e.g. weekday evenings, CET",
-    "submit": "Send my request",
-    "note": "Placeholder form — this opens your email app with the details filled in. A real booking system comes later."
+    "eyebrow": "Personal online lessons",
+    "title": "Bring one conversation you wish you could have.",
+    "teacherFallback": "your teacher",
+    "p1": "A call with family. An order in a Beirut café. A reply that finally sounds natural. Practising alone helps you remember — learning with {teacher} helps you speak.",
+    "p2": "In a private lesson, you speak from the beginning while a native teacher listens, corrects your pronunciation, and gives you the Lebanese your life actually needs.",
+    "goalLabel": "What would you like help with?",
+    "goals": [
+      {
+        "label": "Talking with family",
+        "message": "Focus on greetings, affection, family small talk, and keeping the conversation in Lebanese."
+      },
+      {
+        "label": "Getting ready for Lebanon",
+        "message": "Practise introductions, cafés, taxis, ordering, paying, and understanding the reply you receive."
+      },
+      {
+        "label": "Speaking more naturally",
+        "message": "Improve pronunciation, choose more natural responses, and stop translating every sentence before you speak."
+      }
+    ],
+    "benefitsTitle": "Your trial gives you:",
+    "benefits": [
+      "A quick check of your goals and current level",
+      "One useful conversation connected to your life",
+      "Live pronunciation and natural-response correction",
+      "A recommended Hkeeli lesson to practise next"
+    ],
+    "cardLabel": "Book through Preply",
+    "cardTitle": "Ready to try a real conversation?",
+    "cardBody": "Choose an available time for a personal trial lesson with {teacher}. You'll see the current duration and price before confirming.",
+    "steps": [
+      "Open {teacher}'s Preply profile",
+      "Choose a time that suits you",
+      "Meet online and start speaking"
+    ],
+    "cta": "View Times & Book on Preply",
+    "ctaUnconfigured": "The booking link isn't set up yet.",
+    "disclosure": "You'll continue to {teacher}'s Preply profile. A free Preply account is required to complete your booking.",
+    "paidNote": "The personal trial is paid. Current pricing and availability are shown on Preply. Hkeeli's self-study lessons and practice remain free.",
+    "contactLink": "Have a question before booking? Ask {teacher}",
+    "contactSubject": "Question about Lebanese lessons",
+    "reassurance": [
+      "Native spoken Lebanese",
+      "No Arabic reading required",
+      "Beginner and heritage-learner friendly"
+    ]
   },
   "footer": {
     "rights": "Built with love for the Lebanese dialect.",

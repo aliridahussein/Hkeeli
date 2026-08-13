@@ -1,0 +1,615 @@
+{
+  "note": "Hkeeli's canonical Lebanese reference for Zee. Entries whose `phraseId` is set are generated from data/lessons.json and should stay in step with it; entries without one are hand-added common words. When a word appears here, this definition wins over the model's own guess.",
+  "entries": [
+    {
+      "canonical": "mar7aba",
+      "arabic": "مرحبا",
+      "meaning": "hello",
+      "variants": [
+        "marhaba",
+        "marhaban"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p1"
+    },
+    {
+      "canonical": "kifak",
+      "arabic": "كيفك",
+      "meaning": "how are you (m / f)",
+      "variants": [
+        "kifik",
+        "keefak",
+        "kifak / kifik"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p2"
+    },
+    {
+      "canonical": "mni7, w inte?",
+      "arabic": "منيح، وإنت؟",
+      "meaning": "good, and you?",
+      "variants": [
+        "mni7",
+        "mnih",
+        "mni7 w inte"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p3"
+    },
+    {
+      "canonical": "shu akhbarak",
+      "arabic": "شو أخبارك",
+      "meaning": "what's your news / how's it going",
+      "variants": [
+        "shu akhbarik"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p4"
+    },
+    {
+      "canonical": "saba7 el kheir",
+      "arabic": "صباح الخير",
+      "meaning": "good morning",
+      "variants": [
+        "sabah el kheir",
+        "sabah l kheir"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p5"
+    },
+    {
+      "canonical": "masa el kheir",
+      "arabic": "مسا الخير",
+      "meaning": "good evening",
+      "variants": [
+        "masa l kheir"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p6"
+    },
+    {
+      "canonical": "tsharrafna",
+      "arabic": "تشرفنا",
+      "meaning": "nice to meet you",
+      "variants": [
+        "tsharafna"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p7"
+    },
+    {
+      "canonical": "shukran",
+      "arabic": "شكرا",
+      "meaning": "thank you",
+      "variants": [],
+      "synonyms": [],
+      "notes": "",
+      "category": "politeness",
+      "unit": "unit-1",
+      "phraseId": "u1-p8"
+    },
+    {
+      "canonical": "tikram 3ainak",
+      "arabic": "تكرم عينك",
+      "meaning": "you're welcome",
+      "variants": [
+        "tikram aynak",
+        "tekram 3aynak"
+      ],
+      "synonyms": [],
+      "notes": "Literally \"bless your eyes\".",
+      "category": "politeness",
+      "unit": "unit-1",
+      "phraseId": "u1-p9"
+    },
+    {
+      "canonical": "yalla",
+      "arabic": "يلا",
+      "meaning": "let's go / come on",
+      "variants": [
+        "yallah"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "everyday",
+      "unit": "unit-1",
+      "phraseId": "u1-p10"
+    },
+    {
+      "canonical": "b khatrak",
+      "arabic": "بخاطرك",
+      "meaning": "goodbye",
+      "variants": [
+        "bkhatrak",
+        "b khatrik"
+      ],
+      "synonyms": [],
+      "notes": "Said by the person who is leaving.",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p11"
+    },
+    {
+      "canonical": "shu l-2esse",
+      "arabic": "شو القصة",
+      "meaning": "what's up / what's going on",
+      "variants": [
+        "shu l esse",
+        "shu el 2esse",
+        "shu la2esse"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-1",
+      "phraseId": "u1-p12"
+    },
+    {
+      "canonical": "2ahwe 3al ri7a",
+      "arabic": "قهوة عالريحة",
+      "meaning": "coffee with barely any sugar",
+      "variants": [
+        "2ahwe 3al riha",
+        "ahwe 3al riha",
+        "2ahwe aal riha"
+      ],
+      "synonyms": [],
+      "notes": "Literally \"coffee on the scent\".",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p1"
+    },
+    {
+      "canonical": "baddi 2ahwe wasat",
+      "arabic": "بدي قهوة وسط",
+      "meaning": "I want a medium-sweet coffee",
+      "variants": [
+        "baddi ahwe wasat"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p2"
+    },
+    {
+      "canonical": "min fadlak",
+      "arabic": "من فضلك",
+      "meaning": "please",
+      "variants": [
+        "min fadlik",
+        "men fadlak"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "politeness",
+      "unit": "unit-2",
+      "phraseId": "u2-p3"
+    },
+    {
+      "canonical": "el 7seb law sama7t",
+      "arabic": "الحساب لو سمحت",
+      "meaning": "the bill, please",
+      "variants": [
+        "el hseb law samaht",
+        "l 7seb law sama7t"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p4"
+    },
+    {
+      "canonical": "shu btinsa7ne",
+      "arabic": "شو بتنصحني",
+      "meaning": "what do you recommend?",
+      "variants": [
+        "shu btinsahne"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p5"
+    },
+    {
+      "canonical": "baddi man2ushe za3tar",
+      "arabic": "بدي منقوشة زعتر",
+      "meaning": "I want a zaatar manoushe",
+      "variants": [
+        "man2ushe za3tar",
+        "manoushe zaatar"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p6"
+    },
+    {
+      "canonical": "bala sikkar",
+      "arabic": "بلا سكر",
+      "meaning": "without sugar",
+      "variants": [
+        "bala sukkar"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p7"
+    },
+    {
+      "canonical": "sa77tein",
+      "arabic": "صحتين",
+      "meaning": "bon appétit / to your health",
+      "variants": [
+        "sahtein",
+        "sahtain"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p8"
+    },
+    {
+      "canonical": "2addesh sar",
+      "arabic": "قديش صار",
+      "meaning": "how much is it?",
+      "variants": [
+        "addesh sar",
+        "2adesh sar"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "money",
+      "unit": "unit-2",
+      "phraseId": "u2-p9"
+    },
+    {
+      "canonical": "ana bidfa3",
+      "arabic": "أنا بدفع",
+      "meaning": "I'm paying",
+      "variants": [
+        "ana bedfa3"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "money",
+      "unit": "unit-2",
+      "phraseId": "u2-p10"
+    },
+    {
+      "canonical": "kifeye",
+      "arabic": "كفاية",
+      "meaning": "that's enough",
+      "variants": [
+        "kifaye",
+        "kefeye"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "food-and-drink",
+      "unit": "unit-2",
+      "phraseId": "u2-p11"
+    },
+    {
+      "canonical": "tfaddal",
+      "arabic": "تفضل",
+      "meaning": "here you go / go ahead",
+      "variants": [
+        "tfadal",
+        "tfaddale"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "politeness",
+      "unit": "unit-2",
+      "phraseId": "u2-p12"
+    },
+    {
+      "canonical": "teta",
+      "arabic": "تيتا",
+      "meaning": "grandma",
+      "variants": [
+        "tayta"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p1"
+    },
+    {
+      "canonical": "jiddo",
+      "arabic": "جدو",
+      "meaning": "grandpa",
+      "variants": [
+        "jido",
+        "jeddo"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p2"
+    },
+    {
+      "canonical": "Allah ykhallik",
+      "arabic": "الله يخليك",
+      "meaning": "thank you / bless you",
+      "variants": [
+        "allah ykhallik",
+        "allah ykhalik",
+        "alla ykhallik"
+      ],
+      "synonyms": [],
+      "notes": "Literally \"may God keep you\".",
+      "category": "blessings",
+      "unit": "unit-3",
+      "phraseId": "u3-p3"
+    },
+    {
+      "canonical": "shta2tillak",
+      "arabic": "اشتقتلك",
+      "meaning": "I missed you",
+      "variants": [
+        "shtatillak",
+        "eshta2tillak"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p4"
+    },
+    {
+      "canonical": "kif se77tak",
+      "arabic": "كيف صحتك",
+      "meaning": "how's your health?",
+      "variants": [
+        "kif sehtak",
+        "kif se77tik"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p5"
+    },
+    {
+      "canonical": "3am bet3allam 3arabe",
+      "arabic": "عم بتعلم عربي",
+      "meaning": "I'm learning Arabic",
+      "variants": [
+        "am bet3allam arabe"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "introductions",
+      "unit": "unit-3",
+      "phraseId": "u3-p6"
+    },
+    {
+      "canonical": "7abibe",
+      "arabic": "حبيبي / حبيبتي",
+      "meaning": "my love",
+      "variants": [
+        "habibe",
+        "7abibte",
+        "habibi"
+      ],
+      "synonyms": [],
+      "notes": "Said to absolutely everyone — family, friends, the man selling you bread.",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p7"
+    },
+    {
+      "canonical": "Allah ya3tik el 3afye",
+      "arabic": "الله يعطيك العافية",
+      "meaning": "may God give you strength",
+      "variants": [
+        "allah ya3tik el 3afye",
+        "allah yaatik el aafye"
+      ],
+      "synonyms": [],
+      "notes": "Said to someone who is working — the everyday way to thank them for the effort.",
+      "category": "blessings",
+      "unit": "unit-3",
+      "phraseId": "u3-p8"
+    },
+    {
+      "canonical": "b7ebbak ktir",
+      "arabic": "بحبك كتير",
+      "meaning": "I love you a lot",
+      "variants": [
+        "bhebbak ktir",
+        "b7ebbik ktir"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p9"
+    },
+    {
+      "canonical": "sallemle 3a l-kill",
+      "arabic": "سلملي على الكل",
+      "meaning": "say hi to everyone for me",
+      "variants": [
+        "sallemle 3a l kill",
+        "sallemli 3a lkill",
+        "sallemle aa lkill"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "family",
+      "unit": "unit-3",
+      "phraseId": "u3-p10"
+    },
+    {
+      "canonical": "inshallah",
+      "arabic": "إن شاء الله",
+      "meaning": "God willing / hopefully",
+      "variants": [
+        "in shaa allah",
+        "nshallah"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "everyday",
+      "unit": "unit-3",
+      "phraseId": "u3-p11"
+    },
+    {
+      "canonical": "mnshufak 2arib",
+      "arabic": "منشوفك قريب",
+      "meaning": "see you soon",
+      "variants": [
+        "mnshufak arib",
+        "menshufak 2arib"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "greetings",
+      "unit": "unit-3",
+      "phraseId": "u3-p12"
+    },
+    {
+      "canonical": "shu",
+      "arabic": "شو",
+      "meaning": "what",
+      "variants": [
+        "shou",
+        "sho"
+      ],
+      "synonyms": [],
+      "notes": "The Lebanese \"what\" — shu ya3ne = what does it mean.",
+      "category": "question-words"
+    },
+    {
+      "canonical": "wen",
+      "arabic": "وين",
+      "meaning": "where",
+      "variants": [
+        "ween",
+        "wein"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "question-words"
+    },
+    {
+      "canonical": "leish",
+      "arabic": "ليش",
+      "meaning": "why",
+      "variants": [
+        "lesh",
+        "leh"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "question-words"
+    },
+    {
+      "canonical": "baddi",
+      "arabic": "بدي",
+      "meaning": "I want",
+      "variants": [
+        "badde",
+        "badi"
+      ],
+      "synonyms": [],
+      "notes": "Also \"baddak\" (to a man) / \"baddik\" (to a woman) for \"you want\".",
+      "category": "everyday"
+    },
+    {
+      "canonical": "3am",
+      "arabic": "عم",
+      "meaning": "the marker that makes a verb continuous (-ing)",
+      "variants": [
+        "am"
+      ],
+      "synonyms": [],
+      "notes": "3am + verb: 3am beshrab = I am drinking.",
+      "category": "grammar"
+    },
+    {
+      "canonical": "mni7",
+      "arabic": "منيح",
+      "meaning": "good / fine",
+      "variants": [
+        "mnih",
+        "mni7a",
+        "mniha"
+      ],
+      "synonyms": [
+        "tamem"
+      ],
+      "notes": "mni7 to or about a man, mni7a for a woman.",
+      "category": "everyday"
+    },
+    {
+      "canonical": "tamem",
+      "arabic": "تمام",
+      "meaning": "all good / perfect",
+      "variants": [
+        "tamam"
+      ],
+      "synonyms": [
+        "mni7"
+      ],
+      "notes": "Common reply to kifak.",
+      "category": "everyday"
+    },
+    {
+      "canonical": "khalas",
+      "arabic": "خلص",
+      "meaning": "that's it / enough / done",
+      "variants": [
+        "5alas",
+        "khalass"
+      ],
+      "synonyms": [],
+      "notes": "",
+      "category": "everyday"
+    },
+    {
+      "canonical": "merci",
+      "arabic": "مرسي",
+      "meaning": "thank you",
+      "variants": [
+        "mersi"
+      ],
+      "synonyms": [
+        "shukran"
+      ],
+      "notes": "Borrowed from French and used constantly in Lebanon, often more than shukran.",
+      "category": "politeness"
+    }
+  ]
+}

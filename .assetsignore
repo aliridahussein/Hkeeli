@@ -18,3 +18,11 @@ node_modules/
 .git/
 .github/
 run.cmd
+
+# Zee's server side. The Worker imports these at build time, so they ship inside
+# the script — serving them as public files as well would put the instructions
+# and the page allowlist one URL away from anyone who guessed the path.
+worker/
+data/zee/
+.dev.vars
+.wrangler/

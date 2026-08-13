@@ -5,3 +5,7 @@ dist/
 
 # Local convenience launcher (double-click to serve the site)
 run.cmd
+
+# Wrangler local secrets — never commit
+.dev.vars
+.wrangler/

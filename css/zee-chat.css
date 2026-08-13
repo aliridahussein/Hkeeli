@@ -1,0 +1,735 @@
+/* ==========================================================================
+   Zee — Hkeeli's AI Lebanese instructor.
+
+   Built entirely on the site's own tokens (css/tokens.css): the same sea/sand/
+   citrus palette, the same radii, the same motion curve. Zee should read as a
+   part of Hkeeli that happens to talk back, not as a support widget bolted onto
+   the corner of somebody's website.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Launcher
+   -------------------------------------------------------------------------- */
+.zee-launcher {
+  position: fixed;
+  /* Sits above the mobile home indicator and inside the safe area on notched
+     phones, where a plain `bottom: 20px` lands under the system gesture bar. */
+  inset-block-end: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+  inset-inline-end: calc(var(--space-5) + env(safe-area-inset-right, 0px));
+  z-index: 60;
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 56px;
+  padding-inline: 18px;
+  border-radius: var(--radius-pill);
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  box-shadow: 0 10px 30px rgba(21, 53, 52, 0.28);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  animation: zee-arrive 0.5s var(--ease) both;
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease);
+}
+
+/* The mark: a robot head on the citrus disc. */
+.zee-launcher .zee-mark {
+  /* Positioned so the pulse ring below has something to anchor to; without it
+     the ring escapes to the page box and animates in the wrong corner. */
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--citrus);
+  color: var(--sea-deep);
+}
+
+.zee-mark svg {
+  width: 21px;
+  height: 21px;
+}
+
+.zee-head .zee-mark svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* A quiet pulse the first time only — enough to be noticed once, not a beacon. */
+.zee-launcher .zee-mark::after {
+  content: '';
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--citrus);
+  animation: zee-pulse 2.4s var(--ease) 3;
+}
+
+.zee-launcher[data-open='true'] .zee-mark::after {
+  animation: none;
+}
+
+/* The `to` frame is not decoration: these animations run with fill-mode `both`,
+   and a keyframe list with no end state holds the *start* state after the
+   animation finishes — which left the panel 12px below the fold. */
+@keyframes zee-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes zee-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+@media (hover: hover) {
+  .zee-launcher:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 34px rgba(21, 53, 52, 0.34);
+  }
+}
+
+.zee-launcher:active {
+  transform: translateY(0);
+}
+
+/* On a phone the label would crowd the thumb zone; the mark alone is enough. */
+@media (max-width: 559px) {
+  .zee-launcher {
+    height: 56px;
+    width: 56px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .zee-launcher .zee-label {
+    display: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Panel
+   -------------------------------------------------------------------------- */
+/* The panel is a fixed overlay, not a page section — but it lives in the same
+   document as stylesheets that style bare elements (`section { padding: 64px
+   var(--gutter) }` in layout.css was landing inside the chat window and pushing
+   the header into the middle of it). The root is a <div> for that reason, and
+   these two rules stop any future global rule reaching in the same way. */
+.zee-panel,
+.zee-panel * {
+  box-sizing: border-box;
+}
+
+.zee-panel > * {
+  margin: 0;
+}
+
+.zee-panel {
+  padding: 0;
+  position: fixed;
+  inset-block-end: calc(var(--space-5) + 64px + env(safe-area-inset-bottom, 0px));
+  inset-inline-end: calc(var(--space-5) + env(safe-area-inset-right, 0px));
+  z-index: 61;
+
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 2 * var(--space-4)));
+  /* dvh, not vh: on iOS the address bar makes vh taller than the screen and the
+     input ends up under the fold.
+     190px is the room the panel leaves above and below itself: the launcher and
+     its margin at the bottom, and the site's sticky nav at the top. Without it
+     the panel grows over the nav on a short laptop screen. */
+  height: min(600px, calc(100dvh - 190px));
+
+  background: var(--sand-light);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 60px rgba(21, 53, 52, 0.24);
+  overflow: hidden;
+  animation: zee-open 0.22s var(--ease) both;
+}
+
+@keyframes zee-open {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.zee-panel[data-expanded='true'] {
+  width: min(760px, calc(100vw - 2 * var(--space-5)));
+  height: min(860px, calc(100dvh - 190px));
+}
+
+/* Full-screen on a phone: a floating card inside a 375px viewport is mostly
+   border. Expanded mode keeps the rounded top edge as a sheet. */
+@media (max-width: 559px) {
+  .zee-panel {
+    inset: auto 0 0 0;
+    width: 100%;
+    height: min(78dvh, 620px);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding-block-end: env(safe-area-inset-bottom, 0px);
+  }
+
+  .zee-panel[data-expanded='true'] {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+/* ---- Header ---- */
+.zee-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-5);
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+.zee-head .zee-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--citrus);
+  color: var(--sea-deep);
+}
+
+.zee-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.zee-title strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* One line, truncated rather than wrapped: "AI Lebanese Instructor" breaking
+   over three lines makes the header taller than the controls beside it. */
+.zee-title span {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--on-dark-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.zee-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.zee-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  color: var(--sand-light);
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease);
+}
+
+.zee-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (hover: hover) {
+  .zee-icon-btn:hover {
+    background: var(--wash-on-dark);
+  }
+}
+
+.zee-icon-btn:focus-visible {
+  outline: 3px solid var(--citrus);
+  outline-offset: -2px;
+}
+
+/* Small phones (320-380px): the header has a 38px avatar, a title and three
+   controls to fit. At default sizes "AI Lebanese Instructor" truncates to an
+   ellipsis, so give the title its width back by tightening everything else. */
+@media (max-width: 380px) {
+  .zee-head {
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-2) var(--space-3) var(--space-3);
+  }
+
+  .zee-head .zee-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .zee-head .zee-mark svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .zee-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .zee-title strong {
+    font-size: 1rem;
+  }
+
+  .zee-title span {
+    font-size: 0.7rem;
+  }
+}
+
+/* ---- Log ---- */
+.zee-log {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-5) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  scroll-behavior: smooth;
+}
+
+.zee-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 88%;
+  animation: zee-msg-in 0.2s var(--ease) both;
+}
+
+@keyframes zee-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.zee-msg-who {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+
+.zee-bubble {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  /* Lebanese written in Latin letters, Arabic script and English all land in the
+     same bubble; `dir: auto` per line is what keeps each one readable. */
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.zee-msg[data-from='zee'] {
+  align-self: flex-start;
+}
+
+.zee-msg[data-from='zee'] .zee-bubble {
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-start-start-radius: var(--radius-sm);
+  color: var(--ink);
+}
+
+.zee-msg[data-from='you'] {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.zee-msg[data-from='you'] .zee-msg-who {
+  color: var(--ink-soft);
+}
+
+.zee-msg[data-from='you'] .zee-bubble {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  border-start-end-radius: var(--radius-sm);
+}
+
+.zee-bubble p {
+  margin: 0;
+}
+
+.zee-bubble p + p {
+  margin-block-start: var(--space-2);
+}
+
+/* Lines inside a bubble. Ordinary prose is a plain block; the three lines of a
+   taught phrase are grouped and styled so the learner can tell at a glance what
+   to say, what it looks like written, and what it means. */
+.zee-line {
+  display: block;
+}
+
+.zee-phrase {
+  display: block;
+  margin-block: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--citrus);
+  border-radius: var(--radius-sm);
+  background: var(--sand);
+}
+
+/* The line to read out loud. */
+.zee-line--translit {
+  font-weight: 700;
+  font-size: 1.05em;
+  color: var(--sea-deep);
+  letter-spacing: 0.01em;
+}
+
+.zee-line--ar {
+  font-family: var(--font-arabic);
+  font-size: 1.5em;
+  line-height: 1.45;
+  color: var(--sea);
+  margin-block-start: 2px;
+}
+
+.zee-line--gloss {
+  margin-block-start: 2px;
+  font-size: 0.92em;
+  color: var(--ink-soft);
+}
+
+/* Arabic inside ordinary prose still needs the Arabic face, just not the
+   full phrase-block treatment. */
+.zee-bubble .zee-ar,
+.zee-msg[data-from='zee'] .zee-line--text:lang(ar) {
+  font-family: var(--font-arabic);
+  font-size: 1.25em;
+  line-height: 1.4;
+}
+
+/* On the dark bubble the phrase block borrows the on-dark palette instead. */
+.zee-msg[data-from='you'] .zee-phrase {
+  background: var(--wash-on-dark);
+  border-inline-start-color: var(--citrus);
+}
+
+.zee-msg[data-from='you'] .zee-line--translit {
+  color: var(--sand-light);
+}
+
+.zee-msg[data-from='you'] .zee-line--ar {
+  color: var(--sand-light);
+}
+
+.zee-msg[data-from='you'] .zee-line--gloss {
+  color: var(--on-dark-muted);
+}
+
+.zee-msg[data-from='zee'] .zee-bubble strong {
+  color: var(--sea-deep);
+}
+
+/* System notes: rate limits, network trouble, "conversation cleared". */
+.zee-note {
+  align-self: center;
+  max-width: 92%;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  background: var(--olive-wash);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.zee-note[data-tone='bad'] {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+
+/* ---- Navigation action ---- */
+.zee-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  margin-block-start: var(--space-2);
+  min-height: var(--tap);
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--citrus);
+  color: var(--sea-deep);
+  font-size: 0.88rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-press-sm);
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+
+.zee-action::after {
+  content: '→';
+  font-weight: 700;
+}
+
+[dir='rtl'] .zee-action::after {
+  content: '←';
+}
+
+@media (hover: hover) {
+  .zee-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--citrus-shadow);
+  }
+}
+
+.zee-action:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* ---- Thinking ---- */
+.zee-thinking {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  align-self: flex-start;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.zee-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.zee-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--olive);
+  animation: zee-bounce 1.1s var(--ease) infinite;
+}
+
+.zee-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.zee-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes zee-bounce {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+/* The caret that follows the text as it streams in. */
+.zee-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-inline-start: 2px;
+  vertical-align: -2px;
+  background: var(--olive);
+  animation: zee-blink 1s steps(2, start) infinite;
+}
+
+@keyframes zee-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---- Starter chips ---- */
+.zee-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-block-start: var(--space-2);
+}
+
+.zee-starter {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  color: var(--sea-deep);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .zee-starter:hover {
+    border-color: var(--citrus);
+    background: var(--sand);
+  }
+}
+
+/* ---- Composer ---- */
+.zee-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background: var(--sand-light);
+  border-block-start: 1px solid var(--hairline);
+}
+
+.zee-input-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: 6px 6px 6px var(--space-4);
+  background: var(--card);
+  border: 1px solid var(--hairline-strong);
+  border-radius: var(--radius-xl);
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.zee-input-wrap:focus-within {
+  border-color: var(--olive);
+}
+
+.zee-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  resize: none;
+  /* 16px minimum, or iOS zooms the whole page when the field takes focus. */
+  font-size: 16px;
+  line-height: 1.45;
+  max-height: 120px;
+  /* JS sizes this to fit its content; without hiding the overflow the browser
+     paints a scrollbar inside the pill for a single line of text. */
+  overflow-y: auto;
+  padding-block: 9px;
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.zee-input:focus {
+  outline: none;
+}
+
+.zee-send {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--citrus);
+  color: var(--sea-deep);
+  cursor: pointer;
+  transition: opacity var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+
+.zee-send svg {
+  width: 18px;
+  height: 18px;
+}
+
+[dir='rtl'] .zee-send svg {
+  transform: scaleX(-1);
+}
+
+.zee-send[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.zee-send[data-mode='stop'] {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+.zee-count {
+  padding-inline: var(--space-4);
+  padding-block-end: var(--space-2);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  text-align: end;
+}
+
+.zee-count[data-state='over'] {
+  color: var(--bad);
+  font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion — tokens.css already flattens durations globally; the
+   decorative loops have to be switched off by name.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .zee-launcher,
+  .zee-panel,
+  .zee-msg {
+    animation: none;
+  }
+
+  .zee-launcher .zee-mark::after,
+  .zee-cursor {
+    display: none;
+  }
+
+  .zee-dots span {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .zee-log {
+    scroll-behavior: auto;
+  }
+}
