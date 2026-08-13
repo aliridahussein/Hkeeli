@@ -83,15 +83,13 @@ export const CONFIG = {
      * a name here and every string picks it up in both languages. */
     teacherFirstName: '',
 
-    /* TODO before launch: replace with the teacher's DIRECT Preply Share
-     * Profile URL (https://preply.com/en/tutor/…). This is currently the
-     * Preply homepage — a proof-of-concept destination only. A general
-     * homepage, search page or referral link sends the visitor to a
-     * marketplace instead of to her, which is the whole point of the handover.
+    /* The teacher's own Preply Share Profile link — it opens her profile
+     * directly rather than a marketplace search, which is the whole point of
+     * the handover. Replace it if she regenerates the link from Preply.
      *
      * Leave this empty and the call to action renders in a plainly disabled
      * state rather than shipping a link that goes nowhere. */
-    profileUrl: 'https://preply.com/',
+    profileUrl: 'https://preply.in/ZAINAB6EN3935321911?ts=17866279',
 
     /* Optional. Empty string = the "ask a question first" link is not rendered
      * at all. Only put a real, monitored address here. */

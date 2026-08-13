@@ -36,7 +36,7 @@
     background var(--t-fast) var(--ease);
 }
 
-/* The mark: a citrus ح — the same letter the site's favicon uses. */
+/* The mark: a robot head on the citrus disc. */
 .zee-launcher .zee-mark {
   /* Positioned so the pulse ring below has something to anchor to; without it
      the ring escapes to the page box and animates in the wrong corner. */
@@ -49,12 +49,16 @@
   border-radius: 50%;
   background: var(--citrus);
   color: var(--sea-deep);
-  font-family: var(--font-arabic);
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1;
-  /* The glyph sits high in its em box; nudge it back onto the optical centre. */
-  padding-block-start: 4px;
+}
+
+.zee-mark svg {
+  width: 21px;
+  height: 21px;
+}
+
+.zee-head .zee-mark svg {
+  width: 23px;
+  height: 23px;
 }
 
 /* A quiet pulse the first time only — enough to be noticed once, not a beacon. */
@@ -126,7 +130,22 @@
 /* --------------------------------------------------------------------------
    Panel
    -------------------------------------------------------------------------- */
+/* The panel is a fixed overlay, not a page section — but it lives in the same
+   document as stylesheets that style bare elements (`section { padding: 64px
+   var(--gutter) }` in layout.css was landing inside the chat window and pushing
+   the header into the middle of it). The root is a <div> for that reason, and
+   these two rules stop any future global rule reaching in the same way. */
+.zee-panel,
+.zee-panel * {
+  box-sizing: border-box;
+}
+
+.zee-panel > * {
+  margin: 0;
+}
+
 .zee-panel {
+  padding: 0;
   position: fixed;
   inset-block-end: calc(var(--space-5) + 64px + env(safe-area-inset-bottom, 0px));
   inset-inline-end: calc(var(--space-5) + env(safe-area-inset-right, 0px));
@@ -136,8 +155,11 @@
   flex-direction: column;
   width: min(400px, calc(100vw - 2 * var(--space-4)));
   /* dvh, not vh: on iOS the address bar makes vh taller than the screen and the
-     input ends up under the fold. */
-  height: min(600px, calc(100dvh - 160px));
+     input ends up under the fold.
+     190px is the room the panel leaves above and below itself: the launcher and
+     its margin at the bottom, and the site's sticky nav at the top. Without it
+     the panel grows over the nav on a short laptop screen. */
+  height: min(600px, calc(100dvh - 190px));
 
   background: var(--sand-light);
   border: 1px solid var(--hairline);
@@ -160,7 +182,7 @@
 
 .zee-panel[data-expanded='true'] {
   width: min(760px, calc(100vw - 2 * var(--space-5)));
-  height: min(860px, calc(100dvh - 120px));
+  height: min(860px, calc(100dvh - 190px));
 }
 
 /* Full-screen on a phone: a floating card inside a 375px viewport is mostly
@@ -200,11 +222,6 @@
   border-radius: 50%;
   background: var(--citrus);
   color: var(--sea-deep);
-  font-family: var(--font-arabic);
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1;
-  padding-block-start: 4px;
 }
 
 .zee-title {
@@ -217,18 +234,26 @@
   font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 600;
+  line-height: 1.2;
 }
 
+/* One line, truncated rather than wrapped: "AI Lebanese Instructor" breaking
+   over three lines makes the header taller than the controls beside it. */
 .zee-title span {
   display: block;
   font-size: 0.75rem;
+  line-height: 1.3;
   color: var(--on-dark-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .zee-head-actions {
   display: flex;
   align-items: center;
   gap: 2px;
+  flex-shrink: 0;
 }
 
 .zee-icon-btn {
@@ -256,6 +281,39 @@
 .zee-icon-btn:focus-visible {
   outline: 3px solid var(--citrus);
   outline-offset: -2px;
+}
+
+/* Small phones (320-380px): the header has a 38px avatar, a title and three
+   controls to fit. At default sizes "AI Lebanese Instructor" truncates to an
+   ellipsis, so give the title its width back by tightening everything else. */
+@media (max-width: 380px) {
+  .zee-head {
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-2) var(--space-3) var(--space-3);
+  }
+
+  .zee-head .zee-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .zee-head .zee-mark svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .zee-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .zee-title strong {
+    font-size: 1rem;
+  }
+
+  .zee-title span {
+    font-size: 0.7rem;
+  }
 }
 
 /* ---- Log ---- */
@@ -534,6 +592,9 @@
   font-size: 16px;
   line-height: 1.45;
   max-height: 120px;
+  /* JS sizes this to fit its content; without hiding the overflow the browser
+     paints a scrollbar inside the pill for a single line of text. */
+  overflow-y: auto;
   padding-block: 9px;
   font-family: var(--font-body);
   color: var(--ink);

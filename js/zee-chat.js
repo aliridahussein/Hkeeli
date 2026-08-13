@@ -8,8 +8,7 @@
  */
 
 import { trackZeeEvent } from './zee-analytics.js';
-
-const MARK = 'ح';
+import { zeeMark } from './zee-mark.js';
 
 let panel = null;
 let loading = false;
@@ -25,7 +24,7 @@ function build() {
   const mark = document.createElement('span');
   mark.className = 'zee-mark';
   mark.setAttribute('aria-hidden', 'true');
-  mark.textContent = MARK;
+  mark.append(zeeMark());
 
   const label = document.createElement('span');
   label.className = 'zee-label';

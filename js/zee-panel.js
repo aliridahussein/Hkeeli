@@ -15,6 +15,7 @@
  */
 
 import { trackZeeEvent } from './zee-analytics.js';
+import { zeeMark } from './zee-mark.js';
 
 const ENDPOINT = '/api/zee/chat';
 const SESSION_KEY = 'hkeeli.zee.session.v1';
@@ -93,7 +94,7 @@ const ICONS = {
   collapse: 'M10 20v-6H4M14 4v6h6M3 21l7-7M21 3l-7 7',
   clear: 'M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14',
   close: 'M6 6l12 12M18 6L6 18',
-  send: 'M4 12l16-8-6 8 6 8z',
+  send: 'M20 12L4 4l5 8-5 8z',
   stop: 'M7 7h10v10H7z'
 };
 
@@ -198,7 +199,7 @@ export function createPanel({ onClose } = {}) {
   );
 
   const panel = el(
-    'section',
+    'div',
     {
       class: 'zee-panel',
       dataset: { expanded: 'false' },
@@ -209,7 +210,7 @@ export function createPanel({ onClose } = {}) {
     el(
       'header',
       { class: 'zee-head' },
-      el('span', { class: 'zee-mark', 'aria-hidden': 'true' }, 'ح'),
+      el('span', { class: 'zee-mark', 'aria-hidden': 'true' }, zeeMark()),
       el(
         'div',
         { class: 'zee-title' },
@@ -289,7 +290,15 @@ export function createPanel({ onClose } = {}) {
 
   function scrollToEnd(force = false) {
     if (!force && !stick) return;
-    log.scrollTop = log.scrollHeight;
+    /* Instant while tokens are arriving. The stylesheet asks for smooth
+       scrolling, which is right for a new message but wrong for the dozens of
+       tiny scrolls a stream produces — each one queues an animation and the
+       last line ends up trailing behind the text.
+
+       'instant', not 'auto': per CSSOM-View 'auto' means "use the element's
+       scroll-behavior", which is `smooth` here — i.e. exactly what we are
+       trying to bypass. */
+    log.scrollTo({ top: log.scrollHeight, behavior: streaming ? 'instant' : 'smooth' });
   }
 
   function paint() {
