@@ -172,9 +172,15 @@ export class GameShell {
   }
 
   showFeedback(tone, title, detail) {
+    /* Filtered, not passed straight through: unlike el(), Element.append()
+       stringifies a null child into the literal text "null" — which is exactly
+       what the board showed on the last pair of Match the Phrase, the one call
+       site that has no detail to give. */
     clear(this.feedbackEl).append(
-      el('span', {}, title),
-      detail ? el('span', { class: 'feedback-detail' }, detail) : null
+      ...[
+        el('span', {}, title),
+        detail ? el('span', { class: 'feedback-detail' }, detail) : null
+      ].filter(Boolean)
     );
     this.feedbackEl.dataset.tone = tone;
     this.feedbackEl.hidden = false;

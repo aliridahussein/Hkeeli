@@ -64,7 +64,8 @@ export async function initMiniLesson(host) {
   );
 
   const setStatus = (tone, title, detail) => {
-    clear(status).append(el('strong', {}, title), detail || null);
+    // Filtered: Element.append(null) would print the literal text "null".
+    clear(status).append(...[el('strong', {}, title), detail].filter(Boolean));
     status.dataset.tone = tone;
     status.hidden = false;
   };

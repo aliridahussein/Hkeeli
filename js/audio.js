@@ -18,6 +18,8 @@ import { toast } from './toast.js';
 /** phrase.id -> 'file' | 'tts' — so a 404 is probed once, not every tap. */
 const resolved = new Map();
 let currentAudio = null;
+/** Settles the in-flight playback promise when something interrupts it. */
+let abortCurrent = null;
 let noticeShown = false;
 
 /**
@@ -48,6 +50,16 @@ function stopAll() {
     currentAudio = null;
   }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+  /* Pausing an <audio> fires neither `ended` nor `error`, so without this the
+     promise in playFile() would never settle: playPhrase() would sit awaiting
+     it forever, its finally block would never run, and the button that started
+     the sound would keep its "playing" pulse for the life of the page. Cancel
+     is the same story for speech synthesis on the engines that stay silent
+     rather than firing `end`. */
+  const abort = abortCurrent;
+  abortCurrent = null;
+  if (abort) abort();
 }
 
 function pickArabicVoice() {
@@ -90,8 +102,19 @@ function speak(phrase) {
         if (voice) utterance.voice = voice;
         utterance.lang = voice ? voice.lang : CONFIG.ttsLocales[0];
         utterance.rate = CONFIG.ttsRate;
-        utterance.onend = () => resolve(true);
-        utterance.onerror = () => resolve(false);
+
+        let settled = false;
+        const settle = (spoken) => {
+          if (settled) return;
+          settled = true;
+          if (abortCurrent === cancel) abortCurrent = null;
+          resolve(spoken);
+        };
+        const cancel = () => settle(false);
+        abortCurrent = cancel;
+
+        utterance.onend = () => settle(true);
+        utterance.onerror = () => settle(false);
 
         if (CONFIG.showTtsNotice && !noticeShown) {
           noticeShown = true;
@@ -106,9 +129,23 @@ function playFile(url) {
   return new Promise((resolve) => {
     const audio = new Audio(url);
     currentAudio = audio;
-    audio.addEventListener('ended', () => resolve(true), { once: true });
-    audio.addEventListener('error', () => resolve(false), { once: true });
-    audio.play().catch(() => resolve(false));
+
+    /* Guarded because these paths can race: a file that errors after the
+       learner has already pressed another button would otherwise settle the
+       promise twice and report the wrong outcome. */
+    let settled = false;
+    const settle = (played) => {
+      if (settled) return;
+      settled = true;
+      if (abortCurrent === cancel) abortCurrent = null;
+      resolve(played);
+    };
+    const cancel = () => settle(false);
+    abortCurrent = cancel;
+
+    audio.addEventListener('ended', () => settle(true), { once: true });
+    audio.addEventListener('error', () => settle(false), { once: true });
+    audio.play().catch(() => settle(false));
   });
 }
 

@@ -86,12 +86,27 @@ export function initChrome() {
   window.addEventListener('hashchange', markCurrentPage);
 }
 
+/**
+ * The page a path names, independent of how it is spelled.
+ *
+ * The links say "learn.html" but the site is served at "/learn": Cloudflare's
+ * asset handling resolves the extension, and every link Zee produces uses the
+ * clean form too. Comparing the raw strings meant no nav item was ever marked
+ * current on the deployed site — only on a local file:// open. Both sides are
+ * reduced to a bare page name instead.
+ */
+function pageName(path) {
+  const last = String(path).split('/').pop() || '';
+  return last.replace(/\.html$/, '') || 'index';
+}
+
 function markCurrentPage() {
-  const here = location.pathname.split('/').pop() || 'index.html';
+  const here = pageName(location.pathname);
   document.querySelectorAll('.nav-links a, .nav-drawer a').forEach((link) => {
     const target = link.getAttribute('href') || '';
     const [path, fragment] = target.split('#');
-    const samePage = (path || here) === here;
+    // A bare "#section" link has no path of its own — it points at this page.
+    const samePage = (path ? pageName(path) : here) === here;
     // A link to a section is only "current" while that section is the target;
     // otherwise every hash link on the home page would claim to be current.
     const isCurrent = fragment ? samePage && `#${fragment}` === location.hash : samePage;
