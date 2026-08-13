@@ -99,33 +99,109 @@ const ICONS = {
 };
 
 const ARABIC = /[؀-ۿ]/;
+const ARABIC_ALL = /[؀-ۿ]/g;
+/** A line that is only an English meaning: "how are you?" */
+const GLOSS = /^\s*[""'(]?\s*["""]([^"""]{1,80})["""]\s*[)]?\s*$/;
 
 /**
- * Render one message as text.
+ * Classify one line so the bubble can lay a taught phrase out properly.
  *
- * Blank lines become paragraphs, single newlines become line breaks, and
- * **bold** becomes <strong> — nothing else is interpreted. Each line carries
- * dir="auto" so a line of Arabic script sits right-to-left inside an otherwise
- * left-to-right bubble, which is exactly what Zee's answers mix.
+ * Zee is asked to give a phrase as three lines — transliteration, Arabic script,
+ * English meaning — because all three crammed onto one line is what made her
+ * answers hard to read. This is the other half of that: the lines have to *look*
+ * different, or the format buys nothing.
  */
-function renderText(target, text) {
+function classify(line) {
+  const trimmed = line.trim();
+  if (!trimmed) return 'text';
+
+  const arabic = (trimmed.match(ARABIC_ALL) || []).length;
+  const letters = trimmed.replace(/[\s\p{P}\p{S}]/gu, '').length || 1;
+
+  /* Only a line that is almost entirely script, and short, is the Arabic line
+     of a phrase. The threshold is deliberately strict: a chatty sentence that
+     happens to contain an Arabic word ("Yalla, 2ouleele: بدك 2ahwe?") is prose,
+     and rendering it at phrase size in the Arabic face would be wrong. */
+  if (arabic / letters > 0.85 && trimmed.length <= 60) return 'ar';
+  if (GLOSS.test(trimmed)) return 'gloss';
+  return 'text';
+}
+
+/** Split a run of mixed text so Arabic words keep their own font and direction. */
+function appendMixed(node, text) {
+  for (const piece of text.split(/([؀-ۿ][؀-ۿ\s]*)/g)) {
+    if (!piece) continue;
+    if (ARABIC.test(piece)) {
+      node.append(el('span', { class: 'zee-ar', dir: 'rtl', lang: 'ar' }, piece));
+    } else {
+      node.append(document.createTextNode(piece));
+    }
+  }
+}
+
+/**
+ * @param {boolean} [plain]  render every line as prose. The phrase-block layout
+ *   describes how Zee teaches; applying it to what the learner typed would
+ *   restyle their own quoted question as a vocabulary card.
+ */
+function renderText(target, text, { plain = false } = {}) {
   target.replaceChildren();
+
   for (const block of String(text).split(/\n{2,}/)) {
+    const lines = block.split('\n');
+    const kinds = plain ? lines.map(() => 'text') : lines.map(classify);
+
+    /* A short Latin line sitting directly above the Arabic (or above the
+       English gloss) is the transliteration — the line the learner is meant to
+       read out loud, so it gets the emphasis. */
+    kinds.forEach((kind, i) => {
+      if (kind !== 'text') return;
+      const next = kinds[i + 1];
+      if ((next === 'ar' || next === 'gloss') && lines[i].trim().length <= 60) {
+        kinds[i] = 'translit';
+      }
+    });
+
     const p = el('p', { dir: 'auto' });
-    block.split('\n').forEach((line, index) => {
-      if (index) p.append(el('br'));
-      // Split on **bold** and keep every fragment a text node.
+    let phrase = null; // the current run of phrase lines, if any
+
+    lines.forEach((line, i) => {
+      const kind = kinds[i];
+      const isPhraseLine = kind === 'translit' || kind === 'ar' || kind === 'gloss';
+
+      const node = el('span', {
+        class: `zee-line zee-line--${kind}`,
+        dir: kind === 'ar' ? 'rtl' : 'auto',
+        lang: kind === 'ar' ? 'ar' : null
+      });
+
+      // Only **bold** is interpreted, and every fragment stays a text node —
+      // model output is never parsed as markup.
       for (const piece of line.split(/(\*\*[^*]+\*\*)/g)) {
         if (!piece) continue;
         if (piece.startsWith('**') && piece.endsWith('**') && piece.length > 4) {
-          p.append(el('strong', {}, piece.slice(2, -2)));
-        } else if (ARABIC.test(piece)) {
-          p.append(el('span', { class: 'zee-ar', dir: 'auto', lang: 'ar' }, piece));
+          node.append(el('strong', {}, piece.slice(2, -2)));
+        } else if (kind !== 'ar' && ARABIC.test(piece)) {
+          // A prose line can still carry an Arabic word; give just that run the
+          // Arabic face and its own direction so it doesn't garble the sentence.
+          appendMixed(node, piece);
         } else {
-          p.append(document.createTextNode(piece));
+          node.append(document.createTextNode(piece));
         }
       }
+
+      if (isPhraseLine) {
+        if (!phrase) {
+          phrase = el('span', { class: 'zee-phrase' });
+          p.append(phrase);
+        }
+        phrase.append(node);
+      } else {
+        phrase = null;
+        p.append(node);
+      }
     });
+
     target.append(p);
   }
 }
@@ -251,7 +327,7 @@ export function createPanel({ onClose } = {}) {
       el('span', { class: 'zee-msg-who' }, role === 'user' ? 'You' : 'Zee')
     );
     const bubble = el('div', { class: 'zee-bubble' });
-    renderText(bubble, text);
+    renderText(bubble, text, { plain: role === 'user' });
     wrap.append(bubble);
     log.append(wrap);
     scrollToEnd();

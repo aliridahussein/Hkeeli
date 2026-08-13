@@ -56,6 +56,39 @@ for (const entry of lexicon.entries) {
   }
 }
 
+/* --------------------------------------------------------------------------
+   English index
+   --------------------------------------------------------------------------
+   Half the questions arrive in English — "how do I order coffee?" — and until
+   this existed they matched nothing, so the model answered from its own memory
+   and invented words the course does not teach. Indexing the meanings by their
+   content words is what puts Hkeeli's own vocabulary in front of it instead.
+   -------------------------------------------------------------------------- */
+
+const STOPWORDS = new Set(
+  ('a an the to of for and or is are be it its you your my me i in on at with' +
+    ' that this said say says how what when where who why do does did can could' +
+    ' would like want good more most very said someone something person people')
+    .split(' ')
+);
+
+const englishIndex = new Map();
+
+for (const entry of lexicon.entries) {
+  const words = String(entry.meaning || '')
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .filter((word) => word.length > 2 && !STOPWORDS.has(word));
+
+  for (const word of words) {
+    if (!englishIndex.has(word)) englishIndex.set(word, []);
+    const bucket = englishIndex.get(word);
+    // A common word like "coffee" should bring its whole family of phrases, but
+    // not flood the prompt.
+    if (bucket.length < 4) bucket.push(entry);
+  }
+}
+
 /**
  * Glossary entries relevant to one message.
  *
@@ -74,27 +107,41 @@ export function findGlossary(message, limit = LIMITS.maxGlossaryEntries) {
     if (found.size >= limit) break;
   }
 
-  // "what does 'I want' mean in Lebanese" — the learner gave us the English.
+  // "how do I say I want / order coffee" — the learner gave us the English.
   if (found.size < limit) {
-    const haystack = String(message).toLowerCase();
-    for (const entry of lexicon.entries) {
+    const english = String(message)
+      .toLowerCase()
+      .split(/[^a-z]+/)
+      .filter((word) => word.length > 2 && !STOPWORDS.has(word));
+
+    for (const word of english) {
+      for (const entry of englishIndex.get(word) || []) {
+        if (found.size >= limit) break;
+        if (!found.has(entry.canonical)) found.set(entry.canonical, entry);
+      }
       if (found.size >= limit) break;
-      const meaning = String(entry.meaning || '').toLowerCase();
-      if (meaning.length > 3 && haystack.includes(meaning)) found.set(entry.canonical, entry);
     }
   }
 
   return [...found.values()];
 }
 
-/** One compact line per entry — this is prompt text, not a data dump. */
+/**
+ * One compact line per entry — this is prompt text, not a data dump.
+ *
+ * The Arabic sits in a labelled field at the end rather than in brackets beside
+ * the transliteration. Side by side reads as "these two belong together in a
+ * sentence", and a small model copies that pattern straight into its prose —
+ * which is the script-mixing this whole prompt is trying to prevent.
+ */
 function renderGlossary(entries) {
   return entries
     .map((entry) => {
-      const parts = [`${entry.canonical} (${entry.arabic}) = ${entry.meaning}`];
+      const parts = [`${entry.canonical} = ${entry.meaning}`];
       if (entry.variants && entry.variants.length) parts.push(`also written: ${entry.variants.join(', ')}`);
       if (entry.notes) parts.push(entry.notes);
       if (entry.unit) parts.push(`taught in ${entry.unit}`);
+      if (entry.arabic) parts.push(`script (phrase block only): ${entry.arabic}`);
       return `- ${parts.join(' | ')}`;
     })
     .join('\n');
@@ -130,7 +177,10 @@ export function buildContextBlock({ message, page }) {
 
   if (glossary.length) {
     blocks.push(
-      `HKEELI GLOSSARY (curated — these spellings and meanings win over your own)\n${renderGlossary(glossary)}`
+      'HKEELI GLOSSARY (curated — these spellings and meanings win over your own. ' +
+        'The Arabic script here is ONLY ever the middle line of a phrase block, ' +
+        'never part of a sentence you write)\n' +
+        renderGlossary(glossary)
     );
   }
 
@@ -154,11 +204,22 @@ export function buildContextBlock({ message, page }) {
 export function styleReminder() {
   return (
     'REMINDER, applies to the reply you are about to write:\n' +
-    '1. Write Lebanese in Latin letters only — mar7aba, kifak, baddi, 3am, mni7. ' +
-    'Do NOT put Arabic script in the middle of a sentence. Show the Arabic script ' +
-    'only if the learner asked for it, and then on its own line.\n' +
-    '2. Keep it to 2-5 short lines.\n' +
-    '3. If a page from HKEELI PAGES answers this, end with its <<nav:id>> marker ' +
+    '1. Talk WITH them, do not just translate. React to what they said, answer ' +
+    'briefly, then ask them something back in easy Lebanese so the conversation ' +
+    'continues.\n' +
+    '2. Your conversational sentences are Latin letters ONLY. Arabic script ' +
+    'appears nowhere except on its own line inside a phrase block.\n' +
+    '   WRONG: "Yalla, قوليلي: baddi shu?"\n' +
+    '   WRONG: "Eh mazbout, baddi هيك بتنعاد كتير"\n' +
+    '   RIGHT: "Yalla, 2ouleele: baddi shu?"\n' +
+    '   RIGHT: "Eh mazbout — baddi bteji ktir bel 7ake."\n' +
+    '3. When you teach a phrase, give it as three separate lines and nothing else ' +
+    'on them:\n' +
+    'kifak?\n' +
+    'كيفك؟\n' +
+    '"how are you?"\n' +
+    '4. Keep it short — 2-5 conversational lines around at most one phrase block.\n' +
+    '5. If a page from HKEELI PAGES answers this, end with its <<nav:id>> marker ' +
     'on the last line.'
   );
 }
