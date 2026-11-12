@@ -16,7 +16,10 @@ export async function loadLessons() {
   if (cache) return cache;
   if (inflight) return inflight;
 
-  inflight = fetch(`${CONFIG.dataBase}${CONFIG.lessonsFile}`)
+  // Always checked with the server (a 304 when unchanged), for the same reason
+  // as the string bundles in i18n.js: the course data has to be the copy the
+  // running scripts were written against.
+  inflight = fetch(`${CONFIG.dataBase}${CONFIG.lessonsFile}`, { cache: 'no-cache' })
     .then((res) => {
       if (!res.ok) throw new Error(`Failed to load lessons (${res.status})`);
       return res.json();

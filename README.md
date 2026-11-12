@@ -251,6 +251,23 @@ Keys resolve against `data/en.json` and `data/ar.json`. To add a string, add it
 to **both** files with the same key path — a key missing from `ar.json` falls
 back to English rather than rendering blank.
 
+**The bundles always have to match the scripts.** A browser or proxy cache
+that hands a page yesterday's `en.json` under today's scripts renders raw keys
+("practice.heroTitle") in place of headlines — this happened during
+development. Three defences in `js/i18n.js`:
+
+- Bundles (and `lessons.json`, in `js/data.js`) are fetched with
+  `cache: 'no-cache'`: always checked with the server, a 304 when unchanged.
+- If the code asks for a key no loaded bundle has, the page re-fetches the
+  bundles **once**, bypassing every cache, and re-renders through the
+  `hkeeli:langchange` event if that copy has the key. A key missing from the
+  server's copy too is a genuine typo: it stays visible (as the key, plus a
+  console warning) and never loops.
+- A missing key never replaces text an element already carries in the HTML.
+  Most elements are empty in the markup, but some ship an English default (the
+  nav, the practice page's headings); for those, a missing key shows the
+  default instead of the raw key.
+
 Switching language sets `<html lang>` and `<html dir>`, re-renders every
 translatable node, saves the choice to `localStorage`, and fires a
 `hkeeli:langchange` event that data-driven sections listen for. There is no
