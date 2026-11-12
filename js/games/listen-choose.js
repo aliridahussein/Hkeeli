@@ -1,5 +1,14 @@
 /**
  * Listen & Choose — hear a phrase, pick its English meaning.
+ *
+ * The play button is the whole prompt, so it is the biggest thing on the
+ * board, with rings that ripple out while it speaks. It plays on arrival and
+ * replays on every tap; there is no separate "Replay" in the action bar,
+ * because two controls that do the same thing make a learner wonder which one
+ * is different.
+ *
+ * Answering is a single tap — no select-then-check — and the verdict bar
+ * rises with the answer in all three scripts.
  */
 
 import { CONFIG } from '../config.js';
@@ -8,10 +17,11 @@ import { el } from '../ui.js';
 import { playPhrase } from '../audio.js';
 import { sample, buildOptions, optionKey } from './shared.js';
 import { bindChoiceKeys } from './keyboard.js';
+import { phraseLine } from './chat.js';
 
 export default {
   id: 'listen',
-  icon: '🎧',
+  icon: 'headphones',
   titleKey: 'games.listenTitle',
   blurbKey: 'games.listenBlurb',
   minPhrases: 4,
@@ -33,17 +43,10 @@ export default {
 
       const playBtn = el('button', {
         type: 'button',
-        class: 'play',
+        class: 'play play-hero',
         'aria-label': t('game.replay')
       });
       playBtn.addEventListener('click', () => playPhrase(phrase, playBtn));
-
-      const prompt = el(
-        'div',
-        { class: 'prompt' },
-        playBtn,
-        el('p', { class: 'prompt-hint' }, t('game.listenPrompt'))
-      );
 
       const optionButtons = options.map((option, i) =>
         el(
@@ -56,8 +59,8 @@ export default {
 
       const nextBtn = el(
         'button',
-        { class: 'btn-primary', onClick: advance },
-        t(index + 1 === round.length ? 'game.check' : 'game.next')
+        { type: 'button', class: 'btn-primary', onClick: advance },
+        t(index + 1 === round.length ? 'game.finish' : 'game.next')
       );
       nextBtn.hidden = true;
 
@@ -66,8 +69,7 @@ export default {
           if (answered) return;
           answered = true;
 
-          const chosen = options[i];
-          const correct = chosen.id === phrase.id;
+          const correct = options[i].id === phrase.id;
 
           optionButtons.forEach((other, j) => {
             other.disabled = true;
@@ -75,43 +77,43 @@ export default {
             else if (j === i) other.dataset.state = 'wrong';
           });
 
-          shell.record(phrase.id, correct);
+          shell.record(phrase.id, correct, button);
           shell.showFeedback(
             correct ? 'ok' : 'bad',
             correct ? t('game.correct') : t('game.wrong'),
-            `${phrase.ar} — ${phrase.translit} — ${phrase.en}`
+            phraseLine(phrase)
           );
           nextBtn.hidden = false;
-          nextBtn.focus();
+          nextBtn.focus({ preventScroll: true });
         });
       });
 
       keyState = { options: optionButtons, next: nextBtn };
 
-      shell.renderBoard(prompt, el('div', { class: 'options' }, optionButtons));
-      shell.renderActions(
-        // Short visible label so the action bar stays one row on a phone;
-        // the full wording lives in the accessible name.
+      shell.renderBoard(
         el(
-          'button',
-          {
-            class: 'btn-secondary',
-            'aria-label': t('game.replay'),
-            onClick: () => playPhrase(phrase, playBtn)
-          },
-          t('game.replayShort')
+          'div',
+          { class: 'listen-hero' },
+          el('div', { class: 'listen-hero-ring' }, playBtn),
+          el('p', { class: 'game-instruction' }, t('game.listenPrompt'))
         ),
-        nextBtn
+        el('div', { class: 'options', role: 'group', 'aria-label': t('game.listenPrompt') }, optionButtons)
       );
+      shell.renderActions(nextBtn);
 
       // Autoplay the prompt — this is a listening exercise, after all.
       playPhrase(phrase, playBtn);
     };
 
     function advance() {
+      /* The lock has to be read before `index` moves: pointer-events stops a
+         second tap, but a programmatic activation — Enter on the focused Next
+         button, assistive tech — still reaches this handler, and stepping the
+         round twice walks `index` off the end of the array. */
+      if (shell.transitioning) return;
       index += 1;
       if (index >= round.length) shell.finish(shell.score, round.length);
-      else question();
+      else shell.transitionTo(question);
     }
 
     question();

@@ -79,33 +79,47 @@
   </div>
 </nav>
 
-<main id="main">
-  <header class="page-head">
-    <p class="eyebrow" style="justify-content:center;"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
-    <h1 data-i18n="games.pageTitle">Practice</h1>
-    <p data-i18n="games.pageSubtitle"></p>
+<main id="main" class="practice-page">
+  <!-- The hub. Everything a learner plays opens in the play stage
+       (js/stage.js) over this page; nothing mounts into it. -->
+  <header class="practice-hero">
+    <p class="eyebrow"><span class="dot"></span><span data-i18n="games.eyebrow">Practice</span></p>
+    <h1 data-i18n="practice.heroTitle">Learn it by living it.</h1>
+    <p class="practice-hero-body" data-i18n="practice.heroBody"></p>
+    <!-- One tap to start: the next scene you haven't played. On a phone the
+         scene cards are two screens down, and the page's job is getting
+         someone to try it. Built by js/practice.js. -->
+    <div class="practice-start" id="practice-start"></div>
+    <!-- The three ways in, each in a line. Built by js/practice.js. -->
+    <div id="practice-modes"></div>
   </header>
 
-  <section style="padding-block-start: var(--space-4);">
-    <div class="practice-layout">
-      <!-- The recommended session. Built by js/practice.js from your progress. -->
-      <div id="daily-card"></div>
-
-      <!-- Scopes every game and the daily session to one unit; driven by ?unit= -->
-      <div class="unit-filter" id="unit-filter"></div>
-
-      <!-- Daily Practice or a single game mounts here -->
-      <div id="game-host">
-        <div class="game-loading"><p data-i18n="game.loading">Loading phrases…</p></div>
-      </div>
-
-      <!-- Secondary: the seven games, grouped by the skill they train -->
-      <section class="game-catalogue" id="game-catalogue" aria-labelledby="catalogue-title">
-        <h2 id="catalogue-title" data-i18n="practice.catalogueTitle">Choose a game</h2>
-        <p class="catalogue-note" data-i18n="practice.catalogueBody"></p>
-        <div id="game-groups"></div>
-      </section>
+  <section class="practice-section" id="scenes" aria-labelledby="scenes-title">
+    <header class="practice-section-head">
+      <p class="eyebrow"><span class="dot"></span><span data-i18n="scene.eyebrow">Scenes</span></p>
+      <h2 id="scenes-title" data-i18n="scene.pickerTitle">Walk into one conversation</h2>
+      <p data-i18n="scene.pickerBody"></p>
+    </header>
+    <div class="scene-grid" id="scene-grid">
+      <p class="hub-loading" data-i18n="game.loading">Loading phrases…</p>
     </div>
+  </section>
+
+  <section class="practice-section" id="daily" aria-labelledby="daily-title">
+    <div id="daily-card"></div>
+  </section>
+
+  <section class="practice-section" id="drills" aria-labelledby="drills-title">
+    <header class="practice-section-head practice-section-head--split">
+      <div>
+        <p class="eyebrow"><span class="dot"></span><span data-i18n="practice.drillsEyebrow">Drills</span></p>
+        <h2 id="drills-title" data-i18n="practice.catalogueTitle">Choose a game</h2>
+        <p data-i18n="practice.catalogueBody"></p>
+      </div>
+      <!-- Scopes Daily Practice and the drills to one unit; driven by ?unit= -->
+      <div class="unit-filter" id="unit-filter"></div>
+    </header>
+    <div id="game-groups"></div>
   </section>
 </main>
 

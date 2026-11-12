@@ -29,6 +29,11 @@ export function bindChoiceKeys(shell, getState) {
   const onKey = (event) => {
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     if (isTyping(event.target)) return;
+    /* While the board is handing over, `getState()` still describes the
+       question that is leaving. A programmatic click ignores the
+       pointer-events freeze the shell applies, so the keyboard path has to
+       check the flag itself. */
+    if (shell.transitioning) return;
 
     const state = getState() || {};
     const key = event.key.toLowerCase();

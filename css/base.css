@@ -107,23 +107,25 @@ ol {
   unicode-bidi: isolate;
   font-weight: 700;
   font-size: var(--step--1);
-  color: var(--olive);
+  color: var(--olive-ink);
   letter-spacing: 0.02em;
 }
 
 /* English lesson content needs the same isolation as transliteration. Without
    it, an Arabic page renders "How are you?" as "?How are you" — the trailing
    punctuation belongs to the surrounding RTL run, not to the sentence. The
-   feedback detail is in the list because it mixes all three scripts in one
-   line. */
+   verdict bar's detail is deliberately NOT in the list: it can hold
+   translated copy as well as a phrase, so it isolates each script piece
+   itself — see phraseLine() in js/games/chat.js. */
 .phrase-en,
 .match-en,
 .card-en,
 .option-en,
 .order-en,
 .reply-en,
-.builder-en,
-.feedback-detail {
+.say-this-en,
+.chat-en,
+.teach-en {
   direction: ltr;
   unicode-bidi: isolate;
 }

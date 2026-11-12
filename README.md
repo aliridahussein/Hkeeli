@@ -46,14 +46,15 @@ index.html          Home — hero, mini-lesson, goals, method, journey, teacher,
                     classes + booking, FAQ
 start.html          Start Here — three-question onboarding and a recommendation
 learn.html          The curriculum: units grouped by stage, expandable
-practice.html       Daily Practice, plus the seven games grouped by skill
+practice.html       The practice hub: scenes, Daily Practice, seven drills.
+                    Everything played opens in the play stage over it
 
 css/
   tokens.css        Design tokens: colour, type, spacing, radii, shadows, motion
   base.css          Reset, typography, Arabic/transliteration rules, utilities
-  components.css    Nav, buttons, postcard, lesson card, game tile, forms, footer
+  components.css    Nav, buttons, postcard, lesson card, forms, footer
   layout.css        Page grids and breakpoints (mobile-first)
-  games.css         Practice-page UI (loaded by practice.html only)
+  games.css         The practice hub and the play stage (practice.html only)
   zee-chat.css      Zee's launcher and chat panel
 
 worker/             Cloudflare Worker — Zee's API only (see "Zee" below)
@@ -71,17 +72,27 @@ js/
   journey.js        Stages, goals, recommendations, unit progress — the model
                     every page asks "what should this learner do next?"
   mini-lesson.js    The working lesson on the home page
-  daily.js          Daily Practice — sequences the existing games into one session
+  stage.js          The play stage: full-screen layer, top bar, history/Back
+  icons.js          The drawn icon set (replaces the emoji the games used)
+  motion.js         Hand-offs, FLIP tile travel, count-ups, the score token
+  sfx.js            Synthesised feedback tones + the per-device mute
+  analytics.js      track(), the site-wide seam for a future provider
+  session.js        StepSession — runs a sequence of real games as one thing
+  scenes.js         The scenes (data) + SceneSession and its transcript ending
+  daily.js          Daily Practice — StepSession configured from CONFIG.daily
+  cta.js            The bridge from a finished round to booking
   main.js           Home page
   start.js          Start Here onboarding
   learn.js          Lessons page
-  practice.js       Practice page — daily session, game catalogue, mounting
+  practice.js       Practice hub + routing: what's playing, URLs, Back button
   booking.js        Booking form submission
   zee-chat.js       Zee's launcher (every page); loads the panel on demand
   zee-panel.js      Zee's chat UI — streaming, transcript, controls
   zee-analytics.js  trackZeeEvent(), the seam for a future provider
   games/
-    index.js        Game registry + shared shell (score, streak, summary)
+    index.js        Game registry + shared shell (verdict bar, scoring, summary)
+    chat.js         Conversation pieces: chat bubbles, who-is-speaking, and
+                    phraseLine() for mixed-script text in the verdict bar
     shared.js       Shuffling, answer normalisation, option building
     keyboard.js       A-D / 1-9 / Enter for the multiple-choice games
     listen-choose.js  match.js  fill-blank.js
@@ -384,13 +395,152 @@ distorts a game's statistics. Change the phrases it teaches by editing
 
 ---
 
+## The practice page and the play stage
+
+`practice.html` is a hub, and **nothing is played inside it.** It offers three
+ways in, in the order it recommends them:
+
+1. **Scenes** — one situation, played start to finish (see [Scenes](#scenes)).
+2. **Daily Practice** — a short mix across the whole course.
+3. **Drills** — the seven games, grouped by the skill they train.
+
+The hero carries one button that starts the next scene you haven't played, by
+name ("Start with The Café"). On a phone the scene cards sit two screens down,
+and the page's whole job is getting someone to try it — so the first action is
+above the fold, and the explanation follows it.
+
+Choosing anything opens the **play stage** (`js/stage.js`): a full-viewport
+layer over the hub with a slim top bar (close, progress, streak, sound), a
+scrolling stage, and the [verdict bar](#the-verdict-bar) pinned to the bottom.
+It replaced games that mounted as a card in the middle of the scrolling page,
+which kept the scene picker above you and Daily Practice and seven game tiles
+below you while you played — the opposite of what committing to a situation
+should feel like.
+
+What the stage owns:
+
+- **The page behind it.** Everything outside the stage is `inert` while it is
+  open — no focus, no clicks, nothing announced — and page scroll is locked.
+  Zee's launcher is hidden: a floating button would sit on the verdict bar.
+- **The way out.** The ×, Escape, and the browser's **Back** button all close it
+  — the last because on a phone, Back is how people leave things. Opening the
+  stage from the hub pushes a history entry; arriving on a deep link opens it
+  without one, so Back from there behaves as expected too.
+- **Where focus goes after.** Closing returns focus to the control you started
+  from. The hub re-renders as the stage closes (so the card you played already
+  shows its new score), which replaces the original button — so
+  `returnFocus()` in `js/practice.js` finds its equivalent on the fresh hub.
+- **Two themes.** Scenes play on the deep sea (`data-theme="dark"`), drills and
+  Daily Practice on sand. **Colour inside the stage is never inherited from a
+  wrapper**: the stage sets its own `--stage-*` properties, and every surface
+  inside it — an option, a tile, a card, a bubble — sets its own background
+  *and* its own text colour. Option text once rendered sand-on-sand because a
+  dark wrapper's `color` leaked into a light card; this structure makes that
+  class of bug impossible rather than fixed once.
+
+### URLs
+
+| Hash | What it opens |
+|---|---|
+| *(none)*, `#scenes`, `#daily`, `#drills` | the hub (the last three are section anchors) |
+| `#scene-cafe`, `#scene-teta` | that scene |
+| `#daily-session` | Daily Practice |
+| `#listen`, `#match`, `#blank`, `#build`, `#order`, `#reply`, `#cards` | that drill |
+
+`#daily` used to mean "the hub, scrolled to Daily Practice" and was written into
+the URL on every visit, so it stays the hub — an old bookmark never starts a
+session unasked. `?unit=` still scopes Daily Practice and the drills; scenes
+ignore it.
+
+### The verdict bar
+
+The verdict and the button that acts on it are one element, pinned to the
+bottom of the screen, on both themes. Idle, it holds whatever the game needs
+(Check, Show answer). Answered, it turns green or red, says what happened —
+the answer in all three scripts — and offers the way forward. It used to be a
+banner at the *top* of the board, four hundred pixels from the option you had
+just tapped and off-screen on a phone.
+
+It opens and closes on its own: a `MutationObserver` watches the action row,
+so a game that reveals its Next button with `button.hidden = false` opens the
+bar without knowing it exists, and tap-to-answer games have no bar at all
+until there is something to say. It animates its real height
+(`grid-template-rows: 0fr → 1fr`).
+
+Its buttons size to their labels and the row **wraps by row, not by text**: on
+a phone "Play it again" and "Next: Teta on the Phone" stack, each one line tall,
+with the primary on the bottom row nearest the thumb. A zero flex-basis
+(`flex: 1 1 0`) here once crushed both labels onto three lines each.
+
+---
+
+## Scenes
+
+A scene is **not an eighth game.** It is the seven that already exist, scoped to
+one unit and framed as one situation — with a start, a cast, and an ending that
+is the conversation you just had.
+
+Daily Practice already chained real games together, but it drew from the whole
+course — step three asked about coffee and step four about your grandmother,
+five sealed boxes in a row — and its steps were named by skill, which says which
+muscle is being trained, not where you are. What makes a scene a scene:
+
+1. **One unit, start to finish**, so step four follows from step three.
+2. **A cast.** The other person has a name ("Waiter", "Teta") and a face in every
+   bubble, and the learner is always "You".
+3. **An arc.** An intro that sets the scene, names the cast and shows the six
+   steps; a beat of narration at the top of each step ("He says something.
+   Catch it."); and at the end, the dialogue written out as the conversation you
+   held — every line playable, your lines in gold.
+4. **Somewhere to go next.** The end of a scene offers the next scene you
+   haven't played, by name. Once every scene has been played, it offers the one
+   thing a website can't do: a lesson with a person. (The hero button and the
+   "Start here" badge point at the *first* scene you haven't played; this
+   button at the next unplayed one *after* the scene you just finished.)
+
+Adding a scene is a data edit — one entry in `SCENES` (`js/scenes.js`) plus the
+`scene.<id>.*` strings in **both** language bundles. No new game code, ever:
+
+```js
+{ id: 'cafe', unitId: 'unit-2', you: 'B', icon: 'cup', steps: ARC('cafe') }
+```
+
+- `unitId` is the whole scoping mechanism.
+- `you` says which dialogue speaker is the learner. It differs per scene — in the
+  café someone serves you; on the phone you are the one who called — and three
+  things depend on it: the transcript marks the right side as "You", **What Do
+  You Reply?** only asks for the learner's own lines, and **Sentence Builder**
+  only builds the learner's own dialogue lines. (Without that filter, half the
+  questions in a four-line dialogue asked the learner to say the waiter's lines.)
+- `icon` names an icon in `js/icons.js`, not an emoji.
+- `ARC(id)` is the shared six-step shape — meet the words, learn the one that
+  matters, hear it, answer it, say it, then do the whole thing. A learner on
+  their second scene should recognise the shape, not learn a new one.
+
+A scene whose `unitId` isn't in `lessons.json` is simply not offered. Scenes keep
+**all** units in `shell.units`, because What Do You Reply? draws its wrong
+answers from *other* units.
+
+---
+
 ## Daily Practice
 
-`js/daily.js` is the primary practice experience: one guided sequence rather
-than seven equal choices. It **duplicates no game logic** — each step mounts a
-real game in a `StepShell`, a subclass of `GameShell` whose only difference is
-that finishing a round hands control back to the session instead of offering
-"play again".
+Both Daily Practice and scenes run on `StepSession` (`js/session.js`), the one
+implementation of "run some games in order and keep score". It **duplicates no
+game logic**: each step mounts a real game in a `StepShell`, a subclass of
+`GameShell` with no heading of its own (the step header replaces it) whose
+`finish()` hands straight back to the session. There is no "step complete"
+screen between steps — the last answer's verdict bar already said how it went,
+and an interstitial would cost a tap per step to say nothing the progress bar
+doesn't.
+
+In the stage, a session splits the progress bar into one segment per step, and
+the current segment fills as its questions are answered. The streak belongs to
+the stage, so a run of right answers carries from one step into the next.
+
+`js/daily.js` is only configuration. `SceneSession` subclasses the same engine
+and overrides `intro()`, `summary()` and `summaryActions()`; none of
+`StepSession`'s methods are `#private`, precisely so they can be.
 
 The sequence lives in `CONFIG.daily.steps` (`js/config.js`):
 
@@ -408,11 +558,6 @@ through the schedule but never counts toward the score.
 Steps whose game has nothing to work with (a unit filter can leave "What Do You
 Reply?" with no dialogue) are dropped from the plan rather than shown empty.
 
-The seven games stay available below, grouped by skill in `GAME_GROUPS`
-(`js/games/index.js`). A game added to `GAMES` but not to a group would vanish
-from the catalogue, so `ungroupedGames()` collects the strays into a final
-"More practice" group.
-
 ---
 
 ## Practice games
@@ -422,20 +567,21 @@ flows into every game automatically.
 
 | Game | What it does |
 |---|---|
-| **Listen & Choose** | Plays a phrase, offers four English meanings, checks the pick. |
-| **Match the Phrase** | Five Lebanese vs five English, shuffled; tap one then the other to pair. |
+| **Listen & Choose** | A big play button that ripples while it speaks; one tap on one of four English meanings answers. |
+| **Match the Phrase** | Five Lebanese vs five English; tap one then the other. A right pair flashes and steps back; only a wrong pair raises the verdict bar. |
 | **Fill the Blank** | Type the missing word, or switch to multiple choice; lenient checking. |
-| **Sentence Builder** | Tap scrambled word chips into the right order from the English meaning and the audio. |
-| **Order the Conversation** | A unit's dialogue, shuffled — tap the lines back into sequence. |
-| **What Do You Reply?** | Plays a line from a dialogue; pick the reply that actually follows it. |
-| **Daily Flashcards** | Show answer (or tap the card) to flip Lebanese ↔ English, then "Got it" / "Still learning". |
+| **Sentence Builder** | The English and the audio; word tiles that travel from the bank onto the sentence line and back. |
+| **Order the Conversation** | A unit's dialogue as cards; each one tapped flies up into a chat thread on its speaker's side. |
+| **What Do You Reply?** | A line arrives as a bubble; the reply you pick flies up into the thread as your answer. |
+| **Daily Flashcards** | Flip Lebanese ↔ English, then "Got it" / "Still learning". |
 
 ### Scoping practice to one unit
 
-`practice.html?unit=unit-2` narrows every game to that unit's phrases, and the
-Learn page's "Practice these words" button links this way. The unit dropdown on
-the Practice page writes the same parameter, so any drill can be bookmarked or
-shared. Without the parameter, games draw from the whole course.
+`practice.html?unit=unit-2` narrows Daily Practice and every drill to that
+unit's phrases, and the Lessons page's "Practice these words" button links this
+way. The unit dropdown on the practice page writes the same parameter, so any
+drill can be bookmarked or shared. Without the parameter, games draw from the
+whole course.
 
 Note the local dev server needs `serve.json` (`"cleanUrls": false`) — otherwise
 `serve` redirects `/practice.html?unit=…` to `/practice` and **drops the query
@@ -445,42 +591,156 @@ rewrite URLs, so production is unaffected.
 Order the Conversation, What Do You Reply? and Sentence Builder read whole
 units rather than loose phrases (they need the `dialogue` arrays), which is what
 `GameShell`'s `context` argument carries. The first two deliberately do **not**
-call `shell.record()`:
-dialogue lines aren't phrases, and writing their ids into the spaced-repetition
-store would schedule reviews for cards that no flashcard will ever show. They
-call `shell.addScore()` instead, so the round still scores.
+call `shell.record()`: dialogue lines aren't phrases, and writing their ids into
+the spaced-repetition store would schedule reviews for cards no flashcard will
+ever show. They call `shell.addScore()` instead, so the round still scores.
 
-Sentence Builder is the mixed case: it draws on both phrases and dialogue
-lines (anything three words or longer, skipping transliterations that carry a
-`/`, which is an editorial "or" rather than a word). Only the phrase items go
-through `shell.record()`; the dialogue items just score. Its prompt shows the
-English and the audio and *not* the transliteration — otherwise the answer
-would be sitting there to copy.
+Sentence Builder is the mixed case: it draws on both phrases and dialogue lines
+(anything three words or longer, skipping transliterations that carry a `/`,
+which is an editorial "or" rather than a word). Only the phrase items go through
+`shell.record()`. Its prompt shows the English and the audio and *not* the
+transliteration — otherwise the answer would be sitting there to copy.
 
 What Do You Reply? draws its three wrong answers from *other* units. Lines from
 the same conversation are the tempting distractor, but with four lines per
-dialogue several of them could genuinely follow, and an ambiguous question
-teaches nothing. If the course is ever down to one unit with dialogue, it falls
-back to the whole bank.
+dialogue several could genuinely follow, and an ambiguous question teaches
+nothing. If the course is ever down to one unit with dialogue, it falls back to
+the whole bank.
 
 Match uses **tap-to-pair rather than drag-and-drop** on purpose: it behaves
 identically with a finger and a mouse and stays keyboard-reachable, where drag
 would be a pointer-only path.
 
+**Dialogue lines are compared by object identity, not by `id`.** Lines in
+`lessons.json` carry no `id`, so `line.id === correctOrder[slot].id` was
+comparing `undefined` with `undefined` — which is `true`. Order the Conversation
+scored a perfect round whatever order you placed the lines in, and What Do You
+Reply? marked all four options correct. Both now compare the objects themselves
+(Order the Conversation wraps each line in a per-round token, and compares
+those). Don't "fix" this back to an id comparison without giving every dialogue
+line a unique id first.
+
 **Keyboard:** in the multiple-choice games, `A`–`D` (or `1`–`4`) pick an answer
 and `Enter` advances. `js/games/keyboard.js` stands down whenever a text field
 has focus, so typing in Fill the Blank is never intercepted.
 
-**Flashcards deliberately show no score.** The first three games have right and
-wrong answers, so score and streak are meaningful. Flashcards are self-graded
-review: a visible score rewards pressing "Got it", and that judgement is the
-input the spaced-repetition scheduler runs on — inflate it and the scheduling
-degrades. The card HUD counts *Known* and *To review* instead. A game opts into
-this by setting `hudMode: 'review'` (see `js/games/flashcards.js`); everything
-else defaults to the quiz HUD.
+**Flashcards deliberately show no streak.** The other games have right and wrong
+answers, so a streak means something. Flashcards are self-graded: rewarding
+"Got it" would reward exactly the judgement the spaced-repetition scheduler
+depends on being honest. A game opts out with `hudMode: 'review'`; the stage
+then hides its streak, and the summary counts what you knew and what's coming
+back instead of a score.
 
 Round length, option count, pair count and SRS intervals are all in
 `CONFIG.games`.
+
+### Motion
+
+- **Questions hand over.** `shell.transitionTo(render)` runs the old board out
+  and the new one in (`js/motion.js`), and the new board's children stagger in.
+  The stagger is keyed off `data-entering`, set only for the length of the
+  hand-off: every other render — a tile placed, a card flipped — is instant,
+  because an entrance that replayed on every tap made the whole board blink.
+- **Things you tap travel.** `flip(root, mutate)` in `js/motion.js` is FLIP
+  (First, Last, Invert, Play): it measures every element carrying `data-flip`,
+  lets the game re-render the board from state, then animates each element from
+  where it was to where it is now. A brand-new element can name its origin with
+  `data-flip-from` — that's how the reply you picked flies out of the option
+  list into the chat. Games keep their simple render-everything-from-state model
+  and get motion for free.
+- **A right answer is an event**: a "+1" flies from the answer to the streak,
+  the streak lights up, and a tone plays.
+
+Three rules that are easy to break:
+
+1. **Read `shell.transitioning` before moving an index.** For the first half of a
+   hand-off the *outgoing* board is still live. `pointer-events` stops a second
+   tap, but a programmatic activation — Enter on the focused Next button,
+   assistive tech — still reaches the handler. Every `advance()` starts with
+   `if (shell.transitioning) return;`, **before** `index += 1`.
+2. **Every animation must end, with or without its timeline.** A backgrounded
+   tab pauses the document timeline, so an animation started just before the
+   learner switched away fires neither `finish` nor `cancel` — and a paused
+   entrance keeps painting its first frame, opacity 0. `run()` in
+   `js/motion.js` races a timer against both events and calls `finish()` when
+   it fires, so callers sequenced behind it always proceed and content is never
+   left invisible.
+3. **FLIP keys are unique per question**, not just per tile (`w-<question>-<i>`),
+   so a tile can never match a tile from the previous sentence mid-hand-off.
+
+### Mixed scripts in one line
+
+The verdict bar's detail often holds a phrase in all three scripts
+("بدي قهوة وسط — baddi 2ahwe wasat — I want a medium-sweet coffee") and sometimes
+translated copy ("0 of 4 lines in the right place"). One plain string can't do
+both: forced LTR scrambles the reading order on the Arabic page, and left to the
+page's direction an English sentence ending in "?" renders as "?How's your
+health" there.
+
+So `phraseLine(line, options)` in `js/games/chat.js` returns each script as its
+own `<bdi>` with its own `dir`, and lets the *sequence* follow the page;
+`latin(text)` does the same for a transliteration quoted inside translated copy
+("The answer was “law”"). `shell.showFeedback()` accepts either a string or
+those nodes. `.verdict-detail` is deliberately **not** in the isolation list at
+the top of `css/base.css`, because it can hold translated copy — but any new
+element that holds *only* a phrase's English must join that list
+(`.chat-en` and `.say-this-en` did).
+
+### Contrast
+
+The brand olive is 3.4:1 on sand — under the 4.5:1 that small text needs — and
+it is the colour of every transliteration on the site, the line a learner who
+can't read Arabic reads first. `--olive-ink` is the same hue, deeper, used for
+olive *text*; fills and borders keep `--olive`. `--ok-ink` and `--bad-ink` do the
+same for text on the green and red tints, and the "Got it" button sits on
+`--ok-ink` because white on the brand green is 3.9:1.
+
+Every screen of both scenes, Daily Practice and all seven drills was audited
+against WCAG AA (4.5:1 for small text, 3:1 for large) in both languages and at
+phone width, after their animations had settled.
+
+### Icons
+
+`js/icons.js` is one small stroke set — 24×24, 2px round strokes,
+`currentColor` — drawn for this site. The games used to carry emoji, which
+render differently on every platform and can't take the brand colours. A game
+module names its icon (`icon: 'headphones'`), and icons are decorative
+(`aria-hidden`) unless given a `label`.
+
+### Sound
+
+`js/sfx.js` synthesises four short tones with WebAudio rather than shipping
+files (four assets to host and 404-handle is a poor trade for four sine waves).
+Every tone ramps its gain in and out: a square edge on a 100ms tone is audible
+as a tick and sounds cheap.
+
+Sound is **on by default** — the site already plays pronunciation unprompted, so
+a feedback tone is not a surprise — and the speaker button in the stage's top
+bar toggles it, remembered per device under `hkeeli.sound.v1`. Games play cues
+through `shell.cue('place')`; right and wrong answers are automatic.
+
+### The booking bridge
+
+`js/cta.js` renders a card at the end of a standalone drill, of Daily Practice,
+and of a scene. It was the missing step: every route to the teacher lived in the
+nav or the footer, so the highest-intent moment in the product — someone who
+has just proved to themselves they can learn this — was answered with "play
+again".
+
+Three rules it follows, which are the reason it can be there at all:
+
+- **It states what just happened, accurately.** The copy is chosen from the
+  actual round (`band()`), so a bad round never gets told it went well.
+- **It names the limit of the thing they just used.** Recognising a phrase is
+  not saying it to a person. That is true, it is the reason a teacher exists,
+  and saying it plainly beats any adjective.
+- **It never blocks.** No modal, no interstitial; the way forward in the footer
+  stays the primary action.
+
+Once every other scene has been played, the footer's main button at the end of
+a scene *is* the booking link, so the card is rendered with `withCta: false`
+rather than showing the same button twice. It states no price, duration or availability — `js/booking.js`
+has the same rule and the same reason.
 
 ---
 
@@ -537,8 +797,9 @@ media queries only enhance upward (600 / 860 / 1000px).
   Class; the two that are home-page sections are marked current only while their
   hash is the target. Start Here is deliberately *not* in the primary nav — see
   "Start Here" above.
-- Every game is tap-first, with the check/next actions in a sticky bar within
-  thumb reach.
+- Every game is tap-first and plays full-screen in the play stage, with the
+  verdict and the next action pinned to the bottom of the screen, within thumb
+  reach. The practice hub's first action — start a scene — is above the fold.
 - Hover lifts are wrapped in `@media (hover: hover)` so touch devices get press
   states instead, and all motion respects `prefers-reduced-motion`.
 
@@ -627,7 +888,10 @@ Responses API is enabled there later, nothing has to change.
 ### Running it locally
 
 `npx serve .` serves the pages but has no Worker, so Zee's launcher opens and
-then every message fails. To work on Zee:
+then every message gets "Zee is offline for a moment." (It used to get
+nothing: the panel parsed the static server's 404 page as an empty stream and
+showed neither an answer nor an error. It now only reads an actual
+`text/event-stream`, and treats anything else as offline.) To work on Zee:
 
 ```bash
 npx wrangler dev
@@ -719,15 +983,12 @@ gets matched against.
 
 ### Analytics
 
-There is no analytics provider on the site. Every notable interaction calls
-`trackZeeEvent(name)`, which fires a DOM event and nothing else:
+`trackZeeEvent(name)` still fires `zee:event` for anything already listening to
+it, and now also routes through the site-wide seam in `js/analytics.js` — so one
+provider hookup covers the chat and the practice games alike. See
+[Analytics](#analytics-1) below.
 
-```js
-document.addEventListener('zee:event', (e) =>
-  yourAnalytics.track(e.detail.name, e.detail.props));
-```
-
-Events: `zee_opened`, `zee_message_sent`, `zee_navigation_clicked`,
+Zee's events: `zee_opened`, `zee_message_sent`, `zee_navigation_clicked`,
 `zee_booking_clicked`, `zee_cleared`, `zee_expanded`. No message text, no
 identifier, no page-by-page trail.
 
@@ -744,6 +1005,43 @@ identifier, no page-by-page trail.
   are filtered server-side.
 
 ---
+
+## Analytics
+
+There is still **no analytics provider on the site**, and adding one is a
+decision about sending visitor data to a third party — not one a practice game
+should make. So every notable interaction calls `track()` (`js/analytics.js`),
+which fires a DOM event and does nothing else. Wiring a provider is one
+listener, added once, anywhere:
+
+```js
+document.addEventListener('hkeeli:event', (e) =>
+  plausible(e.detail.name, { props: e.detail.props }));
+```
+
+Until that listener exists the events are inert. The point is that the call
+sites are already correct, so the day a provider is chosen the questions that
+matter are answerable immediately rather than after another pass over the code:
+
+| Event | Props |
+|---|---|
+| `game_round_started` / `game_round_completed` | `game`, `score`, `total` — standalone drills only |
+| `session_started` / `session_step_completed` / `session_completed` | `session` (`daily` or `scene-<id>`), `step`, `score`, `total` |
+| `booking_cta_shown` / `booking_cta_clicked` | `from` (`game` \| `daily` \| `scene` \| `scene-end`), `scene` |
+
+A game played *inside* a session reports nothing of its own — the session
+reports its start, each step and its finish — so a "rounds played" figure never
+counts every scene step twice.
+
+Plus Zee's own six, listed above. Event names and small integer counts only —
+no message text, no phrase anyone got wrong, no identifier, no page-by-page
+trail.
+
+**Nothing currently measures whether any of this works.** Until a provider is
+listening, how many people start a scene, finish one, or go on to the booking
+page are all unknown — which makes every further change to the practice section
+a guess. A privacy-friendly, cookie-banner-free provider (Plausible, Umami) is
+one script tag and matters most for the EU traffic the site is aimed at.
 
 ## Deploying
 
@@ -776,7 +1074,26 @@ stops being necessary — update `CONFIG.audioBase` in `js/config.js` to match.
 ## What the owner still has to supply
 
 Nothing on the site invents a fact. Where a business detail isn't known, the
-page says so in neutral wording instead of guessing — these are the gaps:
+page says so in neutral wording instead of guessing — these are the gaps.
+
+**Two of them cap the quality of everything else, and neither is a code
+change:**
+
+- **The recordings.** There are zero mp3s today, so every play button falls
+  through to speech synthesis — which reads Arabic script as *Modern Standard
+  Arabic*. `قهوة على الريحة` comes out "qahwa 3ala al-riiha", not *ahwe 3al
+  riha*. Listen & Choose, the flagship listening game, is currently teaching
+  the wrong pronunciation, and the site says so to the visitor in a toast. A
+  Lebanese dialect course where you never hear a Lebanese voice is not a
+  Lebanese course. ~50 clips covers units 1–3.
+- **The content pool.** 36 phrases, 12 dialogue lines, 3 units — and seven
+  games plus two scenes all drawing from it. One round of "What Do You Reply?"
+  is 8 of the 9 questions that exist; Order the Conversation has 3 playable
+  dialogues and a round length of 3, so one round is the whole game. The SRS
+  scheduler is sound, but it is scheduling a deck that can be memorised in a
+  sitting. No amount of motion fixes that.
+
+The rest:
 
 | Gap | Where to fill it |
 |---|---|
@@ -787,7 +1104,8 @@ page says so in neutral wording instead of guessing — these are the gaps:
 | **Booking address** | `CONFIG.bookingEmail` still points at `hello@hkeeli.example`. |
 | **Zee's Azure key** | Must be set as a Worker secret before Zee can answer — see [Zee](#zee--the-ai-lebanese-instructor). |
 | **A real booking backend** | Set `CONFIG.formEndpoint`; the form POSTs JSON instead of composing an email. |
-| **Units 4–12** | Not in `lessons.json` yet; units 1–3 are complete. Stages 4 and 5 of the journey show as "being written" until units declare those `stage` ids. |
+| **Units 4–12** | Not in `lessons.json` yet; units 1–3 are complete. Stages 4 and 5 of the journey show as "being written" until units declare those `stage` ids. Each new unit with a dialogue is also a candidate scene — see [Scenes](#scenes). |
+| **An analytics provider** | One listener on `hkeeli:event` — see [Analytics](#analytics-1). Without it, nothing measures whether the practice section leads anyone to book. |
 | **Domain** | `https://hkeeli.com` is hardcoded in the four pages, `robots.txt` and `sitemap.xml` — see [Domain](#domain). |
 
 The claims in `about.tag2` / `about.tag3` ("8+ years of teaching", "students in

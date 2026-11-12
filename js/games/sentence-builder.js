@@ -1,5 +1,5 @@
 /**
- * Sentence Builder — assemble a sentence from scrambled word chips.
+ * Sentence Builder — assemble a sentence from scrambled word tiles.
  *
  * Order the Conversation works at the level of whole lines; this works at the
  * level of words inside one line. It's the only game that asks a learner to
@@ -9,24 +9,29 @@
  * The prompt is the English meaning plus the audio — deliberately no Arabic
  * script and no transliteration, or the answer would just be there to copy.
  *
+ * Tiles move. Tap one in the bank and it travels up onto the sentence line;
+ * tap one on the line and it travels back. The board still re-renders from
+ * state on every tap — FLIP (js/motion.js) is what turns that into motion.
+ *
  * Material comes from two places: phrases of three words or more, and the
- * dialogue lines (which are longer, and thin the pool out much less when a
- * single unit is selected). Only the phrases go through shell.record(), since
- * only they have ids the spaced-repetition store knows about.
+ * dialogue lines. Only the phrases go through shell.record(), since only they
+ * have ids the spaced-repetition store knows about.
  */
 
 import { CONFIG } from '../config.js';
 import { t } from '../i18n.js';
 import { el } from '../ui.js';
 import { playPhrase } from '../audio.js';
+import { flip } from '../motion.js';
 import { shuffle, sample } from './shared.js';
 import { bindChoiceKeys } from './keyboard.js';
+import { phraseLine, latin } from './chat.js';
 
 const MIN_WORDS = 3;
 
 export default {
   id: 'build',
-  icon: '🧩',
+  icon: 'tiles',
   titleKey: 'games.buildTitle',
   blurbKey: 'games.buildBlurb',
   minPhrases: 1,
@@ -50,7 +55,9 @@ export default {
     const question = () => {
       shell.clearFeedback();
       const item = round[index];
-      const bank = shuffle(item.tokens.map((text, i) => ({ text, key: `${i}-${text}` })));
+      // Keys are per question, so a tile can never FLIP-match a tile from the
+      // previous sentence during the hand-off.
+      const bank = shuffle(item.tokens.map((text, i) => ({ text, key: `w-${index}-${i}` })));
       const placed = [];
       let checked = false;
 
@@ -58,30 +65,35 @@ export default {
 
       const playBtn = el('button', {
         type: 'button',
-        class: 'play',
+        class: 'play play-lg',
         'aria-label': `${t('game.playAudio')}: ${item.en}`
       });
       playBtn.addEventListener('click', () => playPhrase(item.source, playBtn));
 
-      const checkBtn = el('button', { class: 'btn-primary' }, t('game.check'));
-      const nextBtn = el('button', { class: 'btn-primary', onClick: advance }, t('game.next'));
+      const checkBtn = el('button', { type: 'button', class: 'btn-primary' }, t('game.check'));
+      const nextBtn = el('button', { type: 'button', class: 'btn-primary', onClick: advance }, t('game.next'));
       nextBtn.hidden = true;
       keyState = { next: checkBtn };
+
+      const move = (mutate) => {
+        shell.cue('place');
+        flip(shell.board, () => {
+          mutate();
+          render();
+        });
+      };
 
       const render = () => {
         const line = el(
           'div',
-          { class: 'builder-line', dir: 'ltr' },
+          { class: 'builder-line', dir: 'ltr', dataset: { empty: String(!placed.length) } },
           ...(placed.length
             ? placed.map((token, slot) =>
-                chip(token.text, {
+                tile(token, {
                   state: checked ? (token.text === item.tokens[slot] ? 'correct' : 'wrong') : null,
                   disabled: checked,
                   label: t('game.buildRemove'),
-                  onSelect: () => {
-                    placed.splice(slot, 1);
-                    render();
-                  }
+                  onSelect: () => move(() => placed.splice(slot, 1))
                 })
               )
             : [el('span', { class: 'builder-placeholder' }, t('game.buildEmpty'))])
@@ -90,31 +102,31 @@ export default {
         const remaining = bank.filter((token) => !placed.includes(token));
         const bankRow = el(
           'div',
-          { class: 'builder-bank', dir: 'ltr' },
+          { class: 'builder-bank', dir: 'ltr', role: 'group', 'aria-label': t('game.buildBank') },
           ...remaining.map((token) =>
-            chip(token.text, {
+            tile(token, {
               disabled: checked,
               label: t('game.buildAdd'),
-              onSelect: () => {
-                placed.push(token);
-                render();
-              }
+              onSelect: () => move(() => placed.push(token))
             })
           )
         );
 
         shell.renderBoard(
-          el('p', { class: 'prompt-hint center-text' }, t('game.buildPrompt')),
-          el('div', { class: 'builder-target' }, el('p', { class: 'builder-en' }, item.en), playBtn),
+          el('p', { class: 'game-instruction' }, t('game.buildPrompt')),
+          el(
+            'div',
+            { class: 'say-this' },
+            el('span', { class: 'say-this-label' }, t('game.buildSay')),
+            el('p', { class: 'say-this-en' }, item.en),
+            playBtn
+          ),
           line,
-          remaining.length ? bankRow : null,
-          !checked && !remaining.length
-            ? el('p', { class: 'prompt-hint center-text' }, t('game.buildRemoveHint'))
-            : null
+          bankRow,
+          !checked && !remaining.length ? el('p', { class: 'game-hint' }, t('game.buildRemoveHint')) : null
         );
 
         checkBtn.disabled = checked || placed.length !== item.tokens.length;
-        shell.renderActions(checkBtn, nextBtn);
       };
 
       checkBtn.addEventListener('click', () => {
@@ -125,29 +137,32 @@ export default {
         // still right when the two copies are swapped.
         const correct = placed.every((token, i) => token.text === item.tokens[i]);
 
-        if (item.isPhrase) shell.record(item.id, correct);
-        else shell.addScore(correct);
+        if (item.isPhrase) shell.record(item.id, correct, checkBtn);
+        else shell.addScore(correct, checkBtn);
 
         render();
         shell.showFeedback(
           correct ? 'ok' : 'bad',
-          correct ? t('game.correct') : `${t('game.wrong')} ${t('game.theAnswerWas')} “${item.translit}”`,
-          `${item.ar} — ${item.translit} — ${item.en}`
+          correct ? t('game.correct') : [`${t('game.wrong')} ${t('game.theAnswerWas')} `, latin(item.translit)],
+          phraseLine(item)
         );
         playPhrase(item.source, playBtn);
 
+        checkBtn.hidden = true;
         nextBtn.hidden = false;
         keyState = { next: nextBtn };
-        nextBtn.focus();
+        nextBtn.focus({ preventScroll: true });
       });
 
+      shell.renderActions(checkBtn, nextBtn);
       render();
     };
 
     function advance() {
+      if (shell.transitioning) return; // see listen-choose.js
       index += 1;
       if (index >= round.length) shell.finish(shell.score, round.length);
-      else question();
+      else shell.transitionTo(question);
     }
 
     question();
@@ -158,10 +173,13 @@ export default {
  * Everything in scope that's long enough to be worth rebuilding.
  *
  * Transliterations carrying a slash ("kifak / kifik") are skipped: the slash is
- * an editorial "or", not a word, and chipping it up would teach nonsense.
+ * an editorial "or", not a word, and tiling it up would teach nonsense.
  */
 function buildItems(shell) {
   const scoped = shell.unitId ? shell.units.filter((u) => u.id === shell.unitId) : shell.units;
+  // In a scene the learner says their own lines, never the other person's —
+  // "say it yourself" over the waiter's "what would you like?" made no sense.
+  const you = shell.cast && shell.cast.you;
 
   const usable = (source, isPhrase) => {
     const tokens = tokenize(source.translit);
@@ -170,7 +188,11 @@ function buildItems(shell) {
 
   return [
     ...shell.phrases.map((phrase) => usable(phrase, true)),
-    ...scoped.flatMap((unit) => (unit.dialogue || []).map((line) => usable(line, false)))
+    ...scoped.flatMap((unit) =>
+      (unit.dialogue || [])
+        .filter((line) => !you || (line.speaker || 'A') === you)
+        .map((line) => usable(line, false))
+    )
   ].filter(Boolean);
 }
 
@@ -185,18 +207,18 @@ function tokenize(translit) {
   return tokens.length >= MIN_WORDS ? tokens : null;
 }
 
-/** One word. Tapping a placed chip takes it back out; tapping a bank chip plays it in. */
-function chip(text, { state, disabled, label, onSelect }) {
+/** One word tile. `data-flip` is what lets it travel between bank and line. */
+function tile(token, { state, disabled, label, onSelect }) {
   const button = el(
     'button',
     {
       type: 'button',
       class: 'builder-chip',
-      'aria-label': `${label}: ${text}`,
-      dataset: state ? { state } : {},
+      'aria-label': `${label}: ${token.text}`,
+      dataset: { flip: token.key, ...(state ? { state } : {}) },
       disabled: disabled || undefined
     },
-    text
+    token.text
   );
   button.addEventListener('click', onSelect);
   return button;

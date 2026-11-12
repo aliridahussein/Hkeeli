@@ -287,7 +287,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--olive);
+  color: var(--olive-ink);
   margin-block-end: var(--space-5);
 }
 
@@ -475,7 +475,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--olive);
+  color: var(--olive-ink);
   background: var(--olive-wash);
   padding: 5px 12px;
   border-radius: var(--radius-pill);
@@ -571,61 +571,6 @@
 @media (hover: hover) {
   .play:hover {
     transform: translateY(-2px);
-  }
-}
-
-/* --------------------------------------------------------------------------
-   Game tile
-   -------------------------------------------------------------------------- */
-.game-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5) var(--space-4);
-  text-align: center;
-  border: 1px solid var(--hairline);
-  color: inherit;
-  transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease);
-}
-
-.game-tile .icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  margin-block-end: var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  background: var(--sea-deep);
-  color: var(--citrus);
-}
-
-.game-tile h3 {
-  font-size: 1rem;
-}
-
-.game-tile p {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
-}
-
-.game-tile .tile-stat {
-  margin-block-start: var(--space-2);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--olive);
-}
-
-@media (hover: hover) {
-  .game-tile:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow-lift);
   }
 }
 
@@ -771,7 +716,7 @@
   content: '\2713';
   position: absolute;
   inset-inline-start: 0;
-  color: var(--olive);
+  color: var(--olive-ink);
   font-weight: 700;
 }
 
@@ -941,7 +886,7 @@
 
 .booking-reassurance .tick::before {
   content: '\2713';
-  color: var(--olive);
+  color: var(--olive-ink);
   font-weight: 700;
 }
 
@@ -1103,7 +1048,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--olive);
+  color: var(--olive-ink);
   background: var(--olive-wash);
   border-radius: var(--radius-pill);
   padding: 3px 10px;
@@ -1125,7 +1070,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--olive);
+  color: var(--olive-ink);
   padding: var(--space-1) var(--space-2);
 }
 
@@ -1186,7 +1131,7 @@
   font-size: 1.05rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--olive);
+  color: var(--olive-ink);
 }
 
 .mini-step {
@@ -1230,7 +1175,7 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--olive);
+  color: var(--olive-ink);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-pill);
   padding: 4px 12px;
@@ -1289,7 +1234,7 @@
 .mini-restart {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--olive);
+  color: var(--olive-ink);
   text-decoration: underline;
   padding: var(--space-2);
 }
@@ -1496,7 +1441,7 @@
 
 .journey-stage[data-state='planned'] .journey-index {
   background: var(--olive-wash);
-  color: var(--olive);
+  color: var(--olive-ink);
 }
 
 .journey-body h3 {
@@ -1713,7 +1658,7 @@
 .onboarding-skip-link {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--olive);
+  color: var(--olive-ink);
   text-decoration: underline;
   min-height: var(--tap);
   padding-inline: var(--space-2);
@@ -1767,7 +1712,7 @@
   margin-block-start: var(--space-6);
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--olive);
+  color: var(--olive-ink);
 }
 
 .onboarding-skip a {

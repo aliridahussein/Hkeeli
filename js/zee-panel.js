@@ -492,8 +492,20 @@ export function createPanel({ onClose } = {}) {
         signal: streaming.signal
       });
 
-      if (!response.ok && !response.body) throw new Error(`http_${response.status}`);
+      /* The Worker reports its own failures as SSE `error` events, with a
+         non-2xx status — which is why a non-OK response isn't rejected on
+         status alone. But anything that is *not* an event stream (a static
+         host's 404 page, a Cloudflare 502, a Worker that crashed before it
+         could answer) used to be parsed as an empty stream: no events, no
+         answer, no error — the learner's message simply sat there unanswered.
+         Only an actual event stream is read; everything else is a failure
+         with a message. */
+      const type = response.headers.get('content-type') || '';
+      if (!response.body || !type.includes('text/event-stream')) {
+        throw new Error(`http_${response.status}`);
+      }
 
+      let reported = false;
       for await (const event of readEvents(response.body)) {
         if (event.name === 'delta') {
           answer += event.data.t || '';
@@ -507,6 +519,7 @@ export function createPanel({ onClose } = {}) {
           thinking.remove();
           if (node) node.bubble.querySelector('.zee-cursor')?.remove();
           addNote(ERRORS[event.data.code] || ERRORS.upstream, 'bad');
+          reported = true;
           if (!answer) node = null;
         }
       }
@@ -519,6 +532,9 @@ export function createPanel({ onClose } = {}) {
         persist();
       } else {
         thinking.remove();
+        // A stream that ended with neither an answer nor an error must still
+        // say something — silence reads as "Zee is broken".
+        if (!reported) addNote(ERRORS.empty, 'bad');
       }
     } catch (error) {
       thinking.remove();
@@ -531,7 +547,9 @@ export function createPanel({ onClose } = {}) {
         }
       } else {
         console.error('Zee request failed', error);
-        addNote(ERRORS.network, 'bad');
+        // A reachable server that answered with something other than Zee
+        // (404, 502…) is "offline"; no answer at all is a network problem.
+        addNote(/^http_\d/.test(error.message) ? ERRORS.unavailable : ERRORS.network, 'bad');
       }
     } finally {
       streaming = null;

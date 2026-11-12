@@ -8,6 +8,7 @@ import { t, pick, setLang, getLang } from './i18n.js';
 import { playPhrase, hasSlowAudio } from './audio.js';
 import { usageLabel } from './journey.js';
 import { toast } from './toast.js';
+import { icon } from './icons.js';
 
 export { toast };
 
@@ -204,29 +205,36 @@ export function progressBar(ratio, label) {
 }
 
 /**
- * Practice tile with the saved best score.
+ * A drill tile on the practice hub, with the saved best score.
  *
  * Two shapes, one component: a link when the tile navigates to the practice
- * page, a button when the game will mount in place (which is what the practice
+ * page, a button when the game opens in place (which is what the practice
  * page itself needs — a link that reloads the page it is already on is a
  * worse version of the same action).
+ *
+ * The icon is drawn from js/icons.js rather than an emoji: emoji render
+ * differently on every platform and can't take the brand colours.
  */
 export function gameTile(game, stats, { onSelect = null, href = `practice.html#${game.id}` } = {}) {
   const played = stats && stats.plays > 0;
   const children = [
-    el('span', { class: 'icon', 'aria-hidden': 'true' }, game.icon),
-    el('h3', {}, t(game.titleKey)),
-    el('p', {}, t(game.blurbKey)),
+    el('span', { class: 'drill-tile-icon', 'aria-hidden': 'true' }, icon(game.icon, { size: 24 })),
     el(
       'span',
-      { class: 'tile-stat' },
-      played ? `${t('games.bestScore')}: ${stats.best}` : t('games.notPlayed')
+      { class: 'drill-tile-text' },
+      el('span', { class: 'drill-tile-title' }, t(game.titleKey)),
+      el('span', { class: 'drill-tile-blurb' }, t(game.blurbKey))
+    ),
+    el(
+      'span',
+      { class: 'drill-tile-stat', dataset: { played: String(played) } },
+      played ? `${t('games.bestScore')} ${stats.best}` : t('games.notPlayed')
     )
   ];
 
   return onSelect
-    ? el('button', { type: 'button', class: 'game-tile', onClick: onSelect }, children)
-    : el('a', { class: 'game-tile', href }, children);
+    ? el('button', { type: 'button', class: 'drill-tile', dataset: { game: game.id }, onClick: onSelect }, children)
+    : el('a', { class: 'drill-tile', href, dataset: { game: game.id } }, children);
 }
 
 /** The coastline SVG divider, so the motif is defined in one place. */

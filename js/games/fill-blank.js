@@ -13,10 +13,11 @@ import { playPhrase } from '../audio.js';
 import { deriveBlank } from '../data.js';
 import { sample, shuffle, isAnswerAcceptable, optionKey } from './shared.js';
 import { bindChoiceKeys } from './keyboard.js';
+import { phraseLine, latin } from './chat.js';
 
 export default {
   id: 'blank',
-  icon: '✏️',
+  icon: 'pencil',
   titleKey: 'games.blankTitle',
   blurbKey: 'games.blankBlurb',
   minPhrases: 4,
@@ -25,6 +26,7 @@ export default {
     const usable = shell.phrases.filter((phrase) => deriveBlank(phrase));
     if (!usable.length) {
       shell.renderBoard(el('div', { class: 'game-empty' }, el('p', {}, t('game.empty'))));
+      shell.renderActions();
       return;
     }
 
@@ -47,7 +49,7 @@ export default {
 
       const playBtn = el('button', {
         type: 'button',
-        class: 'play',
+        class: 'play play-lg',
         'aria-label': `${t('game.playAudio')}: ${phrase.translit}`
       });
       playBtn.addEventListener('click', () => playPhrase(phrase, playBtn));
@@ -62,15 +64,17 @@ export default {
 
       const prompt = el(
         'div',
-        { class: 'prompt' },
-        el('p', { class: 'arabic', dir: 'rtl', lang: 'ar' }, blank.ar || phrase.ar),
+        { class: 'blank-card' },
+        el('div', { class: 'blank-card-top' },
+          el('p', { class: 'arabic', dir: 'rtl', lang: 'ar' }, blank.ar || phrase.ar),
+          playBtn
+        ),
         sentence,
-        playBtn,
         // The hint is translated UI copy and follows the page; the fallback is
         // the phrase's English and has to stay LTR on an Arabic page.
         blank.hint
-          ? el('p', { class: 'prompt-hint' }, hintText(blank))
-          : el('p', { class: 'prompt-hint option-en' }, `“${phrase.en}”`)
+          ? el('p', { class: 'blank-hint' }, hintText(blank))
+          : el('p', { class: 'blank-hint option-en' }, `“${phrase.en}”`)
       );
 
       const input = el('input', {
@@ -97,8 +101,8 @@ export default {
       const modeBtn = el('button', { type: 'button' });
       const toggle = el('div', { class: 'mode-toggle' }, modeBtn);
 
-      const checkBtn = el('button', { class: 'btn-primary' }, t('game.check'));
-      const nextBtn = el('button', { class: 'btn-primary', onClick: advance }, t('game.next'));
+      const checkBtn = el('button', { type: 'button', class: 'btn-primary' }, t('game.check'));
+      const nextBtn = el('button', { type: 'button', class: 'btn-primary', onClick: advance }, t('game.next'));
       nextBtn.hidden = true;
 
       const applyMode = () => {
@@ -114,7 +118,7 @@ export default {
         if (typing) input.focus();
       });
 
-      const settle = (correct, given) => {
+      const settle = (correct, given, origin = null) => {
         if (answered) return;
         answered = true;
         input.disabled = true;
@@ -125,11 +129,11 @@ export default {
           else if (choices[i] === given) button.dataset.state = 'wrong';
         });
 
-        shell.record(phrase.id, correct);
+        shell.record(phrase.id, correct, origin);
         shell.showFeedback(
           correct ? 'ok' : 'bad',
-          correct ? t('game.correct') : `${t('game.wrong')} ${t('game.theAnswerWas')} “${blank.answer}”`,
-          `${phrase.ar} — ${phrase.translit} — ${phrase.en}`
+          correct ? t('game.correct') : [`${t('game.wrong')} ${t('game.theAnswerWas')} `, latin(blank.answer)],
+          phraseLine(phrase)
         );
         playPhrase(phrase, playBtn);
         nextBtn.hidden = false;
@@ -137,7 +141,7 @@ export default {
       };
 
       checkBtn.addEventListener('click', () => {
-        settle(isAnswerAcceptable(input.value, blank.answer, phrase.accept), input.value);
+        settle(isAnswerAcceptable(input.value, blank.answer, phrase.accept), input.value, checkBtn);
       });
       input.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
@@ -147,21 +151,22 @@ export default {
         }
       });
       choiceButtons.forEach((button, i) => {
-        button.addEventListener('click', () => settle(choices[i] === blank.answer, choices[i]));
+        button.addEventListener('click', () => settle(choices[i] === blank.answer, choices[i], button));
       });
 
       keyState = { options: choiceButtons, next: nextBtn };
 
-      shell.renderBoard(prompt, input, choiceWrap, toggle);
+      shell.renderBoard(el('p', { class: 'game-instruction' }, t('game.blankPrompt')), prompt, input, choiceWrap, toggle);
       shell.renderActions(checkBtn, nextBtn);
       applyMode();
       if (typing) input.focus();
     };
 
     function advance() {
+      if (shell.transitioning) return; // see listen-choose.js
       index += 1;
       if (index >= round.length) shell.finish(shell.score, round.length);
-      else question();
+      else shell.transitionTo(question);
     }
 
     question();

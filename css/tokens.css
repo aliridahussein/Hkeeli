@@ -11,6 +11,11 @@
   --sand: #F3E9D4;
   --sand-light: #FAF5E9;
   --olive: #7C8B5C;
+  /* Olive as *text*. The brand olive is 3.4:1 on sand — under the 4.5:1 that
+     small text needs, and it is the colour of every transliteration on the
+     site, the line a learner who can't read Arabic reads first. Same hue,
+     deeper; fills and borders keep --olive. */
+  --olive-ink: #5C6845;
   --citrus: #E8A33D;
   --ink: #22302E;
   --card: #FFFDF8;
@@ -28,6 +33,10 @@
   --ok-bg: rgba(78, 140, 90, 0.14);
   --bad: #B4553E;
   --bad-bg: rgba(180, 85, 62, 0.14);
+  /* Text on the two tints above. --ok and --bad themselves fall below 4.5:1
+     as small text on their own tint; these clear it. */
+  --ok-ink: #2F6B3C;
+  --bad-ink: #8F3A26;
 
   /* ---- Alpha helpers ---- */
   --hairline: rgba(34, 48, 46, 0.08);
@@ -76,6 +85,8 @@
   --shadow-lift: 0 16px 32px rgba(21, 53, 52, 0.12);
   --shadow-press: 0 6px 0 var(--citrus-shadow);
   --shadow-press-sm: 0 4px 0 var(--citrus-shadow);
+  /* Cast upward by the sticky game footer onto the board behind it. */
+  --shadow-footer: 0 -10px 20px rgba(21, 53, 52, 0.07);
 
   /* ---- Motion ---- */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -86,6 +97,8 @@
   --z-base: 1;
   --z-sticky: 50;
   --z-drawer: 80;
+  /* The play stage covers the nav and drawer; toasts still show above it. */
+  --z-stage: 90;
   --z-toast: 100;
 
   /* ---- Touch ---- */

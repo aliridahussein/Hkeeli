@@ -15,7 +15,7 @@ import { progress } from '../storage.js';
 
 export default {
   id: 'cards',
-  icon: '🃏',
+  icon: 'cards',
   titleKey: 'games.cardsTitle',
   blurbKey: 'games.cardsBlurb',
   minPhrases: 1,
@@ -29,6 +29,7 @@ export default {
     );
     if (!queue.length) {
       shell.renderBoard(el('div', { class: 'game-empty' }, el('p', {}, t('game.empty'))));
+      shell.renderActions();
       return;
     }
 
@@ -39,6 +40,9 @@ export default {
     const showCard = () => {
       shell.clearFeedback();
       const phrase = queue[0];
+      // Defensive: the queue is drained by grade(), which is the only caller,
+      // but an empty one must end the round rather than throw mid-render.
+      if (!phrase) return shell.finish(shell.score, total);
       const state = progress.getPhraseState(phrase.id);
       flipped = false;
 
@@ -79,9 +83,9 @@ export default {
         )
       );
 
-      const gotIt = el('button', { class: 'btn-ok' }, t('game.gotIt'));
-      const again = el('button', { class: 'btn-again' }, t('game.stillLearning'));
-      const reveal = el('button', { class: 'btn-primary' }, t('game.showAnswer'));
+      const gotIt = el('button', { type: 'button', class: 'btn-ok' }, t('game.gotIt'));
+      const again = el('button', { type: 'button', class: 'btn-again' }, t('game.stillLearning'));
+      const reveal = el('button', { type: 'button', class: 'btn-primary' }, t('game.showAnswer'));
 
       /* You can only grade a card you've actually seen the answer to. Rather
          than showing the two grading buttons in a disabled state — which reads
@@ -101,34 +105,32 @@ export default {
       });
       reveal.addEventListener('click', () => setFlipped(true));
 
-      const grade = (known) => {
-        shell.record(phrase.id, known);
+      const grade = (known, origin) => {
+        if (shell.transitioning) return; // see listen-choose.js
+        shell.record(phrase.id, known, origin);
         queue.shift();
         // A card the learner didn't know comes back later in the same session.
         if (!known) queue.push(phrase);
         seen += 1;
 
         if (seen >= total || !queue.length) shell.finish(shell.score, total);
-        else showCard();
+        else shell.transitionTo(showCard);
       };
 
-      gotIt.addEventListener('click', () => grade(true));
-      again.addEventListener('click', () => grade(false));
+      gotIt.addEventListener('click', () => grade(true, gotIt));
+      again.addEventListener('click', () => grade(false, again));
+
+      const listen = el('button', {
+        type: 'button',
+        class: 'play play-lg',
+        'aria-label': `${t('game.playAudio')}: ${phrase.translit}`
+      });
+      listen.addEventListener('click', () => playPhrase(phrase, listen));
 
       shell.renderBoard(
+        el('p', { class: 'game-instruction' }, t('game.cardsPrompt')),
         card,
-        el(
-          'div',
-          { class: 'center-text' },
-          el(
-            'button',
-            {
-              class: 'btn-secondary btn-small',
-              onClick: () => playPhrase(phrase)
-            },
-            t('game.playAudio')
-          )
-        )
+        el('div', { class: 'flashcard-listen' }, listen, el('span', {}, t('game.playAudio')))
       );
       setFlipped(false);
       playPhrase(phrase);

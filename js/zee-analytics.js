@@ -14,9 +14,14 @@
  * just the name of the thing that happened.
  */
 
+import { track } from './analytics.js';
+
 export function trackZeeEvent(name, props = {}) {
   try {
+    // Zee's own channel, kept for anything already listening to it, plus the
+    // site-wide seam so one provider hookup covers chat and practice alike.
     document.dispatchEvent(new CustomEvent('zee:event', { detail: { name, props } }));
+    track(name, props);
     // Picked up automatically by Cloudflare Web Analytics / GA-style globals if
     // one is ever added, without this module having to know which.
     if (typeof window.zeeAnalyticsSink === 'function') window.zeeAnalyticsSink(name, props);
