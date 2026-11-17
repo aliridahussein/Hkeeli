@@ -23,6 +23,7 @@ import { buildArchitecture, LAYOUT } from './architecture.js';
 import { buildProps } from './props.js';
 import { buildPlants } from './plants.js';
 import { sky, hills, environment, sunLight, practicals, steam } from './atmosphere.js';
+import { createStory } from './story.js';
 import { mergeGeometries } from '../../../vendor/three/three-hkeeli.min.js';
 
 /** Bucket name → [material key or material, metres per repeat, options]. */
@@ -76,7 +77,7 @@ function bucketSpecs(lib) {
   };
 }
 
-class Buckets {
+export class Buckets {
   constructor(lib) {
     this.specs = bucketSpecs(lib);
     this.map = new Map();
@@ -138,6 +139,10 @@ export async function buildWorld(renderer, quality) {
   const vapour = steam(extra.steam, wind);
   vapour.meshes.forEach((m) => scene.add(m));
 
+  // The café story: the waiter and everything he brings to the table.
+  const story = createStory({ lib, wind, Buckets });
+  scene.add(story.root);
+
   scene.traverse((o) => {
     if (o.isMesh && o.matrixAutoUpdate === false) o.updateMatrix();
   });
@@ -148,6 +153,7 @@ export async function buildWorld(renderer, quality) {
     sun,
     lib,
     steamNear: vapour.near,
+    story,
     cups: extra.steam.map((p) => p.slice())
   };
 }

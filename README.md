@@ -55,7 +55,8 @@ css/
   base.css          Reset, typography, Arabic/transliteration rules, utilities
   components.css    Nav, buttons, postcard, lesson card, forms, footer
   layout.css        Page grids and breakpoints (mobile-first)
-  courtyard.css     The home page's courtyard: stage, labels, panel, café
+  courtyard.css     The home page's courtyard: stage, labels, place content
+  courtyard-experience.css  A place opened full screen: bar, dock, drawer
   games.css         The practice hub and the play stage (practice.html only)
   zee-chat.css      Zee's launcher and chat panel
 
@@ -386,7 +387,7 @@ there:
 | Place | Opens | Built from |
 |---|---|---|
 | Courtyard entrance | First conversations | Unit 1: outcome, dialogue, four key phrases, tip, progress |
-| Café table | Ordering like a local — **your first Lebanese conversation** | Unit 2's dialogue (below) |
+| Café table | Ordering like a local — **a café conversation you take part in** | Unit 2's dialogue and phrases (below) |
 | Balcony phone | Talking with family | Unit 3, and the "Teta on the Phone" scene |
 | Teacher's corner | Meet your teacher | `meta.intro`, `about.*`, and the Preply handover from `js/booking.js` |
 
@@ -398,8 +399,11 @@ js/courtyard/
                   and the handover from the still image to the 3D scene
   places.js       the four places: links, label anchors, camera views, and
                   where they sit on the still images — read by both views
-  panels.js       the panel each place opens (HTML, from lessons.json + bundles)
-  cafe.js         the café conversation
+  panels.js       what each place opens (HTML, from lessons.json + bundles)
+  cafe-story.js   the café encounter: its turns, state machine and dialogue dock
+  storyboard.js   the café without 3D: frames rendered from the scene, layered
+  audio-manifest.js  recording paths for the encounter's dialogue lines
+  ambience.js     optional café sounds, synthesised, off by default
   listen.js       recording-only playback (see "Audio in the courtyard")
   poster.js       the still-image presentation
   scene/          the 3D presentation (three.js)
@@ -407,15 +411,17 @@ js/courtyard/
     rig.js           the camera rig (quintic, retargetable — see below)
     world.js         assembles the scene; merges static meshes by material
     architecture.js  the house, walls, gate, balcony, roof, pergola
-    props.js         café table and cups, telephone, teacher's desk, pots
+    props.js         café table, telephone, teacher's desk, pots
+    story.js         the café's waiter, his gestures, and everything on the table
     plants.js        lemon tree, vine, bougainvillea, geraniums, basil, trees
     atmosphere.js    sky, environment light, sun, steam
     library.js       materials, and the wind shader
     forge.js         procedural textures, drawn on the GPU at load
     canvas-art.js    the menu, notebook, slate, plaque and Hkeeli sign
     quality.js       device tiers and the WebGL probe
-css/courtyard.css           hero, labels, panel and conversation
-assets/images/courtyard/    the still images (rendered from the scene)
+css/courtyard.css           hero, stage, labels, place content
+css/courtyard-experience.css  a place opened: full screen, bar, dock, drawer
+assets/images/courtyard/    the still images and the café storyboard (rendered from the scene)
 vendor/three/               three.js, tree-shaken — see vendor/three/README.md
 tools/                      scene preview, stills server, bundle script (not deployed)
 ```
@@ -430,12 +436,27 @@ teacher's notebook and slate (Unit 1), the welcome plaque (the teacher's own
 
 **Two presentations, one interface.** The still image (`poster.js`) is there
 immediately, for everyone, and it is the whole courtyard on devices that
-can't draw 3D well — no WebGL 2, a software renderer, or Save-Data. Labels sit
+can't draw 3D well — no WebGL 2, or Save-Data. A software renderer gets the
+3D scene built on the `minimal` tier, and timed during warm-up, before the
+canvas is ever shown (a one-pixel read waits for each test frame to finish):
+over 85 ms a frame — SwiftShader measured ~500 ms here — and the still view
+stays, without a flash of 3D. If frames later turn that slow, the still
+takes over mid-story, exactly where the scene was. `?courtyard=3d` keeps the
+scene however slow, for testing. Labels sit
 on it in the same places; choosing a place eases the image towards it and
 opens the same panel. The 3D scene loads once the page is idle, warms up every
 view (shaders, textures, buffers) behind the still, and fades in over it —
 same composition, same camera, so nothing jumps. If the GPU goes away, the
 still takes over where the scene was.
+
+**Opening a place is an experience, not a panel.** The stage becomes the whole
+screen below the site navigation; the page behind it is inert and doesn't
+scroll. A slim bar sits at the top (back to the courtyard, where you are,
+progress, tools) and the content sits in a dock at the foot, which scrolls on
+its own only when it must (larger text, the teacher's corner). Leaving — the
+button, Escape, or the browser's Back — puts the page back exactly as it was
+and focus on the place's label. Zee's launcher steps aside while a place is
+open. Phones get the same experience, with the replies stacked.
 
 **The panels are the content.** The lessons and the booking live in HTML
 panels built from `lessons.json` and the bundles; the scene is a way in, never
@@ -446,29 +467,68 @@ course.
 **Addresses.** `index.html#visit-cafe` (and `-entrance`, `-balcony`,
 `-teacher`) opens a place directly, and the browser's Back button returns to
 the courtyard. The hero's *Try a Free Mini-Lesson* opens the café
-conversation; its `href` still points at `#mini-lesson`, the three-phrase
+encounter; its `href` still points at `#mini-lesson`, the three-phrase
 lesson further down, for anyone without JavaScript.
 
-### The café conversation
+### The café encounter
 
-One exchange, built entirely from Unit 2's dialogue — no new Lebanese was
-written for it:
+About a minute at the café table (`js/courtyard/cafe-story.js`), one turn at
+a time, with the courtyard answering each choice:
 
-1. the waiter: *ahla w sahla, shu bt7eb?* (dialogue line 1);
-2. you choose your answer: *baddi 2ahwe wasat, min fadlak.* (line 2). The two
-   wrong choices are real Unit 1 phrases (*b khatrak*, *tikram 3ainak*), and
-   the feedback says what each actually means, from its own `en`, `note` and
-   `literal`;
-3. the right answer shows Unit 2's tip and *baddi* = "I want" (`u2-p2.blank`);
-4. the waiter: *shi tene?* (line 3); you finish the order out loud (line 4);
-5. a phrase to keep (*baddi 2ahwe wasat*, `u2-p2`), Unit 2's progress, and the
-   way on: the unit, the full café scene, or a personal class (with the
-   paid-trial note).
+| Turn | The waiter / the scene | Your replies |
+|---|---|---|
+| arrive | the table, the waiter by the door | *Take a seat* — the camera sits you down; your chair fades as you sit in it |
+| order | walks over, hand on heart: *ahla w sahla, shu bt7eb?*; you pick up the menu | *baddi 2ahwe wasat* · *2ahwe 3al ri7a* · *baddi 2ahwe sada* — you hand him the menu, he writes on his pad and leaves the slip by your hand (the ticket shows it) |
+| thanks | brings the coffee on a tray, a hand towards it: *tfaddal… sa77tein* | *shukran* · *Allah ykhallik* · ~~*b khatrak*~~ |
+| more | an open hand: *shi tene?* | *baddi man2ushe za3tar* (he brings one, still warm) · *kifeye* (a nod) |
+| bill | your cup is empty | *el 7seb law sama7t* · *2addesh sar* · ~~*tikram 3ainak*~~ — he brings the bill on a saucer and takes the slip |
+| bye | your money appears on the saucer | *b khatrak* · ~~*mar7aba*~~ — he waves you off |
 
-The first answer is recorded with `progress.recordAnswer('courtyard-cafe',
-'u2-p2', …)` and the finish with `recordSession('courtyard-cafe', …)` — the
-same store and rules as the mini-lesson, under its own id, so it moves Unit 2's
-progress honestly and no game's statistics.
+Struck-through replies are real phrases in the wrong moment; choosing one says
+what it actually means and why it doesn't fit, and the reply stays visible but
+spent. The finish lists the phrases you used, a phrase to keep, Unit 2's
+progress, and the way on: the unit, again, or a class.
+
+Every Lebanese line comes from `lessons.json` (Unit 2's dialogue and phrases;
+four phrases from Units 1 and 3) except one: *baddi 2ahwe sada, min fadlak*,
+composed from Unit 2's own words for the no-sugar order (`AUTHORED` in
+`cafe-story.js`). It needs a native speaker's check, and it doesn't count
+towards any phrase's progress.
+
+**State.** The turns are an explicit list; `phase` is `ready` (choices up),
+`busy` (the scene is answering) or `done`. Every asynchronous step runs under
+a token, so leaving, starting again or a presentation handover can never be
+advanced by a stale callback; a second tap mid-answer does nothing; the waiter
+never queues (an event in progress lands before the next starts). A language
+switch re-renders the same moment, focus included. When the 3D scene takes
+over from the still mid-conversation, `sync()` rebuilds the table from the log
+of events played. *Transcript* and *Hint* open a drawer (Escape closes it
+first); *Start again* resets the table.
+
+**The waiter** (`scene/story.js`) is modelled in code like everything else:
+he walks from the house door, turns to face where he's going, and serves with
+one arm solved by two-bone IK, bowing to reach across the table — the slip,
+the tray with the rakweh and cup, the manoushe, the bill. His other arm holds
+his order pad while he writes. Each object is its own, placed where his hand
+puts it. He speaks with gestures (hand on heart, an open hand, a hand towards
+the coffee, a nod) that never interrupt what he's doing; between events he
+breathes, shifts his weight and turns his head to you, unless motion is
+paused. Seated, the camera frames him from the chest down, his hands doing
+the work. What *you* do — pick up the menu, finish the coffee, leave the
+money — moves only your things, so it never waits for him.
+
+**Without 3D.** The same story plays over frames rendered from the scene
+(`storyboard.js`): the approach, your seat, and each thing that arrives on a
+transparent layer drawn against the courtyard's depth, so the table still
+hides the waiter's legs. About 600 KB for both framings, fetched only when
+the café opens without the 3D scene. Re-render them with **Render café
+storyboard** in the preview harness whenever the table or the seat cameras
+change.
+
+**Progress.** A right reply records its phrase with
+`progress.recordAnswer('courtyard-cafe', id, firstTry)`, and the finish
+records `recordSession('courtyard-cafe', right, total)` — the same store and
+rules as the mini-lesson, under its own id.
 
 ### Audio in the courtyard
 
@@ -480,10 +540,18 @@ once whether the file named in `lessons.json` exists: if it does, the line
 gets Listen / Stop / Listen again; if not, the Arabic, transliteration and
 meaning are the experience, and the panel says so plainly.
 
-Dialogue lines don't name audio files yet. Give one an `"audio"` path in
-`lessons.json` (same shape as a phrase's) and drop the file in, and that line
-becomes playable in the café. Starting a line stops the previous one; leaving a
-place stops whatever is playing; nothing plays until it is pressed.
+Dialogue lines don't name audio files in `lessons.json`; the encounter's
+are named in `js/courtyard/audio-manifest.js`, and
+`public/audio/RECORDING-SCRIPT.md` lists every line still to record, in order,
+with its path. Until a file exists, its line carries a small "Text only" mark.
+When it does, the waiter's lines play as he says them and every line gets a
+Listen button. One line plays at a time; leaving stops it.
+
+**Sound** in the encounter's bar opens two settings: *Voices* — recorded
+lines play as they're said, or, until recordings exist, a plain note that the
+lines are text only — and *Café ambience (synthesised)*: room tone and the odd
+cup on a saucer, made in the browser with Web Audio (`ambience.js`), off
+until turned on, dipping under any recorded line, never a voice.
 
 The rest of the site keeps its existing behaviour (recording, else the
 browser's voice with a "synthetic voice" notice) — except the About section's
@@ -520,7 +588,14 @@ dropped — never during a camera move. While the camera moves, the shadow map
 holds still, which makes the frames that must not drop the cheapest ones. The
 loop stops when the scene is scrolled out of view or the tab is hidden.
 
-Measured on an Intel UHD integrated GPU — the weak end of desktop hardware —
+The café encounter, measured end to end in headless Chrome on this
+development machine's GPU (ANGLE/D3D11): 1366 × 900, high tier — p50 16.7 ms,
+p95 16.9 ms (vsync-bound), about 170 draw calls; 390 × 844 and 360 × 800 at
+2× device pixels, medium tier at 0.8× resolution — the same. Under SwiftShader
+(software) warm-up measured ~500 ms a frame, so that browser keeps the still
+view and the storyboard. Real phones have not been measured.
+
+Measured earlier on an Intel UHD integrated GPU — the weak end of desktop hardware —
 with the GPU forced to finish every frame, so slightly pessimistic: medium
 tier, 650 × 720 CSS px at 1×, camera moves 11–13 ms a frame and the idle
 overview ~16.5 ms; at 1.25×, 14–20 ms. About 110 draw calls on the high tier,
@@ -553,8 +628,9 @@ force either presentation.
 `places.js` is the one media query both presentations and the `<picture>`
 element use, so they always agree. Each is composed at the narrowest shape it
 is shown at and drawn with `object-fit: cover`, so a wider stage only loses sky
-and paving, never a place. On a phone a place opens as a sheet over the lower
-half of the stage, and the camera frames it in the upper half.
+and paving, never a place. With a place open, the dock covers the lower part of
+the screen, so every place view (and the still's zoom) frames its subject above
+it.
 
 ---
 

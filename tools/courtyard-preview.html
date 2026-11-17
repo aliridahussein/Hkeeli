@@ -15,6 +15,9 @@
     and open /tools/courtyard-preview.html. "Render stills" regenerates the
     still images in assets/images/courtyard/ from the scene itself and prints
     the label and focus positions to paste into js/courtyard/places.js.
+    "Render café storyboard" renders the frames the café encounter shows when
+    the 3D scene can't run (js/courtyard/storyboard.js): the approach, your
+    seat, and each thing that arrives at the table on a transparent layer.
   -->
   <style>
     html, body { margin: 0; height: 100%; background: #1d2423; color: #f3e9d4; font: 14px/1.4 Karla, system-ui, sans-serif; }
@@ -40,6 +43,7 @@
     <button data-framing="tall">Tall</button>
     <button id="motion" aria-pressed="true">Motion</button>
     <button id="stills">Render stills</button>
+    <button id="board">Render café storyboard</button>
   </div>
   <div id="stage"><canvas></canvas></div>
   <div id="stats"></div>
@@ -48,7 +52,8 @@
   <script type="module">
     import { createScenePresentation } from '../js/courtyard/scene/presentation.js';
     import { TIERS } from '../js/courtyard/scene/quality.js';
-    import { PLACES, OVERVIEW, POSTER, getPlace } from '../js/courtyard/places.js';
+    import { PLACES, OVERVIEW, POSTER, CAFE_VIEWS, getPlace } from '../js/courtyard/places.js';
+    import { MeshBasicMaterial } from '../vendor/three/three-hkeeli.min.js';
 
     const params = new URLSearchParams(location.search);
     const stage = document.querySelector('#stage');
@@ -85,6 +90,10 @@
       quality: tier,
       framing,
       debug: true,
+      // Transparent where nothing is drawn: the storyboard's layers need it
+      // (the sky covers the whole frame otherwise, so ordinary renders are
+      // unchanged).
+      alpha: true,
       placeLabel: (id, x, y, visible) => {
         const d = dots.get(id);
         d.style.transform = `translate(${x}px, ${y}px)`;
@@ -180,6 +189,112 @@
       window.__stillsReport = report;
       scene.renderer.setPixelRatio(Math.min(devicePixelRatio, tier.dprMax));
       sizeStage();
+    });
+
+    /* ---- The café storyboard ---------------------------------------------
+       Rendered at the shape of the experience's stage (a desktop window, a
+       portrait phone at 2x), from the same seat cameras as the live scene.
+       Layers are drawn over the courtyard's depth, so the table hides the
+       waiter's legs exactly as it does in 3D, then saved with transparency. */
+    const BOARD = { wide: [1600, 955], tall: [780, 1520] };
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    document.querySelector('#board').addEventListener('click', async () => {
+      const out = document.querySelector('#out');
+      out.hidden = false;
+      out.textContent = 'Rendering storyboard…';
+      scene.setMotion(false);
+      await sleep(2500); // let idle movement settle to stillness
+      const r = scene.renderer;
+      const sc = scene.scene;
+      const cam = scene.camera;
+      const story = scene.story;
+      const root = sc.getObjectByName('cafe-story');
+      const depthOnly = new MeshBasicMaterial({ colorWrite: false });
+      const report = {};
+
+      const save = async (name, quality) => {
+        const blob = await new Promise((res) => canvas.toBlob(res, 'image/webp', quality));
+        const res = await fetch(`/__stills/${name}.webp`, { method: 'POST', body: blob });
+        report[name] = `${res.status} (${Math.round(blob.size / 1024)} KB)`;
+      };
+      const frame = async (view) => {
+        scene.showView(view, { immediate: true });
+        await sleep(120);
+        scene.renderNow();
+      };
+      // Draw only these story objects, over the rest of the scene's depth.
+      const layer = (objects) => {
+        const keep = new Set(objects);
+        const tops = sc.children.filter((c) => c !== root && c.visible && !c.isLight);
+        const kids = root.children.map((c) => [c, c.visible]);
+        root.visible = false;
+        sc.overrideMaterial = depthOnly;
+        r.setClearColor(0x000000, 0);
+        r.autoClear = true;
+        r.render(sc, cam);
+        sc.overrideMaterial = null;
+        root.visible = true;
+        tops.forEach((c) => (c.visible = false));
+        root.children.forEach((c) => (c.visible = keep.has(c) && c.visible));
+        r.autoClear = false;
+        r.render(sc, cam);
+        r.autoClear = true;
+        tops.forEach((c) => (c.visible = true));
+        kids.forEach(([c, v]) => (c.visible = v));
+      };
+
+      for (const f of ['wide', 'tall']) {
+        const [w, h] = BOARD[f];
+        framing = f;
+        stage.style.width = `${w}px`;
+        stage.style.height = `${h}px`;
+        r.setPixelRatio(1);
+        scene.setFraming(f);
+        await sleep(300);
+
+        // Arriving: the table as you walk up, the waiter by the door.
+        story.reset();
+        await frame(CAFE_VIEWS.approach[f]);
+        await sleep(400); // the chair settles to fully seen at this distance
+        scene.renderNow();
+        await save(`cafe-${f}-approach`, 0.82);
+
+        // Your seat, with nothing of the story on it.
+        await frame(CAFE_VIEWS.seat[f]);
+        root.visible = false;
+        scene.renderNow();
+        await save(`cafe-${f}-seat`, 0.82);
+        root.visible = true;
+
+        // Then each thing the story brings, on its own layer.
+        const L = () => story.layers();
+        const steps = [
+          ['menu', () => story.reset(), () => L().menu],
+          ['waiter', () => story.play('arrive', { immediate: true }), () => L().waiter],
+          // Every order is a coffee: the slip says so, whatever else it says.
+          ['slip', () => { story.setOrder([{ ar: 'قهوة', tr: '2ahwe' }]); story.play('note', { immediate: true }); }, () => [L().slip]],
+          ['tray', () => story.play('coffee', { immediate: true }), () => [L().tray]],
+          ['tray-empty', () => story.act('drink', { immediate: true }), () => [L().tray]],
+          ['plate', () => story.play('manoushe', { immediate: true }), () => [L().plate]],
+          ['bill', () => story.play('bill', { immediate: true }), () => [L().bill]],
+          ['money', () => story.act('pay', { immediate: true }), () => [L().money]]
+        ];
+        story.reset();
+        for (const [name, act, objects] of steps) {
+          act();
+          await frame(CAFE_VIEWS.seat[f]);
+          await sleep(200);
+          scene.renderNow();
+          layer(objects());
+          await save(`cafe-${f}-${name}`, 0.86);
+        }
+        story.reset();
+      }
+      out.textContent = JSON.stringify(report, null, 2);
+      window.__boardReport = report;
+      r.setPixelRatio(Math.min(devicePixelRatio, tier.dprMax));
+      sizeStage();
+      scene.setFraming(framing);
     });
 
     if (params.has('view')) scene.show(params.get('view') || null, { immediate: true });

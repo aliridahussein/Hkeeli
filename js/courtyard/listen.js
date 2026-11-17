@@ -54,12 +54,13 @@ export function stopListening() {
  * @param {object} [options]
  * @param {boolean} [options.quietWhenMissing]  render nothing instead of the
  *   "no recording yet" line (for places that already say it once for all)
+ * @param {boolean} [options.compact]  a small 'text only' mark when missing
  * @param {() => void} [options.onMissing]  told when there is no recording,
  *   so a panel can say it once for all its lines
  * @returns {HTMLElement}
  */
-export function listenControl(item, { quietWhenMissing = false, onMissing = null } = {}) {
-  const wrap = el('div', { class: 'listen', dataset: { state: 'checking' } });
+export function listenControl(item, { quietWhenMissing = false, onMissing = null, compact = false } = {}) {
+  const wrap = el('div', { class: compact ? 'listen listen--compact' : 'listen', dataset: { state: 'checking' } });
   const label = el('span', { class: 'listen-label' }, t('courtyard.audio.listen'));
   const glyph = el('span', { class: 'listen-glyph', 'aria-hidden': 'true' }, icon('play', { size: 16 }));
   const button = el(
@@ -69,7 +70,10 @@ export function listenControl(item, { quietWhenMissing = false, onMissing = null
     label
   );
   button.hidden = true;
-  const note = el('p', { class: 'listen-note' }, t('courtyard.audio.noRecording'));
+  // Compact: a small mark, not a sentence — the encounter has many lines.
+  const note = compact
+    ? el('span', { class: 'listen-chip', title: t('courtyard.audio.noRecording') }, t('courtyard.audio.textChip'))
+    : el('p', { class: 'listen-note' }, t('courtyard.audio.noRecording'));
   note.hidden = true;
   wrap.append(button, note);
 

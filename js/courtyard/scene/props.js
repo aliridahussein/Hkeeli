@@ -62,7 +62,7 @@ export function buildProps(B, lib, extra) {
 /* --------------------------------------------------------------------------
    Chairs: wooden frame, rush seat — the Lebanese café chair
    -------------------------------------------------------------------------- */
-function chair(B, extra, origin, yaw, { finish = 'wood', seat = 0.45, back = 0.9 } = {}) {
+export function chair(B, extra, origin, yaw, { finish = 'wood', seat = 0.45, back = 0.9 } = {}) {
   const w = 0.42;
   const d = 0.4;
   const put = (bucket, geo, local) => B.get(bucket).add(geo, [at(origin, yaw, local), [0, yaw, 0]]);
@@ -132,22 +132,35 @@ function cafe(B, lib, extra) {
   }
   extra.blobs.push({ x: T.x, y: 0.002, z: T.z, rx: 0.62, rz: 0.62, a: 0.38 });
 
-  // Two chairs across the table from each other, side-on to the courtyard,
-  // so nothing stands between the visitor and the table top.
-  chair(B, extra, [T.x + 0.6, 0, T.z + 0.12], -Math.PI / 2 + 0.32);
-  chair(B, extra, [T.x - 0.6, 0, T.z - 0.12], Math.PI / 2 + 0.22);
+  // The empty chair across from you, pulled out a little; the waiter stands
+  // behind it. Your own chair is part of the story (scene/story.js): it is
+  // there until you sit in it, and you don't see a chair you're sitting on.
+  chair(B, extra, [T.x + 0.6, 0, T.z + 0.32], -Math.PI / 2 + 0.32);
 
-  // On the table: your cup nearest you, the menu turned so you can read it,
-  // the rakweh and the second cup across the table.
-  const y = T.top;
-  cupAndSaucer(B, extra, [T.x - 0.05, y, T.z + 0.22], -0.3);
-  cupAndSaucer(B, extra, [T.x + 0.11, y, T.z - 0.19], 2.6);
-  rakweh(B, extra, [T.x - 0.19, y, T.z - 0.06]);
-  menu(B, lib, extra, [T.x + 0.17, y, T.z + 0.1], -0.44);
-  budVase(B, extra, [T.x - 0.06, y, T.z - 0.25]);
+  // A sprig of jasmine. The menu lies in front of your seat (story.js, so you
+  // can pick it up); everything else — coffee, manoushe, the bill — arrives
+  // because you asked for it.
+  budVase(B, extra, [T.x + 0.13, T.top, T.z - 0.25]);
 }
 
-function cupAndSaucer(B, extra, pos, yaw) {
+/** Your chair, at the café table: the story shows it, and fades it as you sit. */
+export const VISITOR_CHAIR = { pos: [TABLE.x - 0.6, 0, TABLE.z - 0.12], yaw: Math.PI / 2 + 0.22 };
+
+/**
+ * Where things sit on the café table (see scene/story.js), as you see them
+ * from your seat: the menu at your left hand, the coffee in front of you, the
+ * slip and later the bill at your right, the manoushe beyond the coffee.
+ * Each is within the waiter's reach when he bows across from the far side.
+ */
+export const SPOTS = {
+  menu: [TABLE.x - 0.2, TABLE.top, TABLE.z - 0.1],
+  tray: [TABLE.x - 0.04, TABLE.top, TABLE.z + 0.06],
+  plate: [TABLE.x + 0.1, TABLE.top, TABLE.z - 0.12],
+  slip: [TABLE.x + 0.0, TABLE.top, TABLE.z + 0.25],
+  bill: [TABLE.x + 0.12, TABLE.top, TABLE.z + 0.22]
+};
+
+export function cupAndSaucer(B, extra, pos, yaw) {
   const [x, y, z] = pos;
   // Saucer: foot ring, well, rim — with thickness.
   lathed(
@@ -224,7 +237,7 @@ function cupAndSaucer(B, extra, pos, yaw) {
   extra.steam.push([x, cy + 0.06, z]);
 }
 
-function rakweh(B, extra, pos) {
+export function rakweh(B, extra, pos) {
   const [x, y, z] = pos;
   // Tray.
   lathed(
@@ -278,27 +291,6 @@ function rakweh(B, extra, pos) {
   B.get('brassDark').add(handle, [[x, by, z], [0, yaw, 0]]);
   B.get('woodDark').add(cylinder(0.0085, 0.0075, 0.07, 10).rotateZ(Math.PI / 2 - 0.12), [at([x, by, z], yaw, [0.265, 0.139, 0]), [0, yaw, 0]]);
   extra.blobs.push({ x, y: y + 0.0008, z, rx: 0.3, rz: 0.3, a: 0.45 });
-}
-
-function menu(B, lib, extra, pos, yaw) {
-  // A tent card: two leaves hinged at the ridge, a millimetre of card each.
-  // The front leaf carries the menu; the back leaf shows the card's back.
-  const w = 0.112;
-  const h = 0.158;
-  const lean = 0.26;
-  const ridge = h * Math.cos(lean);
-  [-lean, lean].forEach((tilt) => {
-    const g = box(w, h, 0.0012);
-    g.translate(0, -h / 2, 0);
-    g.rotateX(tilt);
-    g.rotateY(yaw);
-    g.translate(pos[0], pos[1] + ridge, pos[2]);
-    const mesh = new Mesh(g, lib.mat.menu);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    extra.meshes.push(mesh);
-  });
-  extra.blobs.push({ x: pos[0], y: pos[1] + 0.0008, z: pos[2], rx: 0.16, rz: 0.12, a: 0.32 });
 }
 
 function budVase(B, extra, pos) {

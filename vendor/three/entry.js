@@ -16,6 +16,7 @@ export {
   Euler,
   ExtrudeGeometry,
   Float32BufferAttribute,
+  Group,
   HalfFloatType,
   IcosahedronGeometry,
   InstancedBufferAttribute,

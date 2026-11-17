@@ -135,3 +135,26 @@ export function placeFromHash(hash = location.hash) {
   if (!hash.startsWith(HASH_PREFIX)) return null;
   return getPlace(decodeURIComponent(hash.slice(HASH_PREFIX.length)));
 }
+
+/**
+ * The café encounter's own viewpoints (cafe-story.js). `approach` is a step
+ * back from the table, as you walk up; `seat` is your eye-line sitting at it,
+ * turned a little towards where the waiter stands; `stand` is the view as you
+ * get up. The dialogue dock covers the lower part of the screen, so `shift`
+ * lifts the table above it; seated, the waiter is framed from the chest
+ * down, his hands doing the work.
+ */
+export const CAFE_VIEWS = {
+  approach: {
+    wide: { pos: [-3.0, 1.5, 3.55], target: [-1.0, 0.98, 1.95], fov: 78, shift: 0.18 },
+    tall: { pos: [-3.1, 1.6, 3.9], target: [-1.0, 0.95, 1.95], fov: 84, shift: 0.24 }
+  },
+  seat: {
+    wide: { pos: [-2.4, 1.27, 2.5], target: [-1.1, 0.86, 2.1], fov: 80, shift: 0.42 },
+    tall: { pos: [-2.75, 1.32, 2.6], target: [-1.1, 0.92, 2.1], fov: 72, shift: 0.55 }
+  },
+  stand: {
+    wide: { pos: [-2.95, 1.55, 3.3], target: [-1.0, 1.0, 1.95], fov: 80, shift: 0.2 },
+    tall: { pos: [-3.0, 1.65, 3.7], target: [-1.0, 0.95, 1.95], fov: 86, shift: 0.26 }
+  }
+};

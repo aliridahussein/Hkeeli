@@ -40,7 +40,6 @@ import { stopListening } from './listen.js';
 import { chooseTier, probeWebGL } from './scene/quality.js';
 
 const MOTION_KEY = 'hkeeli.courtyard.motion';
-const stackedQuery = window.matchMedia('(max-width: 959px)');
 const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 export function initCourtyard() {
@@ -66,7 +65,8 @@ export function initCourtyard() {
   };
 
   const smooth = () => !reducedQuery.matches;
-  const sheet = () => stackedQuery.matches;
+  // In a place, the dock covers the lower part of the stage.
+  const sheet = () => Boolean(state.place);
 
   /* ---- Labels -------------------------------------------------------------
      The presentation reports where each place is on the stage; the label's
@@ -96,7 +96,10 @@ export function initCourtyard() {
     const cx = Math.min(w - half - margin, Math.max(half + margin, x));
     label.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
     label.style.setProperty('--nudge', `${(cx - x).toFixed(1)}px`);
-    label.dataset.visible = String(visible);
+    // A label that has focus stays shown, even while the camera is on its
+    // way back and its place is briefly out of frame: hiding it would drop
+    // keyboard focus to the page.
+    label.dataset.visible = String(visible || label === document.activeElement);
   }
 
   /* ---- Presentations ------------------------------------------------------- */
@@ -109,8 +112,69 @@ export function initCourtyard() {
   const ctx = {
     open: (id) => open(id, { source: 'panel' }),
     close: () => close(),
-    smooth
+    smooth,
+    scene: () => presentation,
+    framing: () => state.framing,
+    stage
   };
+
+  /* ---- The experience: a place fills the screen below the nav ---------------
+     The stage is fixed beneath the site's navigation, the page behind it is
+     inert and doesn't scroll, and the place's controls sit over the scene
+     (a bar at the top, the dialogue dock at the foot). Leaving puts the page
+     back exactly as it was. */
+  const root = document.documentElement;
+  let inerted = [];
+  function setTop() {
+    const nav = document.querySelector('.site-nav');
+    const box = nav ? nav.getBoundingClientRect() : null;
+    const top = box && getComputedStyle(nav).position !== 'static' ? Math.max(0, box.bottom) : 0;
+    root.style.setProperty('--exp-top', `${Math.round(top)}px`);
+  }
+  function enterExperience() {
+    if (root.dataset.experience === 'open') return;
+    // The stage leaves the page's flow; hold its place so nothing behind it
+    // moves, and leaving finds the page exactly as it was.
+    const holder = stage.parentElement;
+    holder.style.minHeight = `${holder.offsetHeight}px`;
+    root.dataset.experience = 'open';
+    // The navigation slims down in the experience; measure it after.
+    setTop();
+    // Everything outside the courtyard, and the hero's own copy, is out of
+    // reach of focus and of assistive technology while a place is open. The
+    // site navigation stays usable.
+    const keep = (node) => node.matches('.site-nav, .skip-link, .zee-launcher, .zee-panel, .toast-region, script, style, link');
+    inerted = [];
+    const mark = (node) => {
+      if (keep(node) || node.inert) return;
+      node.inert = true;
+      inerted.push(node);
+    };
+    const sweep = (parent) => {
+      [...parent.children].forEach((node) => {
+        if (node === hero) return;
+        if (node.contains(hero)) sweep(node);
+        else mark(node);
+      });
+    };
+    sweep(document.body);
+    [...hero.children].forEach((node) => {
+      if (!node.classList.contains('courtyard') && node !== panel) mark(node);
+    });
+    mark(stage.querySelector('.courtyard-places'));
+  }
+  function leaveExperience() {
+    if (root.dataset.experience !== 'open') return;
+    delete root.dataset.experience;
+    stage.parentElement.style.minHeight = '';
+    inerted.forEach((node) => {
+      node.inert = false;
+    });
+    inerted = [];
+  }
+  window.addEventListener('resize', () => {
+    if (root.dataset.experience === 'open') setTop();
+  });
 
   async function open(id, { push = true, immediate = false, focus = true, source = 'label' } = {}) {
     const place = getPlace(id);
@@ -123,6 +187,7 @@ export function initCourtyard() {
     stopListening();
     state.panel?.destroy();
     state.place = id;
+    enterExperience();
 
     hero.dataset.view = 'place';
     hero.dataset.place = id;
@@ -140,7 +205,7 @@ export function initCourtyard() {
     const token = ++state.renderToken;
     panel.hidden = false;
     panel.dataset.state = 'opening';
-    const rendered = await renderPanel(panel, id, ctx, state.panel);
+    const rendered = await renderPanel(panel, id, ctx);
     if (token !== state.renderToken) return;
     state.panel = rendered;
     // On the next frame, so the entrance transition runs from 'opening' —
@@ -150,7 +215,6 @@ export function initCourtyard() {
     };
     requestAnimationFrame(settle);
     setTimeout(settle, 60);
-    reveal();
     if (focus) rendered.heading.focus({ preventScroll: true });
     track('courtyard_place_opened', { place: id, from: source });
   }
@@ -166,6 +230,7 @@ export function initCourtyard() {
 
     hero.dataset.view = 'overview';
     delete hero.dataset.place;
+    leaveExperience();
     labels.forEach((label) => label.setAttribute('aria-expanded', 'false'));
     move(null);
 
@@ -183,25 +248,28 @@ export function initCourtyard() {
       else history.replaceState(null, '', `${location.pathname}${location.search}`);
     }
     state.pushed = false;
-    if (focus) labels.get(id)?.focus({ preventScroll: true });
+    const label = labels.get(id);
+    if (focus && label) {
+      // The camera is still on its way back, so this place's label may be
+      // out of frame for a moment (hidden); it is shown now so it can take
+      // focus, and the next frame puts it where it belongs.
+      label.dataset.visible = 'true';
+      // No transition for this one change: with reduced motion every
+      // transition lasts 1 ms (tokens.css), and a label still mid-way from
+      // hidden can't take focus.
+      label.style.transition = 'none';
+      void getComputedStyle(label).visibility;
+      label.focus({ preventScroll: true });
+      requestAnimationFrame(() => label.style.removeProperty('transition'));
+    }
   }
 
   /* Camera (or still) to a place. With reduced motion the view changes in
      one cut, with no travel; the panel still opens beside it. */
+  /* The dock covers the lower part of the screen in a place, so the place is
+     framed above it (`sheet`). */
   function move(id, { immediate = false } = {}) {
-    presentation.show(id, { immediate: immediate || !smooth(), sheet: sheet() });
-  }
-
-  /* On a phone the place opens over the lower half of the stage, so bring
-     the whole stage into view; on a wide screen, only if it isn't already. */
-  function reveal() {
-    const nav = document.querySelector('.site-nav');
-    const navH = nav && getComputedStyle(nav).position === 'sticky' ? nav.getBoundingClientRect().height : 0;
-    const box = stage.getBoundingClientRect();
-    const fits = box.top >= navH - 2 && box.bottom <= window.innerHeight + 2;
-    if (!sheet() && fits) return;
-    const top = box.top + window.scrollY - navH;
-    if (Math.abs(window.scrollY - top) > 4) window.scrollTo({ top, behavior: smooth() ? 'smooth' : 'auto' });
+    presentation.show(id, { immediate: immediate || !smooth(), sheet: Boolean(id) });
   }
 
   /* ---- Wiring ---------------------------------------------------------------- */
@@ -233,6 +301,11 @@ export function initCourtyard() {
   document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape' || !state.place || event.defaultPrevented) return;
     if (event.target.closest?.('.zee-panel, .nav-drawer')) return;
+    // An open drawer (transcript, hint) closes first.
+    if (state.panel?.onEscape?.()) {
+      event.preventDefault();
+      return;
+    }
     close();
   });
 
@@ -243,7 +316,8 @@ export function initCourtyard() {
     // A link out of the panel to another section (#book, #about): the
     // browser has already put the reader there, so focus stays where it went.
     const toCourtyard = !location.hash;
-    if (place && place.id !== state.place) open(place.id, { push: false, focus: inside });
+    // Opening a place makes the page behind it inert, so focus goes into it.
+    if (place && place.id !== state.place) open(place.id, { push: false, focus: true });
     else if (!place && state.place) close({ push: false, focus: inside && toCourtyard });
   });
 
@@ -278,9 +352,9 @@ export function initCourtyard() {
   window.matchMedia(framingQuery).addEventListener('change', () => {
     state.framing = currentFraming();
     presentation.setFraming(state.framing);
-    presentation.show(state.place, { immediate: true, sheet: sheet() });
+    presentation.show(state.place, { immediate: true, sheet: Boolean(state.place) });
+    state.panel?.cafe?.reframe();
   });
-  stackedQuery.addEventListener('change', () => presentation.show(state.place, { immediate: true, sheet: sheet() }));
   new ResizeObserver(() => measure()).observe(stage);
 
   document.addEventListener('hkeeli:langchange', async () => {
@@ -288,9 +362,14 @@ export function initCourtyard() {
     presentation.layout?.();
     renderMotionButton();
     if (state.place) {
+      // The café carries on where it was, in the new language.
+      if (state.panel?.refresh) {
+        state.panel.refresh();
+        return;
+      }
       const token = ++state.renderToken;
       const previous = state.panel;
-      const rendered = await renderPanel(panel, state.place, ctx, previous);
+      const rendered = await renderPanel(panel, state.place, ctx);
       if (token !== state.renderToken) return;
       previous?.destroy();
       state.panel = rendered;
@@ -309,7 +388,7 @@ export function initCourtyard() {
   /* ---- The 3D scene, when the page has settled and the device is able ------------- */
   const forced = new URLSearchParams(location.search).get('courtyard');
   const gl = forced === '3d' ? { ok: true } : probeWebGL();
-  const tier = forced === 'still' ? null : chooseTier(gl.renderer);
+  const tier = forced === 'still' ? null : chooseTier(gl.renderer, gl.software);
   hero.dataset.renderer = tier && gl.ok ? 'pending' : `still${gl.reason ? `:${gl.reason}` : ''}`;
   if (tier && gl.ok) {
     const start = () => loadScene(tier).catch((error) => {
@@ -334,19 +413,41 @@ export function initCourtyard() {
       framing: state.framing,
       motion: state.motion,
       debug: new URLSearchParams(location.search).has('courtyard-debug'),
-      onLost: () => {
-        // The GPU went away: the still takes over exactly where we were.
-        hero.dataset.mode = 'still';
-        hero.dataset.renderer = 'still:lost';
-        presentation = createPosterPresentation({ stage, picture, placeLabel, framing: state.framing, sheet });
-        presentation.show(state.place, { immediate: true, sheet: sheet() });
-        renderMotionButton();
-        setTimeout(() => canvas.remove(), 600);
-      }
+      force: forced === '3d',
+      // The GPU went away, or proved far too slow to draw the scene: the
+      // still takes over exactly where we were, mid-conversation included.
+      onLost: () => toStill('lost'),
+      onSlow: (ms) => toStill(`slow:${Math.round(ms)}ms`)
     });
+    function toStill(reason) {
+      if (hero.dataset.mode === 'still') return;
+      hero.dataset.mode = 'still';
+      hero.dataset.renderer = `still:${reason}`;
+      const scene3d = presentation;
+      presentation = createPosterPresentation({ stage, picture, placeLabel, framing: state.framing, sheet });
+      presentation.show(state.place, { immediate: true, sheet: Boolean(state.place) });
+      state.panel?.cafe?.sync();
+      renderMotionButton();
+      setTimeout(() => {
+        scene3d.destroy?.();
+        canvas.remove();
+      }, 600);
+    }
+    // Measured at warm-up, before the canvas shows: a renderer this slow (a
+    // software rasteriser, typically) would turn every move into a slideshow,
+    // so the still view stays — unless 3D was asked for (?courtyard=3d).
+    hero.dataset.frameMs = String(Math.round(scene.measuredMs));
+    if (scene.measuredMs > 85 && forced !== '3d') {
+      scene.destroy();
+      canvas.remove();
+      hero.dataset.renderer = `still:slow:${Math.round(scene.measuredMs)}ms`;
+      return;
+    }
     const poster = presentation;
-    scene.show(state.place, { immediate: true, sheet: sheet() });
+    scene.show(state.place, { immediate: true, sheet: Boolean(state.place) });
     presentation = scene;
+    // Mid-conversation, the 3D table picks up exactly where the story is.
+    state.panel?.cafe?.sync();
     poster.destroy();
     scene.start();
     hero.dataset.mode = 'scene';

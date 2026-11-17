@@ -7,7 +7,7 @@
  * So the immersive and lightweight presentations can never drift apart.
  *
  *   entrance  → Unit 1, "First conversations": greetings, introductions
- *   cafe      → Unit 2, and the conversation in cafe.js
+ *   cafe      → Unit 2, as the conversation in cafe-story.js
  *   balcony   → Unit 3, the phone call with teta and jiddo
  *   teacher   → the existing introduction, how lessons work, booking
  *
@@ -24,7 +24,7 @@ import { bookingHandover, teacherName } from '../booking.js';
 import { icon } from '../icons.js';
 import { PLACES, getPlace } from './places.js';
 import { listenControl, stopListening } from './listen.js';
-import { createCafeConversation } from './cafe.js';
+import { createCafeEncounter } from './cafe-story.js';
 
 /** The phrases each place leads with. Ids, so they follow the data. */
 const KEY_PHRASES = {
@@ -41,61 +41,71 @@ const SCENES = {
  *
  * @param {HTMLElement} panel     the panel element (#place-panel)
  * @param {string} id             place id
- * @param {object} ctx            { open(id), close(), smooth() }
- * @param {object} [previous]     the panel this one replaces — a language
- *                                switch mid-conversation keeps your place in it
- * @returns {Promise<{ heading: HTMLElement, destroy: () => void, cafe?: object }>}
+ * @param {object} ctx            { open(id), close(), smooth(), scene(), framing() }
+ * @returns {Promise<{ heading: HTMLElement, destroy: () => void, refresh?: () => void, onEscape?: () => boolean, cafe?: object }>}
  */
-export async function renderPanel(panel, id, ctx, previous = null) {
+export async function renderPanel(panel, id, ctx) {
   const place = getPlace(id);
   const [units, phrases] = await Promise.all([getUnits(), getAllPhrases()]);
+  panel.dataset.place = id;
+
+  // The café is a conversation you take part in, not a page to read.
+  if (id === 'cafe') {
+    const cafe = createCafeEncounter(panel, {
+      units,
+      phrases,
+      scene: ctx.scene,
+      stage: ctx.stage,
+      smooth: ctx.smooth,
+      framing: ctx.framing,
+      exit: ctx.close
+    });
+    return {
+      get heading() {
+        return cafe.heading;
+      },
+      destroy: () => cafe.destroy(),
+      refresh: () => cafe.refresh(),
+      onEscape: () => cafe.onEscape(),
+      cafe
+    };
+  }
 
   const heading = el('h2', { id: 'place-panel-title', class: 'place-title', tabindex: '-1' }, t(`courtyard.places.${id}.topic`));
-  const back = el(
-    'button',
-    { type: 'button', class: 'place-back', onClick: () => ctx.close() },
-    el('span', { class: 'place-back-icon', 'aria-hidden': 'true' }, icon('back', { size: 18 })),
-    el('span', {}, t('courtyard.back'))
-  );
-  const body = el('div', { class: 'place-body' });
-
-  clear(panel).append(
+  const bar = el(
+    'div',
+    { class: 'exp-bar' },
+    el(
+      'button',
+      { type: 'button', class: 'exp-btn exp-exit', onClick: () => ctx.close() },
+      el('span', { class: 'exp-exit-icon', 'aria-hidden': 'true' }, icon('back', { size: 18 })),
+      el('span', { class: 'exp-exit-label' }, t('courtyard.back'))
+    ),
     el(
       'div',
-      { class: 'place-scroll' },
+      { class: 'exp-where' },
       el(
-        'header',
-        { class: 'place-head' },
-        back,
-        el(
-          'p',
-          { class: 'place-eyebrow' },
-          el('span', { class: 'place-eyebrow-icon', 'aria-hidden': 'true' }, icon(place.icon, { size: 16 })),
-          el('span', {}, t(`courtyard.places.${id}.name`))
-        ),
-        heading
-      ),
-      body,
-      others(id, ctx)
+        'p',
+        { class: 'exp-title' },
+        el('span', { class: 'place-eyebrow-icon', 'aria-hidden': 'true' }, icon(place.icon, { size: 16 })),
+        el('span', {}, t(`courtyard.places.${id}.name`))
+      )
+    )
+  );
+  const body = el('div', { class: 'place-body' });
+  clear(panel).append(
+    bar,
+    el(
+      'section',
+      { class: 'exp-dock exp-dock--place', 'aria-labelledby': 'place-panel-title' },
+      el('div', { class: 'place-scroll' }, el('header', { class: 'place-head' }, heading), body, others(id, ctx))
     )
   );
 
-  let destroy = () => stopListening();
-  let cafe = null;
-  if (id === 'cafe') {
-    const unit = units.find((u) => u.id === place.unitId);
-    if (unit) body.append(el('p', { class: 'place-lede' }, `${t('learn.youWillBeAbleTo')} ${pick(unit.outcome || unit.description)}`));
-    const host = el('div', { class: 'place-cafe' });
-    body.append(host);
-    cafe = createCafeConversation(host, { units, phrases, smooth: ctx.smooth, restore: previous?.cafe?.state });
-    destroy = () => cafe.destroy();
-  } else if (id === 'teacher') {
-    await teacherCorner(body);
-  } else {
-    unitPlace(body, id, units, phrases);
-  }
+  if (id === 'teacher') await teacherCorner(body);
+  else unitPlace(body, id, units, phrases);
 
-  return { heading, destroy, cafe };
+  return { heading, destroy: () => stopListening(), refresh: null };
 }
 
 /* --------------------------------------------------------------------------
@@ -106,7 +116,7 @@ function unitPlace(body, id, units, phrases) {
   const unit = units.find((u) => u.id === place.unitId);
   if (!unit) return;
 
-  const note = el('p', { class: 'place-honest' }, t('courtyard.audio.textOnly'));
+  const note = el('p', { class: 'place-honest' }, t('courtyard.audio.textOnlyShort'));
   note.hidden = true;
   const missing = () => {
     note.hidden = false;

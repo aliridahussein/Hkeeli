@@ -30,7 +30,7 @@
     "titleBefore": "Speak useful Lebanese Arabic",
     "titleArabic": "إحكي",
     "titleAfter": "from your first lesson.",
-    "body": "You don't need to read Arabic. Every phrase comes with audio and Latin transliteration, and it's the Lebanese people actually speak — at the table, in the taxi, on the phone to teta.",
+    "body": "You don't need to read Arabic. Every phrase comes with Latin transliteration and its meaning, and it's the Lebanese people actually speak — at the table, in the taxi, on the phone to teta.",
     "ctaPrimary": "Try a Free Mini-Lesson",
     "ctaSecondary": "Book a Class",
     "startLink": "Not sure where to begin? Start here →",
@@ -93,7 +93,7 @@
     "title": "Hear it. Understand it. Use it.",
     "subtitle": "Three steps, repeated until the words come out without you assembling them first.",
     "s1Title": "Hear it",
-    "s1Body": "Every phrase starts as sound, not spelling. You listen first, replay as often as you like, and read it in Latin letters — no Arabic script required.",
+    "s1Body": "Every phrase starts as sound, not spelling. You listen first, replay as often as you like, and read it in Latin letters — no Arabic script required. Until the teacher's recordings are in, a computer voice stands in, and says so.",
     "s2Title": "Understand it",
     "s2Body": "Then the meaning: what it says literally, what it actually means, and when a Lebanese person would say it rather than the textbook version.",
     "s3Title": "Use it in a real conversation",
@@ -124,7 +124,7 @@
     "title": "Born in Beirut. Teaching the Lebanon you won't find in a textbook.",
     "p1": "I grew up hearing five conversations at once around the same table — that's the Lebanese I teach. Whether you're calling your teta every Sunday, marrying into a Lebanese family, or finally booking that trip to Beirut, I'll get you talking, fast.",
     "p2": "Every lesson comes from real life: airport small talk, ordering man2ushe, arguing about who pays the bill.",
-    "note": "Everything on this site is free — the lessons, the audio, all seven games. A class is the same thing, with someone listening and correcting you.",
+    "note": "Everything on this site is free — the lessons, the practice, all seven games. A class is the same thing, with someone listening and correcting you.",
     "tag1": "💬 100% dialect, 0% textbook Arabic",
     "tag2": "🎓 8+ years of teaching",
     "tag3": "🌍 Students in 14 countries",
@@ -136,7 +136,7 @@
     "valueDialectTitle": "Spoken Lebanese, not Modern Standard",
     "valueDialectBody": "What you learn here is the dialect people speak day to day. Where the textbook version differs, I tell you which one to say and which one to only recognise.",
     "valuePronunciationTitle": "Pronunciation support",
-    "valuePronunciationBody": "Every phrase has audio and a Latin transliteration built for the sounds English doesn't have. In a class, you say it back and get corrected on the spot.",
+    "valuePronunciationBody": "Every phrase has a Latin transliteration built for the sounds English doesn't have, and recordings in my own voice are being added. In a class, you say it back and get corrected on the spot.",
     "valueClassTitle": "What happens in a class",
     "valueClassBody": "You speak, I listen and correct, and we work through the situations you actually need. Bring what you didn't understand this week and we start there.",
     "valueWhoTitle": "Who classes suit",
@@ -148,7 +148,7 @@
   "learn": {
     "eyebrow": "Lessons",
     "title": "Lessons that meet you where you are",
-    "subtitle": "Every word comes with audio, Arabic script, and Latin transliteration — so you can start speaking before you can read.",
+    "subtitle": "Every word comes with Arabic script and Latin transliteration, and recordings are being added unit by unit — so you can start speaking before you can read.",
     "pageTitle": "The curriculum",
     "pageSubtitle": "A 12-unit course in spoken Lebanese. Each unit says what you'll be able to do, what it covers, and how far through it you are. Open one to get the dialogue, the vocabulary and the practice tasks.",
     "viewAll": "See all lessons",
@@ -364,7 +364,7 @@
     "items": [
       {
         "q": "Do I need to read Arabic?",
-        "a": "No. Every phrase on this site is written in Latin letters as well as Arabic script, and every phrase has audio. You can do the whole course without reading a word of Arabic."
+        "a": "No. Every phrase on this site is written in Latin letters as well as Arabic script. Recordings in the teacher's voice are being added; until a phrase has one, the site says so. You can do the whole course without reading a word of Arabic."
       },
       {
         "q": "Is this Modern Standard Arabic?",
@@ -580,7 +580,9 @@
       "stop": "Stop",
       "again": "Listen again",
       "noRecording": "No recording yet — say it aloud from the transliteration.",
-      "textOnly": "Recordings in the teacher's own voice are being made. Until they're ready, these lines are text only — no computer voice stands in for your teacher here."
+      "textOnly": "Recordings in the teacher's own voice are being made. Until they're ready, these lines are text only — no computer voice stands in for your teacher here.",
+      "textChip": "Text only",
+      "textOnlyShort": "Recordings are on their way — for now these lines are text only."
     },
     "cafe": {
       "eyebrow": "Your first Lebanese conversation",
@@ -608,6 +610,63 @@
       "bookTitle": "Book a personal class",
       "readMore": "More about how I teach",
       "bookingDetails": "Booking details"
+    },
+    "encounter": {
+      "title": "At the café",
+      "progress": "Step {n} of {total}",
+      "hint": "Hint",
+      "transcript": "Transcript",
+      "restart": "Start again",
+      "ambience": "Café ambience (synthesised)",
+      "nothingYet": "Nothing said yet.",
+      "sit": "Take a seat",
+      "p": {
+        "arrive": "A table in the shade is free.",
+        "order": "Order your coffee. How do you like it?",
+        "thanks": "He sets it down. What do you say?",
+        "more": "Anything else?",
+        "bill": "You're ready to go. Ask for the bill.",
+        "bye": "You've paid. Say goodbye as you leave."
+      },
+      "n": {
+        "arrive": "Late afternoon in the courtyard. The waiter is standing by the door.",
+        "sit": "You sit down. The waiter is on his way over.",
+        "waiter": "He comes over to your table.",
+        "note": "You hand him the menu. He writes your order on his pad.",
+        "coffee": "He brings your coffee on a tray.",
+        "manoushe": "A minute later, a manoushe, still warm.",
+        "enough": "He gives a little nod and leaves you to your coffee.",
+        "ready": "You finish your coffee.",
+        "bill": "He brings the bill on a saucer and takes your order slip.",
+        "pay": "You leave the money on the saucer.",
+        "bye": "He waves you off."
+      },
+      "h": {
+        "order": "The menu lists coffee by sugar: wasat is medium-sweet, 3al ri7a has barely any sugar, sada has none. Coffee is 2ahwe — the 2 is a catch in the throat, where a q would be in written Arabic.",
+        "thanks": "He said \"here you are… enjoy it\". Thank him — shukran, or the warmer Allah ykhallik.",
+        "more": "shi tene? means \"anything else?\" You can add a zaatar manoushe, or say that's enough.",
+        "bill": "el 7seb is the bill; law sama7t is \"if you please\". Or just ask how much it comes to.",
+        "bye": "b khatrak is said by the person who is leaving — that's you."
+      },
+      "w": {
+        "notLeaving": "That's what you say when you're leaving — you've only just got your coffee.",
+        "welcome": "That's how you answer a thank-you. You want the bill.",
+        "hello": "That's hello. You're on your way out."
+      },
+      "done": {
+        "title": "You just had a conversation in Lebanese.",
+        "body": "From sitting down to saying goodbye. These are the phrases you used:",
+        "replay": "Have it again",
+        "teacher": "Practise it with a teacher",
+        "transcript": "Read the whole conversation"
+      },
+      "ticket": "On his slip",
+      "sound": "Sound",
+      "voices": "Voices",
+      "voicesOn": "Play each line's recording as it's said.",
+      "voicesNone": "No recordings yet — every line is text only for now.",
+      "voicesChecking": "Checking for recordings…",
+      "ambienceNote": "Room tone and the odd cup on a saucer, made in your browser. Off unless you turn it on."
     }
   }
 }

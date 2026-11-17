@@ -22,6 +22,9 @@ and shows a one-time "synthetic voice" notice. Dropping the real file in at the
 path already named in `lessons.json` is all that's needed — no code change, no
 data change.
 
+The courtyard on the home page never uses the synthetic voice: its lines are recordings or text. 
+[RECORDING-SCRIPT.md](RECORDING-SCRIPT.md) lists the café conversation's lines and their paths.
+
 Recording notes:
 
 - Mono, 44.1 kHz, MP3 ~96–128 kbps is plenty for single words and short phrases.

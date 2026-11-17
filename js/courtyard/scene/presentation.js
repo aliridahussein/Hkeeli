@@ -61,13 +61,30 @@ const smooth = (rate, dt) => 1 - Math.exp(-rate * dt);
  * @param {'wide'|'tall'} options.framing
  * @param {boolean} options.motion         idle motion allowed (false = reduced motion)
  * @param {() => void} [options.onLost]    WebGL context lost
+ * @param {() => void} [options.onSlow]    frames measured far too slow to
+ *   be worth drawing (a software renderer, an overloaded GPU): the still
+ *   image will serve the visitor better
+ * @param {boolean} [options.force]   keep drawing however slow (?courtyard=3d)
+ * @param {boolean} [options.alpha]   a transparent canvas (the stills harness)
  * @param {boolean} [options.debug]
  */
-export async function createScenePresentation({ stage, canvas, placeLabel, quality, framing, motion = true, onLost, debug = false }) {
+export async function createScenePresentation({
+  stage,
+  canvas,
+  placeLabel,
+  quality,
+  framing,
+  motion = true,
+  onLost,
+  onSlow,
+  force = false,
+  alpha = false,
+  debug = false
+}) {
   const renderer = new WebGLRenderer({
     canvas,
     antialias: quality.antialias,
-    alpha: false,
+    alpha,
     stencil: false,
     powerPreference: 'high-performance',
     preserveDrawingBuffer: debug
@@ -180,11 +197,25 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
   resize();
 
   /* ---- Performance: measured, then acted on -------------------------------- */
-  const perf = { frames: [], ema: 1000 / 60, settledAt: performance.now() + 2500, lastChange: 0 };
+  const perf = { frames: [], drawn: [], ema: 1000 / 60, settledAt: performance.now() + 2500, lastChange: 0, slow: false };
   function measure(ms) {
     perf.frames.push(ms);
     if (perf.frames.length > 900) perf.frames.shift();
     perf.ema += (ms - perf.ema) * 0.04;
+  }
+  /* Far too slow to be worth it: under ~12 frames a second on frames that
+     actually drew, once the warm-up is over. Resolution can't rescue that,
+     and a still with the same story beats a slideshow. Decided once. */
+  function checkSlow(ms, drew, now) {
+    if (force || perf.slow || !drew || now < perf.settledAt) return;
+    perf.drawn.push(ms);
+    if (perf.drawn.length > 10) perf.drawn.shift();
+    if (perf.drawn.length < 10) return;
+    const median = [...perf.drawn].sort((a, b) => a - b)[5];
+    if (median > 85) {
+      perf.slow = true;
+      onSlow?.(median);
+    }
   }
   function adapt(now) {
     if (rig.moving || now < perf.settledAt || now - perf.lastChange < 3000) return;
@@ -222,7 +253,9 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
       lean.target.distanceToSquared(lean.toTarget) > 1e-8;
 
     if (state.motion) wind.uTime.value += dt;
-    if (!(state.motion || moving || settling || state.dirty)) return;
+    // The waiter breathes and looks about only while idle motion is on.
+    const acting = world.story.update(dt, camera, state.motion);
+    if (!(state.motion || moving || settling || acting || state.dirty)) return false;
     state.dirty = false;
 
     // While the camera travels, the shadow map holds still: only the leaves'
@@ -235,6 +268,7 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
     if (cup) world.steamNear.value = Math.min(1, Math.max(0, (2.4 - camera.position.distanceTo(cup)) / 1.0));
     updateLabels();
     renderer.render(scene, camera);
+    return true;
   }
 
   function loop(now) {
@@ -245,8 +279,9 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
     // moves in real time.
     const dt = Math.min(0.1, ms / 1000);
     measure(ms);
-    renderFrame(dt);
+    const drew = renderFrame(dt);
     adapt(now);
+    checkSlow(ms, drew, now);
   }
 
   function setRunning() {
@@ -293,6 +328,21 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
   updateLabels();
   renderer.render(scene, camera);
 
+  /* How long a frame really takes here, measured before anyone sees one: a
+     one-pixel read waits for the frame to finish. A software renderer can be
+     a hundred times slower than any GPU; the controller keeps the still view
+     rather than show a slideshow (unless 3D was asked for). */
+  const gl = renderer.getContext();
+  const pixel = new Uint8Array(4);
+  const samples = [];
+  for (let i = 0; i < 3; i++) {
+    const a = performance.now();
+    renderer.render(scene, camera);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+    samples.push(performance.now() - a);
+  }
+  const measuredMs = samples.sort((x, y) => x - y)[1];
+
   /* ---- The interface the controller uses ------------------------------------ */
   const api = {
     /**
@@ -325,6 +375,48 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
       }
       state.dirty = true;
       if (!state.running) renderFrame(0);
+    },
+
+    /**
+     * Move to an explicit view (the café's arrive and seat cameras). Same rig,
+     * same continuity: a call mid-move bends the path instead of queueing.
+     */
+    showView(view, { immediate = false, duration } = {}) {
+      lean.toPos.set(0, 0, 0);
+      lean.toTarget.set(0, 0, 0);
+      if (immediate) rig.set(view);
+      else rig.goTo(view, { duration });
+      state.dirty = true;
+      if (!state.running) renderFrame(0);
+    },
+
+    /** The café story's scene events (see story.js). */
+    story: {
+      gesture: (name, options) => {
+        state.dirty = true;
+        const p = world.story.gesture(name, options);
+        if (!state.running) renderFrame(0);
+        return p;
+      },
+      play: (name, options) => {
+        state.dirty = true;
+        const p = world.story.play(name, options);
+        if (!state.running) renderFrame(0);
+        return p;
+      },
+      act: (name, options) => {
+        state.dirty = true;
+        const p = world.story.act(name, options);
+        if (!state.running) renderFrame(0);
+        return p;
+      },
+      layers: () => world.story.layers(),
+      writeOrder: (lines) => world.story.writeOrder(lines),
+      setOrder: (lines) => world.story.setOrder(lines),
+      reset: () => {
+        world.story.reset();
+        state.dirty = true;
+      }
     },
 
     /** A gentle lean towards the place under the pointer or focus. */
@@ -409,6 +501,8 @@ export async function createScenePresentation({ stage, canvas, placeLabel, quali
       renderer.dispose();
     },
 
+    /** Milliseconds per frame, measured at warm-up (see above). */
+    measuredMs,
     renderer,
     camera,
     scene,

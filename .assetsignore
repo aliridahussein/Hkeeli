@@ -34,3 +34,7 @@ data/zee/
 tools/
 vendor/three/entry.js
 vendor/three/README.md
+
+# The recording script for the courtyard's café lines: for the person
+# recording them, not for visitors.
+public/audio/RECORDING-SCRIPT.md

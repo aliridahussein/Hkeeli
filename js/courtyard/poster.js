@@ -48,28 +48,49 @@ export function createPosterPresentation({ stage, picture, placeLabel, framing, 
     zoom(state.place);
   }
 
-  /* The zoom: scale the image about its top-left, then translate so the
+  /* The picture's box is the image's own cover rectangle — the whole image,
+     overhanging the stage where cover crops it — so a zoom can reach any part
+     of it. Unzoomed, that draws exactly what object-fit: cover would. */
+  function frame() {
+    const spec = POSTER[state.framing];
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    const [x0, y0, scale] = coverPoint(0, 0, w, h, spec.width, spec.height);
+    Object.assign(picture.style, {
+      left: `${x0.toFixed(1)}px`,
+      top: `${y0.toFixed(1)}px`,
+      right: 'auto',
+      bottom: 'auto',
+      width: `${(spec.width * scale).toFixed(1)}px`,
+      height: `${(spec.height * scale).toFixed(1)}px`
+    });
+    return { x0, y0, bw: spec.width * scale, bh: spec.height * scale };
+  }
+
+  /* The zoom: scale the picture about its top-left, then translate so the
      place's focus lands where the eye expects it — the middle of the stage,
-     or the middle of its upper half when the panel covers the lower half. */
+     or higher up when the dock covers the lower part. */
   function zoom(id) {
     const spec = POSTER[state.framing];
     const w = stage.clientWidth;
     const h = stage.clientHeight;
+    if (!w || !h) return;
+    const { x0, y0, bw, bh } = frame();
     if (!id || !spec.places[id]) {
       picture.style.transform = '';
       return;
     }
     const p = spec.places[id];
     const s = p.zoom;
-    const [fx, fy] = coverPoint(p.focus[0], p.focus[1], w, h, spec.width, spec.height);
-    const target = [w / 2, sheet() ? h * 0.27 : h / 2];
-    let tx = target[0] - s * fx;
-    let ty = target[1] - s * fy;
-    // Keep the enlarged image covering the stage.
-    const [x0, y0] = coverPoint(0, 0, w, h, spec.width, spec.height);
-    const [x1, y1] = coverPoint(1, 1, w, h, spec.width, spec.height);
-    tx = Math.min(-s * x0, Math.max(w - s * x1, tx));
-    ty = Math.min(-s * y0, Math.max(h - s * y1, ty));
+    // The focus, in the picture's own coordinates.
+    const fx = p.focus[0] * bw;
+    const fy = p.focus[1] * bh;
+    const target = [w / 2, sheet() ? h * (w < h ? 0.22 : 0.3) : h / 2];
+    let tx = target[0] - x0 - s * fx;
+    let ty = target[1] - y0 - s * fy;
+    // Keep the enlarged picture covering the stage.
+    tx = Math.min(-x0, Math.max(w - x0 - s * bw, tx));
+    ty = Math.min(-y0, Math.max(h - y0 - s * bh, ty));
     picture.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${s})`;
   }
 
@@ -91,7 +112,7 @@ export function createPosterPresentation({ stage, picture, placeLabel, framing, 
     layout,
     destroy() {
       observer.disconnect();
-      picture.style.transform = '';
+      picture.removeAttribute('style');
     }
   };
 }
