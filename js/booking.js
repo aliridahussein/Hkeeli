@@ -91,7 +91,22 @@ function renderReassurance() {
 function renderAction(teacher) {
   const host = document.querySelector('#booking-action');
   if (!host) return;
+  clear(host).append(...bookingHandover({ teacher }));
+}
 
+/**
+ * The handover itself — the Preply link, the disclosure under it, the paid-
+ * trial note and the optional contact line — as elements, so the courtyard's
+ * teacher's corner can offer exactly the same thing with exactly the same
+ * rules (no configured URL → no live-looking link; no price, ever).
+ *
+ * @param {object} [options]
+ * @param {string} [options.teacher]   how the copy names the teacher
+ * @param {string} [options.location]  analytics location for the click
+ * @param {string} [options.id]        id for the disclosure (aria-describedby)
+ * @returns {HTMLElement[]}
+ */
+export function bookingHandover({ teacher = teacherName(), location = CTA_LOCATION, id = 'booking-disclosure' } = {}) {
   const url = profileUrl();
   const email = (CONFIG.preply.contactEmail || '').trim();
 
@@ -112,8 +127,8 @@ function renderAction(teacher) {
           href: url,
           // Same tab, deliberately: the visitor is continuing a journey, not
           // opening a reference. No redirect, no interstitial.
-          'aria-describedby': 'booking-disclosure',
-          dataset: { event: CTA_EVENT, location: CTA_LOCATION }
+          'aria-describedby': id,
+          dataset: { event: CTA_EVENT, location }
         },
         el('span', {}, t('book.cta')),
         arrow
@@ -130,7 +145,7 @@ function renderAction(teacher) {
   const parts = [
     cta,
     url ? null : el('p', { class: 'booking-unconfigured' }, t('book.ctaUnconfigured')),
-    el('p', { class: 'booking-disclosure', id: 'booking-disclosure' }, t('book.disclosure', { teacher })),
+    el('p', { class: 'booking-disclosure', id }, t('book.disclosure', { teacher })),
     el('p', { class: 'booking-note' }, t('book.paidNote')),
     // Omitted entirely when no address is configured — an empty "contact me"
     // affordance is worse than none.
@@ -147,8 +162,11 @@ function renderAction(teacher) {
       : null
   ];
 
-  clear(host).append(...parts.filter(Boolean));
+  return parts.filter(Boolean);
 }
+
+/** How the copy names the teacher (configured first name, or the neutral fallback). */
+export { teacherName };
 
 /* --------------------------------------------------------------------------
    "What would you like help with?"

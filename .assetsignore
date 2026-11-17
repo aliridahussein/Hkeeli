@@ -26,3 +26,11 @@ worker/
 data/zee/
 .dev.vars
 .wrangler/
+
+# Courtyard development tools: the scene preview harness, the local server that
+# saves its still images, and the three.js bundle script. The bundle they make
+# (vendor/three/three-hkeeli.min.js) is served; its generated entry list isn't
+# needed at runtime.
+tools/
+vendor/three/entry.js
+vendor/three/README.md

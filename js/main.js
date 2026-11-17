@@ -5,19 +5,22 @@
  * where it fits, meet the person teaching it, book if you want a human. Each
  * section below renders one step of that route; every one of them reads the
  * same lesson data the rest of the site uses.
+ *
+ * The hero is the courtyard (js/courtyard/): a Lebanese courtyard whose
+ * places open the lessons that belong there, with the café conversation as
+ * the first small success.
  */
 
 import { initI18n, t, pick } from './i18n.js';
-import { initChrome, el, clear, playButton, errorState, onLangChange } from './ui.js';
-import { getAllPhrases, getIntro } from './data.js';
+import { initChrome, el, clear, errorState, onLangChange } from './ui.js';
+import { getIntro } from './data.js';
 import { getJourney, GOALS, getGoal } from './journey.js';
 import { initMiniLesson } from './mini-lesson.js';
 import { prefs } from './storage.js';
 import { initBookingSection } from './booking.js';
-
-/* The three phrases on the hero postcards, by id. Change these to feature
-   different words — no markup edits needed. */
-const HERO_PHRASE_IDS = ['u1-p10', 'u1-p12', 'u1-p9'];
+import { initCourtyard } from './courtyard/index.js';
+import { hasRecording } from './courtyard/listen.js';
+import { playPhrase } from './audio.js';
 
 async function main() {
   await initI18n();
@@ -25,10 +28,10 @@ async function main() {
   // Reads only the language bundles and CONFIG, so it doesn't wait on
   // lessons.json with the sections below.
   initBookingSection();
+  initCourtyard();
 
   try {
     await Promise.all([
-      renderHero(),
       initMiniLesson(document.querySelector('#mini-host')),
       renderGoals(),
       renderJourney(),
@@ -44,7 +47,6 @@ async function main() {
   honourHash();
 
   onLangChange(() => {
-    renderHero();
     initMiniLesson(document.querySelector('#mini-host'));
     renderGoals();
     renderJourney();
@@ -69,119 +71,6 @@ function honourHash() {
   if (!id) return;
   const target = document.getElementById(id);
   if (target) target.scrollIntoView({ block: 'start', behavior: 'instant' });
-}
-
-/* --------------------------------------------------------------------------
-   Hero postcards
-   -------------------------------------------------------------------------- */
-
-async function renderHero() {
-  const stack = document.querySelector('#postcard-stack');
-  const dots = document.querySelector('#postcard-dots');
-  if (!stack) return;
-
-  const phrases = await getAllPhrases();
-  const featured = HERO_PHRASE_IDS.map((id) => phrases.find((p) => p.id === id)).filter(Boolean);
-  const cards = featured.length ? featured : phrases.slice(0, 3);
-
-  clear(stack).append(
-    ...cards.map((phrase, index) =>
-      el(
-        'article',
-        { class: `postcard ${index === 2 ? 'postcard--dark' : ''}`.trim() },
-        el('span', { class: 'stamp', 'aria-hidden': 'true' }, 'ل.ل'),
-        el('div', { class: 'word-ar arabic', dir: 'rtl', lang: 'ar' }, phrase.ar),
-        // Transliteration and play share a row: it keeps the card short enough
-        // that the stack can overlap without a card covering the one beneath.
-        el(
-          'div',
-          { class: 'postcard-row' },
-          el('div', { class: 'word-translit translit', dir: 'ltr' }, phrase.translit),
-          playButton(phrase, 'postcard-play')
-        ),
-        el('div', { class: 'word-en' }, phrase.en)
-      )
-    )
-  );
-
-  if (dots) setupCarousel(stack, dots, cards.length);
-}
-
-/**
- * The mobile hero is a scroll-snap rail; the dots reflect and control it.
- * On desktop the rail becomes the scattered stack and the dots are hidden by
- * CSS, so this listener simply idles.
- */
-function setupCarousel(stack, dots, count) {
-  // Re-rendered on every language switch; drop the previous observer first.
-  if (stack._carouselObserver) stack._carouselObserver.disconnect();
-
-  /* Distance from the rail's scroll origin to a card's centre.
-     Measured with rects rather than offsetLeft: the rail is statically
-     positioned, so the cards' offsetParent is some ancestor and offsetLeft
-     would be relative to the wrong box. */
-  const centreOf = (card) => {
-    const cardBox = card.getBoundingClientRect();
-    const railBox = stack.getBoundingClientRect();
-    return cardBox.left - railBox.left + stack.scrollLeft + cardBox.width / 2;
-  };
-
-  const setActive = (index) => {
-    [...dots.children].forEach((dot, i) => dot.setAttribute('aria-current', String(i === index)));
-  };
-
-  let restoreSnap;
-  const scrollToCard = (i) => {
-    const card = stack.children[i];
-    if (!card) return;
-    // Update the dot immediately rather than waiting for the scroll to land —
-    // the control should acknowledge the tap even mid-animation.
-    setActive(i);
-    /* Mandatory scroll-snap cancels programmatic smooth scrolling outright in
-       some engines — the rail simply never moves. Lift snapping for the length
-       of the animation, then hand control back to it. */
-    stack.style.scrollSnapType = 'none';
-    stack.scrollTo({ left: centreOf(card) - stack.clientWidth / 2, behavior: 'smooth' });
-    clearTimeout(restoreSnap);
-    restoreSnap = setTimeout(() => {
-      stack.style.scrollSnapType = '';
-    }, 600);
-  };
-
-  clear(dots).append(
-    ...Array.from({ length: count }, (_, i) =>
-      el('button', {
-        type: 'button',
-        'aria-label': `${t('hero.goToCard')} ${i + 1}`,
-        'aria-current': String(i === 0),
-        onClick: () => scrollToCard(i)
-      })
-    )
-  );
-
-  /* Which card is showing is tracked with an IntersectionObserver rather than
-     a scroll listener: observers are driven by layout, so they also report
-     programmatic scrolls, which `scroll` events don't reliably do here. */
-  const ratios = new Map();
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => ratios.set(entry.target, entry.intersectionRatio));
-      let bestIndex = 0;
-      let best = -1;
-      [...stack.children].forEach((card, i) => {
-        const ratio = ratios.get(card) ?? 0;
-        if (ratio > best) {
-          best = ratio;
-          bestIndex = i;
-        }
-      });
-      setActive(bestIndex);
-    },
-    { root: stack, threshold: [0, 0.25, 0.5, 0.75, 1] }
-  );
-
-  [...stack.children].forEach((card) => observer.observe(card));
-  stack._carouselObserver = observer;
 }
 
 /* --------------------------------------------------------------------------
@@ -331,23 +220,29 @@ async function renderAbout() {
     const intro = await getIntro();
     clear(host);
     if (intro) {
-      // playButton() gives the same file-first, TTS-fallback behaviour as every
-      // other play control; only the accessible name differs, because "play
-      // pronunciation" is the wrong description for a spoken introduction.
-      const play = playButton(intro, 'intro-play');
-      play.setAttribute('aria-label', t('about.introPlay'));
+      // The introduction is the teacher speaking about herself, so it plays
+      // her recording or nothing — never the synthetic fallback the phrase
+      // buttons use, which would put a computer voice in her mouth. Until the
+      // file exists the card says so and shows the words.
+      const play = el('button', {
+        type: 'button',
+        class: 'play intro-play',
+        'aria-label': t('about.introPlay')
+      });
+      play.hidden = true;
+      play.addEventListener('click', () => playPhrase(intro, play, { tts: false }));
+      const body = el('p', { class: 'intro-card-body' }, t('about.introBody'));
+      hasRecording(intro).then((recorded) => {
+        if (recorded) play.hidden = false;
+        else body.textContent = t('courtyard.teacher.introPending');
+      });
 
       host.append(
         el(
           'div',
           { class: 'intro-card-head' },
           play,
-          el(
-            'div',
-            {},
-            el('h3', {}, t('about.introTitle')),
-            el('p', { class: 'intro-card-body' }, t('about.introBody'))
-          )
+          el('div', {}, el('h3', {}, t('about.introTitle')), body)
         ),
         el(
           'div',

@@ -1,0 +1,1277 @@
+/* ==========================================================================
+   Hkeeli — the courtyard (home page hero)
+   "A little Lebanon, one conversation at a time."
+
+   Layout
+     phone / tablet  copy, then the stage at full height; a place opens as a
+                     sheet over the stage's lower half (the camera frames the
+                     place in the upper half — see `shift` in places.js)
+     ≥ 960px         copy beside the stage; a place opens in the copy's
+                     column, so the scene and the lesson sit side by side
+
+   Logical properties throughout, so Arabic mirrors. The one exception is
+   label positioning: labels follow scene coordinates, which do not mirror,
+   so their origin is the stage's physical top-left (see index.js).
+   ========================================================================== */
+
+.courtyard-hero {
+  /* The stage is one screen tall below the nav; the sheet a place opens on a
+     phone is a fixed share of that. Both are explicit lengths: a percentage
+     height on a grid item has nothing definite to resolve against here, and
+     would grow with the panel's content instead. */
+  --stage-h: clamp(520px, calc(100svh - var(--nav-h)), 940px);
+  --sheet-h: max(300px, calc(var(--stage-h) * 0.57));
+  display: grid;
+  grid-template-areas:
+    'copy'
+    'stage';
+  padding: 0;
+  background: var(--sand-light);
+}
+
+/* Phone first: the copy is compact enough that the courtyard begins inside
+   the first screen. */
+.courtyard-hero .hero-copy {
+  grid-area: copy;
+  padding-block: var(--space-5) var(--space-4);
+  padding-inline: var(--gutter);
+}
+
+.courtyard-hero .eyebrow {
+  margin-block-end: var(--space-3);
+  font-size: 0.72rem;
+}
+
+.courtyard-hero h1 {
+  font-size: clamp(1.9rem, 8.2vw, 3.4rem);
+  margin-block-end: var(--space-3);
+}
+
+.courtyard-hero .hero-copy > p:not(.eyebrow):not(.hero-aside):not(.hero-concept) {
+  font-size: 1rem;
+  margin-block-end: var(--space-4);
+}
+
+.courtyard-hero .hero-ctas {
+  gap: var(--space-3);
+}
+
+.courtyard-hero .hero-ctas > a {
+  padding-block: 12px;
+  padding-inline: 22px;
+  font-size: 0.94rem;
+}
+
+.courtyard-hero .hero-aside {
+  margin-block-start: var(--space-2);
+}
+
+/* The concept line: in the copy on wide screens, on the stage's sky on phones. */
+.courtyard-hero .hero-concept {
+  display: none;
+}
+
+.courtyard-caption {
+  position: absolute;
+  z-index: 3;
+  inset-block-start: var(--space-4);
+  inset-inline: var(--space-4) calc(var(--tap) + var(--space-5));
+  display: grid;
+  gap: 2px;
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+  transition: opacity var(--t-base) var(--ease);
+}
+
+.courtyard-caption strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.12rem;
+  line-height: 1.2;
+  color: var(--sea-deep);
+}
+
+[lang='ar'] .courtyard-caption strong {
+  font-family: var(--font-arabic);
+  font-size: 1.3rem;
+}
+
+.courtyard-hero[data-view='place'] .courtyard-caption {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.courtyard-hero .hero-copy > .hero-concept,
+.courtyard-hero .hero-copy > .hero-aside {
+  margin-block-end: 0;
+}
+
+.hero-concept {
+  margin-block-start: var(--space-5);
+  padding-inline-start: var(--space-4);
+  border-inline-start: 3px solid var(--citrus);
+  font-size: 0.95rem;
+  color: var(--ink-muted);
+  max-width: 460px;
+}
+
+.hero-concept strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--sea-deep);
+}
+
+[lang='ar'] .hero-concept strong {
+  font-family: var(--font-arabic);
+  font-size: 1.2rem;
+}
+
+/* --------------------------------------------------------------------------
+   The stage
+   -------------------------------------------------------------------------- */
+.courtyard {
+  grid-area: stage;
+  position: relative;
+  min-width: 0;
+}
+
+.courtyard-stage {
+  position: relative;
+  height: var(--stage-h);
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(var(--stage-wash-top), var(--stage-wash-bottom));
+  /* The page scrolls through the stage; nothing here takes the gesture. */
+  touch-action: pan-y;
+}
+
+@media (max-height: 480px) {
+  .courtyard-hero {
+    --stage-h: max(300px, 100svh);
+  }
+}
+
+.courtyard-still,
+.courtyard-still img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.courtyard-still {
+  z-index: 0;
+  transform-origin: 0 0;
+  transition: transform var(--t-camera) var(--ease-camera);
+}
+
+.courtyard-still img {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+
+.courtyard-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease);
+  pointer-events: none;
+}
+
+.courtyard-hero[data-mode='scene'] .courtyard-canvas {
+  opacity: 1;
+}
+
+/* Arriving on a place before the scene was ready, the still is zoomed by CSS
+   and the scene is at the true close-up: a short handover, so the two
+   framings never sit on top of each other for long. */
+.courtyard-hero[data-view='place'] .courtyard-canvas {
+  transition-duration: 0.3s;
+}
+
+/* A soft vignette over still and scene alike: it draws the eye inwards and
+   costs the GPU nothing. */
+.courtyard-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 85% 75% at 50% 46%, transparent 62%, var(--stage-vignette) 100%);
+}
+
+/* --------------------------------------------------------------------------
+   Place labels
+   --------------------------------------------------------------------------
+   Without JavaScript: a row of links at the foot of the still image. With
+   it: each label's pin sits on its place, the pill floats above, and the
+   whole label follows the camera.
+   -------------------------------------------------------------------------- */
+.courtyard-places {
+  position: absolute;
+  z-index: 3;
+  inset-inline: var(--space-3);
+  inset-block-end: var(--space-3);
+}
+
+.courtyard-places ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.place-label {
+  display: block;
+  color: var(--sea-deep);
+}
+
+.place-label-body {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding-block: 6px;
+  padding-inline: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--label-bg);
+  box-shadow: var(--shadow-label);
+  white-space: nowrap;
+  transition: transform var(--t-base) var(--ease), box-shadow var(--t-base) var(--ease), background var(--t-base) var(--ease);
+}
+
+.place-label-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--citrus);
+  color: var(--sea-deep);
+}
+
+.place-label-text {
+  display: grid;
+  line-height: 1.15;
+}
+
+.place-label-name {
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.place-label-topic {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.place-label[aria-expanded='true'] .place-label-topic {
+  color: var(--on-dark-muted);
+}
+
+.place-label-pin {
+  display: none;
+}
+
+/* Positioned by the scene. */
+.courtyard-hero[data-ready] .courtyard-places {
+  inset: 0;
+  pointer-events: none;
+}
+
+.courtyard-hero[data-ready] .courtyard-places ul {
+  display: block;
+}
+
+.courtyard-hero[data-ready] .place-label {
+  position: absolute;
+  /* Scene coordinates are physical; see the note at the top. */
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity var(--t-base) var(--ease), visibility 0s linear 0s;
+}
+
+.courtyard-hero[data-ready] .place-label-pin {
+  display: block;
+  position: absolute;
+  inset-block-start: -6px;
+  inset-inline-start: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--citrus);
+  box-shadow: 0 0 0 3px var(--label-bg), var(--shadow-label);
+}
+
+/* The stem from pill to pin. */
+.courtyard-hero[data-ready] .place-label-pin::before {
+  content: '';
+  position: absolute;
+  inset-block-end: 12px;
+  inset-inline-start: 5px;
+  width: 2px;
+  height: 12px;
+  background: var(--label-bg);
+}
+
+.courtyard-hero[data-ready] .place-label-body {
+  position: absolute;
+  inset-block-end: 20px;
+  /* Physical, like the anchor: centred over the pin, nudged inwards near the
+     stage edge by --nudge (set by index.js). */
+  left: 0;
+  transform: translateX(calc(-50% + var(--nudge, 0px)));
+  pointer-events: auto;
+}
+
+.place-label[data-visible='false'] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.courtyard-hero[data-view='place'] .place-label {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t-fast) var(--ease), visibility 0s linear var(--t-fast);
+}
+
+.place-label:focus-visible {
+  outline: none;
+}
+
+.place-label:focus-visible .place-label-body {
+  outline: 3px solid var(--citrus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--sea-deep), var(--shadow-label);
+}
+
+.place-label[aria-expanded='true'] .place-label-body {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+@media (hover: hover) {
+  .courtyard-hero[data-ready] .place-label:hover .place-label-body {
+    transform: translateX(calc(-50% + var(--nudge, 0px))) translateY(-3px);
+  }
+}
+
+.place-label:active .place-label-body {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+/* Narrow stages: the name only. The topic is the panel's heading anyway. */
+@media (max-width: 599px) {
+  .place-label-topic {
+    display: none;
+  }
+  .place-label-name {
+    font-size: 0.82rem;
+  }
+  .place-label-icon {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Stage controls
+   -------------------------------------------------------------------------- */
+.courtyard-back,
+.courtyard-motion {
+  position: absolute;
+  z-index: 4;
+  inset-block-start: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  border-radius: var(--radius-pill);
+  background: var(--label-bg);
+  color: var(--sea-deep);
+  box-shadow: var(--shadow-label);
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.courtyard-back {
+  inset-inline-start: var(--space-3);
+  gap: var(--space-2);
+  padding-inline: 16px 18px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity var(--t-base) var(--ease), transform var(--t-base) var(--ease), visibility 0s linear var(--t-base);
+}
+
+.courtyard-back::before {
+  content: '←';
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+[dir='rtl'] .courtyard-back::before {
+  content: '→';
+}
+
+.courtyard-hero[data-view='place'] .courtyard-back {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity var(--t-base) var(--ease) 0.15s, transform var(--t-base) var(--ease) 0.15s, visibility 0s;
+}
+
+.courtyard-motion {
+  inset-inline-end: var(--space-3);
+  width: var(--tap);
+  padding: 0;
+}
+
+@media (hover: hover) {
+  .courtyard-back:hover,
+  .courtyard-motion:hover {
+    background: var(--sea-deep);
+    color: var(--sand-light);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The panel a place opens
+   -------------------------------------------------------------------------- */
+.place-panel {
+  grid-area: stage;
+  align-self: end;
+  z-index: 5;
+  height: var(--sheet-h);
+  background: var(--sand-light);
+  border-start-start-radius: var(--radius-xl);
+  border-start-end-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sheet);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity var(--t-base) var(--ease), transform 0.42s var(--ease);
+}
+
+.place-panel[data-state='open'] {
+  opacity: 1;
+  transform: none;
+}
+
+.place-panel[data-state='closing'] {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.place-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Room at the foot for Zee's launcher, so it never sits on a control. */
+  padding-block: var(--space-5) calc(var(--space-8) + 40px);
+  padding-inline: var(--gutter);
+  scrollbar-width: thin;
+}
+
+/* The sheet's grip: decoration, it says "this is a sheet". */
+.place-scroll::before {
+  content: '';
+  display: block;
+  width: 44px;
+  height: 4px;
+  margin: calc(var(--space-2) * -1) auto var(--space-4);
+  border-radius: 2px;
+  background: var(--hairline-strong);
+}
+
+.place-head {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: var(--space-5);
+}
+
+.place-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  margin-inline-start: calc(var(--space-2) * -1);
+  padding-inline: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--olive-ink);
+}
+
+.place-back-icon {
+  display: inline-grid;
+}
+
+[dir='rtl'] .place-back-icon {
+  transform: scaleX(-1);
+}
+
+@media (hover: hover) {
+  .place-back:hover {
+    background: var(--olive-wash);
+  }
+}
+
+.place-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive-ink);
+}
+
+[lang='ar'] .place-eyebrow {
+  letter-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.place-eyebrow-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--citrus);
+  color: var(--sea-deep);
+}
+
+.place-title {
+  font-size: var(--step-3);
+}
+
+.place-title:focus {
+  outline: none;
+}
+
+.place-title:focus-visible {
+  outline: 3px solid var(--citrus);
+  outline-offset: 4px;
+}
+
+.place-body {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.place-body > p {
+  color: var(--ink-muted);
+}
+
+.place-lede {
+  font-size: 1.02rem;
+  color: var(--ink-muted);
+}
+
+.place-honest,
+.cafe-honest {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--olive-wash);
+}
+
+.place-subhead {
+  font-size: 1.05rem;
+  margin-block-start: var(--space-2);
+}
+
+.place-dialogue,
+.place-phrases {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.place-panel .dialogue-line {
+  background: var(--card);
+  margin: 0;
+}
+
+.place-line .arabic {
+  font-size: 1.3rem;
+  color: var(--sea-deep);
+}
+
+.place-phrases {
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+}
+
+.place-phrase {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--hairline);
+}
+
+.place-phrase .arabic {
+  font-size: 1.45rem;
+  color: var(--sea-deep);
+}
+
+.place-phrase .phrase-en {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.place-phrase-note {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.place-phrase .usage-tag {
+  justify-self: start;
+  margin-block-start: var(--space-1);
+}
+
+.place-tip h4 {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive-ink);
+  margin-block-end: var(--space-1);
+}
+
+.place-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+.place-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--sea);
+  text-decoration: underline;
+  text-decoration-color: var(--citrus);
+  text-underline-offset: 4px;
+}
+
+.place-book,
+.place-free {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+}
+
+.place-book a {
+  font-weight: 700;
+  color: var(--sea);
+  text-decoration: underline;
+  text-decoration-color: var(--citrus);
+  text-underline-offset: 4px;
+}
+
+/* Elsewhere in the courtyard */
+.place-others {
+  margin-block-start: var(--space-6);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--hairline);
+}
+
+.place-others-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-block-end: var(--space-2);
+}
+
+[lang='ar'] .place-others-title {
+  letter-spacing: 0;
+  font-size: 0.88rem;
+}
+
+.place-others ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.place-other {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding-inline: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline-strong);
+  background: var(--card);
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--sea-deep);
+  transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+
+.place-other-icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--citrus-wash);
+}
+
+@media (hover: hover) {
+  .place-other:hover {
+    border-color: var(--olive);
+    background: var(--olive-wash);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Listening
+   -------------------------------------------------------------------------- */
+.listen {
+  margin-block-start: var(--space-1);
+}
+
+.listen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding-inline: 10px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--citrus);
+  color: var(--sea-deep);
+  font-weight: 700;
+  font-size: 0.82rem;
+  box-shadow: var(--shadow-press-sm);
+}
+
+.listen-glyph {
+  display: inline-grid;
+}
+
+[dir='rtl'] .listen[data-state='ready'] .listen-glyph {
+  transform: scaleX(-1);
+}
+
+.listen[data-state='playing'] .listen-btn {
+  background: var(--sea-deep);
+  color: var(--sand-light);
+  box-shadow: none;
+}
+
+.listen-note {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   The teacher's corner
+   -------------------------------------------------------------------------- */
+.teacher-intro {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+.teacher-intro-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--sand-light);
+  margin-block-end: var(--space-2);
+}
+
+[lang='ar'] .teacher-intro-title {
+  font-family: var(--font-arabic);
+  font-size: 1.25rem;
+}
+
+.teacher-intro .arabic {
+  font-size: 1.45rem;
+  color: var(--sand-light);
+}
+
+.teacher-intro .translit {
+  color: var(--citrus);
+}
+
+.teacher-intro .phrase-en {
+  font-size: 0.9rem;
+  color: var(--on-dark-muted);
+}
+
+.teacher-intro .place-honest {
+  background: var(--wash-on-dark);
+  color: var(--on-dark-muted);
+  margin-block-end: var(--space-2);
+}
+
+.teacher-title {
+  font-size: 1.2rem;
+}
+
+.teacher-values {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.teacher-value {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--hairline);
+}
+
+.teacher-value dt {
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+.teacher-value dd {
+  font-size: 0.92rem;
+  color: var(--ink-muted);
+}
+
+.teacher-book {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-lift);
+}
+
+.teacher-book h3 {
+  font-size: 1.15rem;
+}
+
+.teacher-book > p {
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.teacher-book .booking-action {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.teacher-book .booking-cta {
+  justify-self: start;
+}
+
+/* --------------------------------------------------------------------------
+   The café conversation
+   -------------------------------------------------------------------------- */
+.cafe {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.cafe-eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive-ink);
+}
+
+[lang='ar'] .cafe-eyebrow {
+  letter-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.cafe-setting {
+  font-size: 1.02rem;
+  color: var(--ink);
+}
+
+.cafe-thread {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.cafe-line {
+  display: grid;
+  gap: 1px;
+  max-width: 88%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  justify-self: start;
+  border-end-start-radius: var(--radius-sm);
+}
+
+.cafe-line[data-who='you'] {
+  justify-self: end;
+  background: var(--citrus-wash);
+  border-color: var(--citrus);
+  border-end-start-radius: var(--radius-lg);
+  border-end-end-radius: var(--radius-sm);
+}
+
+.cafe-speaker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--olive-ink);
+}
+
+[lang='ar'] .cafe-speaker {
+  letter-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.cafe-ar {
+  font-size: 1.55rem;
+  color: var(--sea-deep);
+}
+
+.cafe-translit {
+  font-size: 1rem;
+}
+
+.cafe-en {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+}
+
+.cafe-beat {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  justify-self: center;
+}
+
+.cafe-turn {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.cafe-prompt {
+  font-size: 1.12rem;
+}
+
+.cafe-options {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.cafe-option {
+  display: grid;
+  gap: 1px;
+  min-height: var(--tap);
+  text-align: start;
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--hairline-strong);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  transition: border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+
+.cafe-option .cafe-ar {
+  font-size: 1.3rem;
+}
+
+.cafe-option[data-state='wrong'] {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+  opacity: 0.8;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .cafe-option:not([disabled]):hover {
+    border-color: var(--olive);
+    background: var(--olive-wash);
+  }
+}
+
+.cafe-option:not([disabled]):active {
+  transform: scale(0.99);
+}
+
+.cafe-status[data-visible='true'] {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border-inline-start: 4px solid var(--bad);
+  background: var(--bad-bg);
+  color: var(--bad-ink);
+  font-size: 0.92rem;
+}
+
+.cafe-status:not([data-visible='true']) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.cafe-right {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border-inline-start: 4px solid var(--ok);
+  background: var(--ok-bg);
+  font-size: 0.92rem;
+  color: var(--ink-muted);
+}
+
+.cafe-right-title {
+  font-weight: 700;
+  color: var(--ok-ink);
+  font-size: 1rem;
+}
+
+.cafe-word {
+  font-weight: 700;
+  color: var(--sea-deep);
+}
+
+.cafe-say {
+  display: grid;
+  gap: 1px;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--citrus);
+  background: var(--card);
+}
+
+.cafe-said {
+  justify-self: start;
+}
+
+.cafe-done {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.cafe-done-title {
+  font-size: 1.35rem;
+  color: var(--ok-ink);
+}
+
+.cafe-done-title:focus {
+  outline: none;
+}
+
+.cafe-keep {
+  display: grid;
+  gap: 1px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--sea-deep);
+  color: var(--sand-light);
+}
+
+.cafe-keep h4 {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--citrus);
+  margin-block-end: var(--space-1);
+}
+
+.cafe-keep .cafe-ar {
+  color: var(--sand-light);
+  font-size: 1.8rem;
+}
+
+.cafe-keep .translit {
+  color: var(--citrus);
+}
+
+.cafe-keep .cafe-en {
+  color: var(--on-dark-muted);
+}
+
+.cafe-keep .listen-note {
+  color: var(--on-dark-muted);
+}
+
+.cafe-next h4,
+.cafe-book h4 {
+  font-size: 1rem;
+  margin-block-end: var(--space-2);
+}
+
+.cafe-next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.cafe-book {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--hairline-strong);
+  background: var(--card);
+}
+
+.cafe-book p {
+  font-size: 0.92rem;
+  color: var(--ink-muted);
+}
+
+.cafe-book-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  font-weight: 700;
+  color: var(--sea);
+  text-decoration: underline;
+  text-decoration-color: var(--citrus);
+  text-underline-offset: 4px;
+}
+
+.cafe-book .cafe-book-note {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.cafe-again {
+  justify-self: start;
+  min-height: var(--tap);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--olive-ink);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Wide screens: copy beside the stage; a place opens in the copy's column
+   -------------------------------------------------------------------------- */
+@media (min-width: 960px) {
+  .courtyard-hero {
+    /* One screen tall; the stage and the panel are exactly that, and the
+       copy beside them never stretches the stage if it runs longer. */
+    --courtyard-h: clamp(560px, calc(100svh - var(--nav-h) - var(--space-4) * 2), 920px);
+    grid-template-columns: minmax(360px, 0.8fr) minmax(0, 1.2fr);
+    grid-template-areas: 'side stage';
+    align-items: start;
+  }
+
+  .courtyard-hero h1 {
+    font-size: clamp(2.3rem, 3.4vw, 3.5rem);
+    margin-block-end: var(--space-4);
+  }
+
+  .courtyard-hero .eyebrow {
+    font-size: 0.8rem;
+    margin-block-end: var(--space-4);
+  }
+
+  .courtyard-hero .hero-copy > p:not(.eyebrow):not(.hero-aside):not(.hero-concept) {
+    font-size: 1.05rem;
+    margin-block-end: var(--space-5);
+  }
+
+  .courtyard-hero .hero-concept {
+    display: block;
+  }
+
+  .courtyard-caption {
+    display: none;
+  }
+
+  .courtyard-hero .hero-copy {
+    grid-area: side;
+    align-self: center;
+    padding-block: var(--space-6);
+    padding-inline: var(--gutter) var(--space-7);
+    transition: opacity var(--t-base) var(--ease), visibility 0s linear 0s;
+  }
+
+  .courtyard-hero[data-view='place'] .hero-copy {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--t-fast) var(--ease), visibility 0s linear var(--t-fast);
+  }
+
+  .courtyard {
+    padding-block: var(--space-4);
+    padding-inline-end: var(--space-4);
+  }
+
+  .courtyard-stage {
+    height: var(--courtyard-h);
+    min-height: 0;
+    max-height: none;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-stage);
+  }
+
+  .place-panel {
+    grid-area: side;
+    align-self: start;
+    height: calc(var(--courtyard-h) + var(--space-4) * 2);
+    min-height: 0;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    transform: translateY(14px);
+  }
+
+  .place-scroll {
+    padding-block: var(--space-6) var(--space-7);
+    padding-inline: var(--gutter) var(--space-6);
+  }
+
+  .place-scroll::before {
+    display: none;
+  }
+
+  .courtyard-back {
+    inset-block-start: var(--space-4);
+    inset-inline-start: var(--space-4);
+  }
+
+  .courtyard-motion {
+    inset-block-start: var(--space-4);
+    inset-inline-end: var(--space-4);
+  }
+}
+
+/* Reduced motion: the camera cuts instead of flying (index.js), and nothing
+   here animates. tokens.css shortens every duration already; this keeps the
+   still image from sliding when it zooms. */
+@media (prefers-reduced-motion: reduce) {
+  .courtyard-still,
+  .courtyard-canvas,
+  .place-panel {
+    transition: none;
+  }
+}

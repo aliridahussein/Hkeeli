@@ -529,5 +529,85 @@
     "questionOf": "Question {index} of {total}",
     "stepOf": "Step {n} of {total}",
     "done": "Done"
+  },
+  "courtyard": {
+    "concept": "A little Lebanon, one conversation at a time.",
+    "conceptBody": "Each place in the courtyard opens a conversation you'll want to have. Choose one to begin.",
+    "conceptShort": "Choose a place to begin.",
+    "placesLabel": "Places in the courtyard",
+    "stageLabel": "The Hkeeli courtyard",
+    "stillAlt": "A Lebanese courtyard in late-afternoon sun: a café table with two coffee cups in front, an arched gate on the left, a stone house with a balcony and a telephone, and a teacher's corner under a grapevine on the right.",
+    "back": "Back to the courtyard",
+    "pauseMotion": "Pause motion",
+    "playMotion": "Play motion",
+    "otherPlaces": "Somewhere else in the courtyard",
+    "places": {
+      "entrance": {
+        "name": "Courtyard entrance",
+        "topic": "First conversations",
+        "blurb": "Greetings, introductions and your first useful phrases."
+      },
+      "cafe": {
+        "name": "Café table",
+        "topic": "Ordering like a local",
+        "blurb": "Order, ask, pay — and understand the reply."
+      },
+      "balcony": {
+        "name": "Balcony phone",
+        "topic": "Talking with family",
+        "blurb": "The phone call with teta and jiddo."
+      },
+      "teacher": {
+        "name": "Teacher's corner",
+        "topic": "Meet your teacher",
+        "blurb": "How lessons work, and how to book one."
+      }
+    },
+    "panel": {
+      "conversation": "How it sounds in a conversation",
+      "keyPhrases": "Phrases to start with",
+      "tip": "Teacher's tip",
+      "openUnit": "Open the lesson",
+      "practise": "Practise these phrases",
+      "playScene": "Play the scene: {title}",
+      "miniLesson": "Try the three-phrase mini-lesson",
+      "bookTitle": "Rather practise with a person?",
+      "book": "Book a class"
+    },
+    "audio": {
+      "listen": "Listen",
+      "listenTo": "Listen: {text}",
+      "stop": "Stop",
+      "again": "Listen again",
+      "noRecording": "No recording yet — say it aloud from the transliteration.",
+      "textOnly": "Recordings in the teacher's own voice are being made. Until they're ready, these lines are text only — no computer voice stands in for your teacher here."
+    },
+    "cafe": {
+      "eyebrow": "Your first Lebanese conversation",
+      "title": "Order a coffee",
+      "setting": "Take a seat. The waiter comes over to your table.",
+      "yourTurn": "Your turn. What do you say?",
+      "right": "That's how a local orders.",
+      "word": "{word} = {meaning}",
+      "notQuite": "Not quite.",
+      "means": "{phrase} means “{meaning}”.",
+      "tryAgain": "He asked what you'd like. Try another answer.",
+      "anythingElse": "He writes it down and asks:",
+      "sayIt": "Finish your order. Say it out loud:",
+      "said": "I said it",
+      "keep": "A phrase to keep",
+      "nextTitle": "Where to next",
+      "continueUnit": "Continue with {title}",
+      "playScene": "Play the full café scene",
+      "again": "Have the conversation again",
+      "bookBody": "In a personal trial lesson, your teacher listens to you order and corrects your pronunciation as you go."
+    },
+    "teacher": {
+      "introPending": "The recorded introduction is on its way. Until then, here it is in writing:",
+      "approach": "How lessons work",
+      "bookTitle": "Book a personal class",
+      "readMore": "More about how I teach",
+      "bookingDetails": "Booking details"
+    }
   }
 }

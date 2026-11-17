@@ -325,99 +325,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Postcard (signature hero element)
-   -------------------------------------------------------------------------- */
-.postcard {
-  position: relative;
-  width: var(--postcard-w);
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  padding: var(--space-5);
-  border: 1px solid var(--hairline);
-}
-
-.postcard .stamp {
-  position: absolute;
-  inset-block-start: var(--space-4);
-  inset-inline-end: var(--space-4);
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
-  background: var(--sea);
-  color: var(--sand-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-arabic);
-  font-size: 1.3rem;
-  font-weight: 700;
-  transform: rotate(6deg);
-}
-
-.postcard .word-ar {
-  font-size: 2.2rem;
-  color: var(--sea-deep);
-  margin-block-end: 2px;
-  min-height: 48px;
-  line-height: 1.2;
-}
-
-/* Reserve room for the stamp.
-   The stamp sits at the card's inline-end, but this line is always RTL
-   regardless of the page language — so its own inline-end points the opposite
-   way in an LTR page. Hence the explicit pair rather than one logical rule:
-   in an LTR page the stamp is on the right, which is the Arabic line's START;
-   in an RTL page it's on the left, which is the Arabic line's END. */
-.postcard .word-ar {
-  padding-inline-start: 56px;
-}
-
-[dir='rtl'] .postcard .word-ar {
-  padding-inline-start: 0;
-  padding-inline-end: 56px;
-}
-
-.postcard-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-block: var(--space-2);
-}
-
-.postcard .word-translit {
-  font-size: 0.95rem;
-}
-
-.postcard .word-en {
-  font-size: 0.92rem;
-  color: var(--ink-soft);
-}
-
-/* Inverted variant */
-.postcard--dark {
-  background: var(--sea-deep);
-}
-
-.postcard--dark .word-ar {
-  color: var(--sand-light);
-}
-
-.postcard--dark .word-en {
-  color: var(--on-dark-muted);
-}
-
-.postcard--dark .word-translit {
-  color: var(--citrus);
-}
-
-.postcard--dark .stamp {
-  background: var(--citrus);
-  color: var(--sea-deep);
-}
-
-/* --------------------------------------------------------------------------
    Coastline divider (signature motif)
    -------------------------------------------------------------------------- */
 .coastline {
@@ -1010,14 +917,31 @@
 }
 
 /* --------------------------------------------------------------------------
-   Progress meter (units, the course, the onboarding flow)
-   Shares .progress-track / .progress-fill with the game shell so that a bar
-   means the same thing everywhere on the site.
+   Progress meter (units, the course, the courtyard)
+   The track and fill used to come from the game shell's stylesheet, which
+   renamed them (.stage-progress-track) and isn't loaded outside practice —
+   so the bar itself had stopped drawing and only its label showed. They live
+   here now, with the rest of the meter.
    -------------------------------------------------------------------------- */
 .progress-meter {
   display: grid;
   gap: var(--space-2);
   margin-block: var(--space-4);
+}
+
+.progress-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--hairline);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+  background: var(--citrus);
+  transition: width var(--t-base) var(--ease);
 }
 
 .progress-label {

@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "serve", ".", "-l", "4321"],
       "port": 4321
+    },
+    {
+      "name": "courtyard-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tools/courtyard-stills.mjs"],
+      "port": 4323
     }
   ]
 }

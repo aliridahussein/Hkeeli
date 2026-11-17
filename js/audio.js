@@ -116,12 +116,17 @@ function playFile(url) {
  * Play a phrase. Optionally pass the button that triggered it and it gets a
  * `data-state="playing"` pulse for the duration.
  *
+ * `tts: false` plays the recording or nothing: no synthetic stand-in and no
+ * toast. The courtyard uses it, because it presents lines in the teacher's
+ * context and a computer voice there would pass for hers — it shows those
+ * lines as text until the recording exists.
+ *
  * @param {object} phrase  a phrase object from lessons.json
  * @param {HTMLElement} [trigger]
- * @param {{slow?: boolean}} [options]  play the slow recording, if there is one
+ * @param {{slow?: boolean, tts?: boolean}} [options]  play the slow recording, if there is one
  * @returns {Promise<boolean>} whether anything was actually heard
  */
-export async function playPhrase(phrase, trigger, { slow = false } = {}) {
+export async function playPhrase(phrase, trigger, { slow = false, tts = true } = {}) {
   if (!phrase) return false;
   stopAll();
   if (trigger) trigger.dataset.state = 'playing';
@@ -141,6 +146,7 @@ export async function playPhrase(phrase, trigger, { slow = false } = {}) {
       resolved.set(cacheKey, 'tts'); // file is missing — don't probe it again
     }
 
+    if (!tts) return false;
     const spoken = await speak(phrase);
     if (!spoken) toast(t('audio.unavailable'));
     return spoken;

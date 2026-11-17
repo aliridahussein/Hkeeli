@@ -108,9 +108,21 @@
      to clear it, so the number lives here rather than being guessed twice. */
   --nav-h: 85px;
 
-  /* Hero postcard width. The scatter positions cards relative to it, so the two
-     must not drift apart. */
-  --postcard-w: 280px;
+  /* ---- The courtyard (css/courtyard.css) ---- */
+  /* Place labels float over a sunlit scene, so they carry their own card and
+     their own shadow: legible over pale stone and dark foliage alike. */
+  --label-bg: rgba(255, 253, 248, 0.96);
+  --shadow-label: 0 8px 22px rgba(21, 53, 52, 0.22);
+  --shadow-stage: 0 24px 60px rgba(21, 53, 52, 0.16);
+  --shadow-sheet: 0 -14px 34px rgba(21, 53, 52, 0.16);
+  --stage-vignette: rgba(21, 53, 52, 0.18);
+  /* The stage before its picture arrives: the courtyard's own stone tones. */
+  --stage-wash-top: #dfe6e2;
+  --stage-wash-bottom: #e6d9c0;
+  --citrus-wash: rgba(232, 163, 61, 0.16);
+  /* The still image's version of a camera move: ease in, ease out. */
+  --ease-camera: cubic-bezier(0.45, 0, 0.2, 1);
+  --t-camera: 1.1s;
 }
 
 /* Motion is decoration; honour the OS setting. */
@@ -118,6 +130,7 @@
   :root {
     --t-fast: 0.001s;
     --t-base: 0.001s;
+    --t-camera: 0.001s;
   }
   *,
   *::before,

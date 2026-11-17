@@ -41,6 +41,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/courtyard.css">
   <link rel="stylesheet" href="css/zee-chat.css">
 
   <!-- Structured data. Deliberately no Person entry yet: the teacher's real
@@ -117,30 +118,119 @@
 
 <main id="main">
 
-  <!-- 1. HERO ------------------------------------------------------------ -->
-  <section class="hero">
+  <!-- 1. HERO: THE COURTYARD ------------------------------------------- -->
+  <!-- "A little Lebanon, one conversation at a time." The hero is a Lebanese
+       courtyard; each place in it opens the lessons that belong there. See
+       js/courtyard/index.js. Without JavaScript the places below are plain
+       links into the course, and the still image is the courtyard. -->
+  <section class="hero courtyard-hero" id="courtyard" data-view="overview" aria-labelledby="hero-title">
     <div class="hero-copy">
       <p class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Spoken Lebanese, taught by a native speaker</span></p>
-      <h1>
+      <h1 id="hero-title">
         <span data-i18n="hero.titleBefore"></span>
         <span class="arabic-word" lang="ar" dir="rtl" data-i18n="hero.titleArabic">إحكي</span>
         <span data-i18n="hero.titleAfter"></span>
       </h1>
       <p data-i18n="hero.body"></p>
       <div class="hero-ctas">
-        <a href="#mini-lesson" class="btn-primary" data-i18n="hero.ctaPrimary">Try a Free Mini-Lesson</a>
+        <!-- Opens the café conversation in the courtyard; without JavaScript,
+             the three-phrase mini-lesson further down. -->
+        <a href="#mini-lesson" class="btn-primary" data-courtyard-open="cafe" data-i18n="hero.ctaPrimary">Try a Free Mini-Lesson</a>
         <a href="#book" class="btn-secondary" data-i18n="hero.ctaSecondary">Book a Class</a>
       </div>
+      <p class="hero-concept">
+        <strong data-i18n="courtyard.concept">A little Lebanon, one conversation at a time.</strong>
+        <span data-i18n="courtyard.conceptBody"></span>
+      </p>
       <p class="hero-aside">
         <a href="start.html" data-i18n="hero.startLink">Not sure where to begin? Start here →</a>
       </p>
     </div>
 
-    <div>
-      <!-- Populated from lessons.json (see HERO_PHRASE_IDS in js/main.js) -->
-      <div class="postcard-stack" id="postcard-stack" data-i18n-attr="aria-label:hero.cardsLabel"></div>
-      <div class="postcard-dots" id="postcard-dots"></div>
+    <div class="courtyard">
+      <div class="courtyard-stage" role="group" data-i18n-attr="aria-label:courtyard.stageLabel">
+        <!-- On a phone the concept line sits on the courtyard's sky instead of
+             in the copy (css/courtyard.css shows one or the other, never both,
+             so assistive technology reads it once). -->
+        <p class="courtyard-caption">
+          <strong data-i18n="courtyard.concept">A little Lebanon, one conversation at a time.</strong>
+          <span data-i18n="courtyard.conceptShort">Choose a place to begin.</span>
+        </p>
+        <!-- Rendered from the 3D scene itself (tools/courtyard-preview.html).
+             Same composition as the scene's opening camera, so the 3D canvas
+             fades in over it without anything moving. -->
+        <picture class="courtyard-still">
+          <source media="(max-width: 959px) and (max-aspect-ratio: 3/4)" srcset="assets/images/courtyard/courtyard-tall.webp" type="image/webp" width="800" height="1600">
+          <img src="assets/images/courtyard/courtyard-wide.webp" width="1400" height="1500" fetchpriority="high" decoding="async"
+               alt="A Lebanese courtyard in late-afternoon sun: a café table with two coffee cups in front, an arched gate on the left, a stone house with a balcony and a telephone, and a teacher's corner under a grapevine on the right."
+               data-i18n-attr="alt:courtyard.stillAlt">
+        </picture>
+
+        <nav class="courtyard-places" data-i18n-attr="aria-label:courtyard.placesLabel">
+          <ul>
+            <li>
+              <a class="place-label" href="learn.html#unit-1" data-place="entrance">
+                <span class="place-label-pin" aria-hidden="true"></span>
+                <span class="place-label-body">
+                  <span class="place-label-icon" aria-hidden="true"></span>
+                  <span class="place-label-text">
+                    <span class="place-label-name" data-i18n="courtyard.places.entrance.name">Courtyard entrance</span>
+                    <span class="place-label-topic" data-i18n="courtyard.places.entrance.topic">First conversations</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="place-label" href="learn.html#unit-2" data-place="cafe">
+                <span class="place-label-pin" aria-hidden="true"></span>
+                <span class="place-label-body">
+                  <span class="place-label-icon" aria-hidden="true"></span>
+                  <span class="place-label-text">
+                    <span class="place-label-name" data-i18n="courtyard.places.cafe.name">Café table</span>
+                    <span class="place-label-topic" data-i18n="courtyard.places.cafe.topic">Ordering like a local</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="place-label" href="learn.html#unit-3" data-place="balcony">
+                <span class="place-label-pin" aria-hidden="true"></span>
+                <span class="place-label-body">
+                  <span class="place-label-icon" aria-hidden="true"></span>
+                  <span class="place-label-text">
+                    <span class="place-label-name" data-i18n="courtyard.places.balcony.name">Balcony phone</span>
+                    <span class="place-label-topic" data-i18n="courtyard.places.balcony.topic">Talking with family</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+            <li>
+              <a class="place-label" href="#about" data-place="teacher">
+                <span class="place-label-pin" aria-hidden="true"></span>
+                <span class="place-label-body">
+                  <span class="place-label-icon" aria-hidden="true"></span>
+                  <span class="place-label-text">
+                    <span class="place-label-name" data-i18n="courtyard.places.teacher.name">Teacher's corner</span>
+                    <span class="place-label-topic" data-i18n="courtyard.places.teacher.topic">Meet your teacher</span>
+                  </span>
+                </span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Touch convenience over the scene; the panel's own Back button is
+             the one keyboards and screen readers use. -->
+        <button type="button" class="courtyard-back" tabindex="-1" aria-hidden="true">
+          <span data-i18n="courtyard.back">Back to the courtyard</span>
+        </button>
+        <button type="button" class="courtyard-motion" hidden></button>
+      </div>
     </div>
+
+    <!-- What a place opens. A <div>, not a <section>: layout.css pads every
+         section. Filled by js/courtyard/panels.js. -->
+    <div id="place-panel" class="place-panel" role="dialog" aria-modal="false" aria-labelledby="place-panel-title" hidden></div>
   </section>
 
   <!-- 2. MINI-LESSON ----------------------------------------------------- -->

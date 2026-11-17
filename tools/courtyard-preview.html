@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Courtyard — scene preview (dev)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Markazi+Text:wght@500;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+  <!--
+    Development harness for the courtyard scene — not part of the site
+    (tools/ is in .assetsignore). Serve the repo with
+      node tools/courtyard-stills.mjs
+    and open /tools/courtyard-preview.html. "Render stills" regenerates the
+    still images in assets/images/courtyard/ from the scene itself and prints
+    the label and focus positions to paste into js/courtyard/places.js.
+  -->
+  <style>
+    html, body { margin: 0; height: 100%; background: #1d2423; color: #f3e9d4; font: 14px/1.4 Karla, system-ui, sans-serif; }
+    #bar { position: fixed; inset: 0 0 auto 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: rgba(0,0,0,.55); }
+    #bar button { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid #567; background: #263533; color: inherit; cursor: pointer; }
+    #bar button[aria-pressed="true"] { background: #e8a33d; color: #153534; }
+    #stage { position: absolute; top: 48px; left: 0; width: 100vw; height: calc(100vh - 48px); overflow: hidden; }
+    #stage canvas { display: block; width: 100%; height: 100%; }
+    .dot { position: absolute; left: 0; top: 0; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #e8a33d; box-shadow: 0 0 0 2px #153534; pointer-events: none; }
+    .dot span { position: absolute; left: 14px; top: -6px; white-space: nowrap; font-weight: 700; text-shadow: 0 1px 2px #000; }
+    #stats { position: fixed; right: 8px; bottom: 8px; z-index: 5; white-space: pre; font: 12px/1.35 ui-monospace, Consolas, monospace; background: rgba(0,0,0,.6); padding: 8px 10px; border-radius: 6px; }
+    #out { position: fixed; left: 8px; bottom: 8px; z-index: 5; max-width: 60vw; max-height: 40vh; overflow: auto; white-space: pre; font: 12px/1.35 ui-monospace, Consolas, monospace; background: rgba(0,0,0,.7); padding: 8px 10px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div id="bar">
+    <button data-view="">Overview</button>
+    <button data-view="entrance">Entrance</button>
+    <button data-view="cafe">Café</button>
+    <button data-view="balcony">Balcony</button>
+    <button data-view="teacher">Teacher</button>
+    <button data-framing="wide" aria-pressed="true">Wide</button>
+    <button data-framing="tall">Tall</button>
+    <button id="motion" aria-pressed="true">Motion</button>
+    <button id="stills">Render stills</button>
+  </div>
+  <div id="stage"><canvas></canvas></div>
+  <div id="stats"></div>
+  <div id="out" hidden></div>
+
+  <script type="module">
+    import { createScenePresentation } from '../js/courtyard/scene/presentation.js';
+    import { TIERS } from '../js/courtyard/scene/quality.js';
+    import { PLACES, OVERVIEW, POSTER, getPlace } from '../js/courtyard/places.js';
+
+    const params = new URLSearchParams(location.search);
+    const stage = document.querySelector('#stage');
+    const canvas = stage.querySelector('canvas');
+    const dots = new Map();
+    PLACES.forEach((p) => {
+      const d = document.createElement('div');
+      d.className = 'dot';
+      d.innerHTML = `<span>${p.id}</span>`;
+      stage.append(d);
+      dots.set(p.id, d);
+    });
+
+    let framing = params.get('framing') || 'wide';
+    const sizeStage = () => {
+      const avail = { w: innerWidth, h: innerHeight - 48 };
+      if (params.has('fill')) {
+        stage.style.width = '100vw';
+        stage.style.height = 'calc(100vh - 48px)';
+        return;
+      }
+      const ref = POSTER[framing].width / POSTER[framing].height;
+      const w = Math.min(avail.w, avail.h * ref);
+      stage.style.width = `${Math.round(w)}px`;
+      stage.style.height = `${Math.round(w / ref)}px`;
+    };
+    sizeStage();
+
+    const tier = TIERS[params.get('tier') || 'high'];
+    const t0 = performance.now();
+    const scene = await createScenePresentation({
+      stage,
+      canvas,
+      quality: tier,
+      framing,
+      debug: true,
+      placeLabel: (id, x, y, visible) => {
+        const d = dots.get(id);
+        d.style.transform = `translate(${x}px, ${y}px)`;
+        d.style.opacity = visible ? 1 : 0.2;
+      }
+    });
+    const built = performance.now() - t0;
+    scene.start();
+    window.__courtyard = scene;
+
+    document.querySelectorAll('[data-view]').forEach((b) =>
+      b.addEventListener('click', () => scene.show(b.dataset.view || null))
+    );
+    document.querySelectorAll('[data-framing]').forEach((b) =>
+      b.addEventListener('click', () => {
+        framing = b.dataset.framing;
+        document.querySelectorAll('[data-framing]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        sizeStage();
+        scene.setFraming(framing);
+      })
+    );
+    const motionBtn = document.querySelector('#motion');
+    motionBtn.addEventListener('click', () => {
+      const on = motionBtn.getAttribute('aria-pressed') !== 'true';
+      motionBtn.setAttribute('aria-pressed', String(on));
+      scene.setMotion(on);
+    });
+
+    const stats = document.querySelector('#stats');
+    setInterval(() => {
+      const s = scene.stats();
+      stats.textContent =
+        `build ${built.toFixed(0)} ms · tier ${s.tier} · dpr ${s.pixelRatio.toFixed(2)}\n` +
+        `canvas ${s.size.join('×')}\n` +
+        `frame avg ${s.frameMsAvg.toFixed(1)} · p50 ${s.frameMsP50.toFixed(1)} · p95 ${s.frameMsP95.toFixed(1)} · p99 ${s.frameMsP99.toFixed(1)} ms\n` +
+        `calls ${s.drawCalls} · tris ${s.triangles} · tex ${s.textures} · geo ${s.geometries}`;
+    }, 500);
+
+    /* ---- Stills ------------------------------------------------------------
+       Render the overview of each framing at the still's own size (2× and
+       downsampled for clean edges), save it through the dev server, and
+       print where each label and close-up sits on it. */
+    document.querySelector('#stills').addEventListener('click', async () => {
+      const out = document.querySelector('#out');
+      out.hidden = false;
+      out.textContent = 'Rendering…';
+      scene.setMotion(false);
+      const report = {};
+      for (const f of ['wide', 'tall']) {
+        const spec = POSTER[f];
+        framing = f;
+        stage.style.width = `${spec.width}px`;
+        stage.style.height = `${spec.height}px`;
+        scene.renderer.setPixelRatio(2);
+        scene.renderer.setSize(spec.width, spec.height, false);
+        scene.setFraming(f);
+        scene.show(null, { immediate: true });
+        await new Promise((r) => setTimeout(r, 400));
+        scene.renderer.setPixelRatio(2);
+        scene.renderer.setSize(spec.width, spec.height, false);
+        scene.show(null, { immediate: true });
+        // A timer, not requestAnimationFrame: a backgrounded preview pane may
+        // not run animation frames at all, and the render below is explicit.
+        await new Promise((r) => setTimeout(r, 150));
+        scene.renderer.setPixelRatio(2);
+        scene.renderNow();
+        const small = document.createElement('canvas');
+        small.width = spec.width;
+        small.height = spec.height;
+        const ctx = small.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(canvas, 0, 0, spec.width, spec.height);
+        const blob = await new Promise((r) => small.toBlob(r, 'image/webp', 0.84));
+        const name = spec.src.split('/').pop();
+        const res = await fetch(`/__stills/${name}`, { method: 'POST', body: blob });
+        const places = {};
+        const cam = scene.camera;
+        const project = (p) => {
+          const v = cam.position.clone().set(...p).project(cam);
+          return [+(v.x * 0.5 + 0.5).toFixed(3), +(-v.y * 0.5 + 0.5).toFixed(3)];
+        };
+        PLACES.forEach((p) => {
+          const view = p.views[f];
+          const o = OVERVIEW[f];
+          const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+          const zoom = (dist(o.pos, view.target) * Math.tan((o.fov * Math.PI) / 360)) / (dist(view.pos, view.target) * Math.tan((view.fov * Math.PI) / 360));
+          places[p.id] = { label: project(p.anchor), focus: project(view.target), zoom: +Math.min(2.6, Math.max(1.5, zoom)).toFixed(2) };
+        });
+        report[f] = { saved: `${res.status} ${await res.text()} (${Math.round(blob.size / 1024)} KB)`, places };
+      }
+      out.textContent = JSON.stringify(report, null, 2);
+      console.log(JSON.stringify(report));
+      window.__stillsReport = report;
+      scene.renderer.setPixelRatio(Math.min(devicePixelRatio, tier.dprMax));
+      sizeStage();
+    });
+
+    if (params.has('view')) scene.show(params.get('view') || null, { immediate: true });
+  </script>
+</body>
+</html>

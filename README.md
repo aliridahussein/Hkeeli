@@ -11,8 +11,9 @@ two things at once:
 The promise the whole site is arranged around: *speak useful Lebanese Arabic
 from your first lesson, even if you can't read Arabic.*
 
-Static HTML, CSS and ES modules. **No build step, no dependencies, no backend.**
-Deploy the folder as-is to Netlify, Vercel, GitHub Pages or any static host.
+Static HTML, CSS and ES modules. **No build step and no backend**; the one
+library, three.js (for the courtyard), is vendored as a single file. Deploy the
+folder as-is to Netlify, Vercel, GitHub Pages or any static host.
 
 > **Vercel note:** `vercel.json` sets `"outputDirectory": "."` and must stay.
 > With the "Other" framework preset Vercel publishes `public/` when that folder
@@ -42,8 +43,8 @@ A ready-made config for the Claude Code preview pane lives in
 ## Folder structure
 
 ```
-index.html          Home — hero, mini-lesson, goals, method, journey, teacher,
-                    classes + booking, FAQ
+index.html          Home — the courtyard (hero), mini-lesson, goals, method,
+                    journey, teacher, classes + booking, FAQ
 start.html          Start Here — three-question onboarding and a recommendation
 learn.html          The curriculum: units grouped by stage, expandable
 practice.html       The practice hub: scenes, Daily Practice, seven drills.
@@ -54,6 +55,7 @@ css/
   base.css          Reset, typography, Arabic/transliteration rules, utilities
   components.css    Nav, buttons, postcard, lesson card, forms, footer
   layout.css        Page grids and breakpoints (mobile-first)
+  courtyard.css     The home page's courtyard: stage, labels, panel, café
   games.css         The practice hub and the play stage (practice.html only)
   zee-chat.css      Zee's launcher and chat panel
 
@@ -82,6 +84,7 @@ js/
   daily.js          Daily Practice — StepSession configured from CONFIG.daily
   cta.js            The bridge from a finished round to booking
   main.js           Home page
+  courtyard/        The courtyard — see "The courtyard" below
   start.js          Start Here onboarding
   learn.js          Lessons page
   practice.js       Practice hub + routing: what's playing, URLs, Back button
@@ -105,7 +108,10 @@ data/
   ar.json           Arabic UI strings
 
 public/audio/       Recordings, one folder per unit (see public/audio/README.md)
-assets/images/      Photography and logo assets
+assets/images/      Photography and logo assets; courtyard/ holds the still
+                    images rendered from the 3D scene
+vendor/three/       three.js, tree-shaken to what the courtyard uses
+tools/              Courtyard development tools (not deployed)
 ```
 
 ### Design system
@@ -340,10 +346,13 @@ place is a **spoken introduction** — for a language teacher the voice is the
 more relevant proof anyway, and it identifies nobody.
 
 - The line she says lives in `data/lessons.json` under `meta.intro`, in the same
-  `{ar, translit, en, audio}` shape as a phrase, which is why it can be passed
-  straight to `playPhrase()` and inherits the file-first, TTS-fallback path.
-- Drop the recording at `public/audio/intro/hello.mp3` and it plays instead of
-  the synthetic voice. Nothing else changes.
+  `{ar, translit, en, audio}` shape as a phrase, so it goes through
+  `playPhrase()` — but with `{ tts: false }`: it is the teacher introducing
+  herself, and a synthetic voice saying "I'm your teacher" would pass for hers.
+  Until the file exists the card shows the line in writing and says the
+  recording is on its way.
+- Drop the recording at `public/audio/intro/hello.mp3` and the play button
+  appears — here and in the courtyard's teacher's corner. Nothing else changes.
 - The heading is "How I teach", not "Meet your teacher": it frames the section
   around the method, so the absent face stops being conspicuous.
 - The copy stays **first person and singular**. Anonymous-but-specific earns
@@ -364,6 +373,188 @@ To add real ones, put matching objects in both bundles:
   { "quote": "I called my grandmother and held a whole conversation.", "name": "First name, city" }
 ]
 ```
+
+---
+
+## The courtyard
+
+*"A little Lebanon, one conversation at a time."* The home page's hero is a
+Lebanese courtyard — drawn in 3D where the device can draw it well, and as a
+still image everywhere else. Each place in it opens the lessons that belong
+there:
+
+| Place | Opens | Built from |
+|---|---|---|
+| Courtyard entrance | First conversations | Unit 1: outcome, dialogue, four key phrases, tip, progress |
+| Café table | Ordering like a local — **your first Lebanese conversation** | Unit 2's dialogue (below) |
+| Balcony phone | Talking with family | Unit 3, and the "Teta on the Phone" scene |
+| Teacher's corner | Meet your teacher | `meta.intro`, `about.*`, and the Preply handover from `js/booking.js` |
+
+### Files
+
+```
+js/courtyard/
+  index.js        the controller: what is open, history, focus, motion toggle,
+                  and the handover from the still image to the 3D scene
+  places.js       the four places: links, label anchors, camera views, and
+                  where they sit on the still images — read by both views
+  panels.js       the panel each place opens (HTML, from lessons.json + bundles)
+  cafe.js         the café conversation
+  listen.js       recording-only playback (see "Audio in the courtyard")
+  poster.js       the still-image presentation
+  scene/          the 3D presentation (three.js)
+    presentation.js  renderer, frame loop, camera, labels, adaptive resolution
+    rig.js           the camera rig (quintic, retargetable — see below)
+    world.js         assembles the scene; merges static meshes by material
+    architecture.js  the house, walls, gate, balcony, roof, pergola
+    props.js         café table and cups, telephone, teacher's desk, pots
+    plants.js        lemon tree, vine, bougainvillea, geraniums, basil, trees
+    atmosphere.js    sky, environment light, sun, steam
+    library.js       materials, and the wind shader
+    forge.js         procedural textures, drawn on the GPU at load
+    canvas-art.js    the menu, notebook, slate, plaque and Hkeeli sign
+    quality.js       device tiers and the WebGL probe
+css/courtyard.css           hero, labels, panel and conversation
+assets/images/courtyard/    the still images (rendered from the scene)
+vendor/three/               three.js, tree-shaken — see vendor/three/README.md
+tools/                      scene preview, stills server, bundle script (not deployed)
+```
+
+Everything in the scene is modelled and textured in code — no downloaded
+models, photographs or texture files, so there is nothing else to license.
+Surfaces are procedural (GLSL, rendered once into render targets at load);
+the printed things are drawn on canvases in the site's own typefaces, from
+words already in `lessons.json`: the café menu (Unit 2's sugar levels), the
+teacher's notebook and slate (Unit 1), the welcome plaque (the teacher's own
+*ahla w sahla*). The only third-party code is three.js (MIT).
+
+**Two presentations, one interface.** The still image (`poster.js`) is there
+immediately, for everyone, and it is the whole courtyard on devices that
+can't draw 3D well — no WebGL 2, a software renderer, or Save-Data. Labels sit
+on it in the same places; choosing a place eases the image towards it and
+opens the same panel. The 3D scene loads once the page is idle, warms up every
+view (shaders, textures, buffers) behind the still, and fades in over it —
+same composition, same camera, so nothing jumps. If the GPU goes away, the
+still takes over where the scene was.
+
+**The panels are the content.** The lessons and the booking live in HTML
+panels built from `lessons.json` and the bundles; the scene is a way in, never
+the only one. Every place is a real link (`learn.html#unit-1` …) in a
+labelled list, so without JavaScript the courtyard is four links into the
+course.
+
+**Addresses.** `index.html#visit-cafe` (and `-entrance`, `-balcony`,
+`-teacher`) opens a place directly, and the browser's Back button returns to
+the courtyard. The hero's *Try a Free Mini-Lesson* opens the café
+conversation; its `href` still points at `#mini-lesson`, the three-phrase
+lesson further down, for anyone without JavaScript.
+
+### The café conversation
+
+One exchange, built entirely from Unit 2's dialogue — no new Lebanese was
+written for it:
+
+1. the waiter: *ahla w sahla, shu bt7eb?* (dialogue line 1);
+2. you choose your answer: *baddi 2ahwe wasat, min fadlak.* (line 2). The two
+   wrong choices are real Unit 1 phrases (*b khatrak*, *tikram 3ainak*), and
+   the feedback says what each actually means, from its own `en`, `note` and
+   `literal`;
+3. the right answer shows Unit 2's tip and *baddi* = "I want" (`u2-p2.blank`);
+4. the waiter: *shi tene?* (line 3); you finish the order out loud (line 4);
+5. a phrase to keep (*baddi 2ahwe wasat*, `u2-p2`), Unit 2's progress, and the
+   way on: the unit, the full café scene, or a personal class (with the
+   paid-trial note).
+
+The first answer is recorded with `progress.recordAnswer('courtyard-cafe',
+'u2-p2', …)` and the finish with `recordSession('courtyard-cafe', …)` — the
+same store and rules as the mini-lesson, under its own id, so it moves Unit 2's
+progress honestly and no game's statistics.
+
+### Audio in the courtyard
+
+Lines in the courtyard play the teacher's **recording or nothing**
+(`playPhrase(item, null, { tts: false })`). They sit in the teacher's corner
+and inside "your first conversation", where a synthetic voice would pass for
+hers — and would read Lebanese as Modern Standard Arabic. `listen.js` checks
+once whether the file named in `lessons.json` exists: if it does, the line
+gets Listen / Stop / Listen again; if not, the Arabic, transliteration and
+meaning are the experience, and the panel says so plainly.
+
+Dialogue lines don't name audio files yet. Give one an `"audio"` path in
+`lessons.json` (same shape as a phrase's) and drop the file in, and that line
+becomes playable in the café. Starting a line stops the previous one; leaving a
+place stops whatever is playing; nothing plays until it is pressed.
+
+The rest of the site keeps its existing behaviour (recording, else the
+browser's voice with a "synthetic voice" notice) — except the About section's
+spoken introduction, which now also plays only the real recording, for the
+same reason.
+
+### Camera motion
+
+`scene/rig.js` moves eight numbers together — position, look-at target, field
+of view, and a vertical frame shift — along quintic Hermite curves that start
+from the camera's current velocity *and* acceleration and end at rest. From
+rest that is smootherstep: gentle in, gentle out, no linear section. Mid-move,
+a new destination bends the path instead of jerking it, and nothing queues.
+Time comes from the frame delta, so a move is identical at 30, 60 or 144 fps
+(checked: same peak speed and acceleration at all three; a retarget changes
+velocity by under 0.01 m/s). Moves take 0.95–1.6 s by distance — about a
+second across the courtyard. Between two close-ups the path bows gently back
+towards the open middle; every straight path between views is clear of the
+pergola, the tree and the table.
+
+Idle motion is small: leaves and the linen on the balcony sway in the shader
+(their shadows move with them), steam rises from the cups only once you sit
+down, and with a mouse the view parallaxes a few centimetres with the pointer.
+**Pause motion** (top corner of the scene) stops all of it and is remembered on
+the device (`hkeeli.courtyard.motion`). With *reduce motion* set in the OS
+there is no idle motion, and the camera cuts to a place instead of flying.
+
+### Performance
+
+Three tiers (`scene/quality.js`), chosen from the device and the GPU's name,
+then corrected by measurement: the frame loop watches real frame times and
+lowers the drawing resolution (to 0.8× at the lowest) if frames are being
+dropped — never during a camera move. While the camera moves, the shadow map
+holds still, which makes the frames that must not drop the cheapest ones. The
+loop stops when the scene is scrolled out of view or the tab is hidden.
+
+Measured on an Intel UHD integrated GPU — the weak end of desktop hardware —
+with the GPU forced to finish every frame, so slightly pessimistic: medium
+tier, 650 × 720 CSS px at 1×, camera moves 11–13 ms a frame and the idle
+overview ~16.5 ms; at 1.25×, 14–20 ms. About 110 draw calls on the high tier,
+60 on medium. Faster GPUs get the high tier (resolution up to 2×, 2048
+shadows, and the lamp and room lights).
+
+### Regenerating the still images
+
+The stills have to match the scene's opening cameras, so they are rendered
+from it:
+
+```bash
+node tools/courtyard-stills.mjs
+```
+
+Open <http://localhost:4323/tools/courtyard-preview.html> and press **Render
+stills**. It renders both framings at 2× and downsamples, saves
+`assets/images/courtyard/courtyard-{wide,tall}.webp` through that local
+server, and prints where each label and close-up sits on the images — paste
+those into `POSTER` in `js/courtyard/places.js`. Do this whenever the scene or
+the overview cameras change. The harness also has a button per view and a
+frame-time readout. On the site, `index.html?courtyard-debug` exposes the live
+scene as `window.__hkeeliCourtyard`, and `?courtyard=still` / `?courtyard=3d`
+force either presentation.
+
+### Two framings
+
+`wide` (the desktop column, composed at 0.93) and `tall` (phones, composed at
+0.5) are separate compositions, not one picture cropped. `framingQuery` in
+`places.js` is the one media query both presentations and the `<picture>`
+element use, so they always agree. Each is composed at the narrowest shape it
+is shown at and drawn with `object-fit: cover`, so a wider stage only loses sky
+and paving, never a place. On a phone a place opens as a sheet over the lower
+half of the stage, and the camera frames it in the upper half.
 
 ---
 
@@ -807,8 +998,8 @@ the teacher's real address before launch — it currently points at
 Mobile is the full product, not a reduced one. Base CSS *is* the phone layout;
 media queries only enhance upward (600 / 860 / 1000px).
 
-- The hero postcard stack is a swipeable scroll-snap rail with dots on phones,
-  and the mock's scattered rotated stack from 860px up.
+- The hero is the courtyard: copy first, then the stage at full height, and a
+  place opens as a sheet over the stage's lower half (see "The courtyard").
 - Nav links move into a drawer below 860px — including the Book a Class link,
   so nothing is lost. The four items are Lessons, Practice, About and Book a
   Class; the two that are home-page sections are marked current only while their
@@ -1115,7 +1306,8 @@ The rest:
 | Gap | Where to fill it |
 |---|---|
 | **Class length, price, trial-class policy** | `classes.facts` in `data/en.json` + `data/ar.json`. Any row whose `value` is the literal string `"tbc"` renders as "Ask when you book — this isn't set in stone yet." Replace the value and the italic note disappears. |
-| **Real recordings** | Drop mp3s at the paths already named in `lessons.json`; everything falls back to speech synthesis until then. Add `audioSlow` per phrase to unlock the slow-audio control. |
+| **Real recordings** | Drop mp3s at the paths already named in `lessons.json`; everything falls back to speech synthesis until then. Add `audioSlow` per phrase to unlock the slow-audio control. The courtyard and the About introduction never use the synthetic voice: their lines become playable as their files land. Dialogue lines need an `audio` path added to be playable in the café. |
+| **Arabic review of the courtyard copy** | The `courtyard.*` strings in `data/ar.json` were written for this build and need a native speaker's read. No Lebanese lesson content was added: every line a visitor learns in the courtyard comes from `lessons.json`. |
 | **Testimonials** | `about.testimonials` is an empty array on purpose — see above. |
 | **Teacher's real name / photo / credentials** | Not published anywhere, and no `Person` structured data exists. If they are ever added, add them to `data/*.json` and the JSON-LD together. |
 | **Booking address** | `CONFIG.bookingEmail` still points at `hello@hkeeli.example`. |

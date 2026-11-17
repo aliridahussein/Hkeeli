@@ -44,7 +44,9 @@ const PATHS = {
 
 /** Filled shapes, drawn without a stroke. */
 const FILLED = {
-  play: 'M8 5.2v13.6L18.8 12z'
+  play: 'M8 5.2v13.6L18.8 12z',
+  stop: 'M7 7h10v10H7z',
+  pause: 'M7 5.5h3.4v13H7zM13.6 5.5H17v13h-3.4z'
 };
 
 const NS = 'http://www.w3.org/2000/svg';

@@ -1,0 +1,367 @@
+/**
+ * Hkeeli courtyard — the controller.
+ *
+ * "A little Lebanon, one conversation at a time." The home page's hero is a
+ * Lebanese courtyard; each place in it opens the lessons that belong there.
+ * This module owns what is open, and hands the drawing to one of two
+ * presentations that share one interface (show / hover / setMotion /
+ * setFraming):
+ *
+ *   - poster.js — the still image, immediately, everywhere;
+ *   - scene/presentation.js — the 3D courtyard, loaded after the page is
+ *     usable, on devices that can draw it well. It fades in over the still
+ *     (same composition, same camera), and if the GPU goes away it fades out
+ *     again and the still takes over where it left off.
+ *
+ * ## What a visitor can rely on
+ *
+ *   - Every place is a real link (learn.html#unit-1 …) in a labelled list, so
+ *     without JavaScript the courtyard is still four ways into the course.
+ *   - Choosing a place: the camera moves, the panel opens beside the scene
+ *     (or over its lower half on a phone), focus moves to the panel heading.
+ *   - Back to the courtyard: the button in the panel, Escape, or the browser's
+ *     Back button (each place is index.html#visit-<place>, so it is also a
+ *     shareable address). Focus returns to the place's label.
+ *   - Choosing again mid-move retargets the camera; nothing queues.
+ *   - Reduced motion: no idle movement, and viewpoint changes are a soft cut
+ *     instead of a flight. "Pause motion" stops idle movement for anyone.
+ *   - Opening a place never calls Zee or anything else over the network
+ *     beyond the lesson data the page already loaded.
+ */
+
+import { t } from '../i18n.js';
+import { clear } from '../ui.js';
+import { icon } from '../icons.js';
+import { track } from '../analytics.js';
+import { getPlace, placeFromHash, HASH_PREFIX, framingQuery, currentFraming } from './places.js';
+import { createPosterPresentation } from './poster.js';
+import { renderPanel } from './panels.js';
+import { stopListening } from './listen.js';
+import { chooseTier, probeWebGL } from './scene/quality.js';
+
+const MOTION_KEY = 'hkeeli.courtyard.motion';
+const stackedQuery = window.matchMedia('(max-width: 959px)');
+const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+export function initCourtyard() {
+  const hero = document.querySelector('#courtyard');
+  if (!hero || hero.dataset.ready) return null;
+  hero.dataset.ready = 'true';
+
+  const stage = hero.querySelector('.courtyard-stage');
+  const picture = hero.querySelector('.courtyard-still');
+  const panel = hero.querySelector('#place-panel');
+  const stageBack = hero.querySelector('.courtyard-back');
+  const motionButton = hero.querySelector('.courtyard-motion');
+  const labels = new Map([...hero.querySelectorAll('.place-label[data-place]')].map((a) => [a.dataset.place, a]));
+  const widths = new Map();
+
+  const state = {
+    place: null,
+    pushed: false,
+    framing: currentFraming(),
+    motion: !reducedQuery.matches && readMotion(),
+    panel: null,
+    renderToken: 0
+  };
+
+  const smooth = () => !reducedQuery.matches;
+  const sheet = () => stackedQuery.matches;
+
+  /* ---- Labels -------------------------------------------------------------
+     The presentation reports where each place is on the stage; the label's
+     pin goes exactly there, and its pill is nudged inwards so it never hangs
+     off the edge. Widths are measured on layout changes, never per frame. */
+  labels.forEach((label, id) => {
+    const place = getPlace(id);
+    const slot = label.querySelector('.place-label-icon');
+    if (slot && place) clear(slot).append(icon(place.icon, { size: 18 }));
+  });
+
+  /* Sizes are read here, on layout changes only. placeLabel() runs every
+     frame and only writes: a read after a write would force a layout of the
+     whole page on each frame. */
+  let stageWidth = stage.clientWidth;
+  function measure() {
+    stageWidth = stage.clientWidth;
+    labels.forEach((label, id) => widths.set(id, label.querySelector('.place-label-body')?.offsetWidth || 150));
+  }
+
+  function placeLabel(id, x, y, visible) {
+    const label = labels.get(id);
+    if (!label) return;
+    const w = stageWidth;
+    const half = (widths.get(id) || 150) / 2;
+    const margin = 10;
+    const cx = Math.min(w - half - margin, Math.max(half + margin, x));
+    label.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+    label.style.setProperty('--nudge', `${(cx - x).toFixed(1)}px`);
+    label.dataset.visible = String(visible);
+  }
+
+  /* ---- Presentations ------------------------------------------------------- */
+  let presentation = createPosterPresentation({ stage, picture, placeLabel, framing: state.framing, sheet });
+  hero.dataset.mode = 'still';
+  measure();
+  presentation.layout?.();
+
+  /* ---- Opening and closing places ----------------------------------------- */
+  const ctx = {
+    open: (id) => open(id, { source: 'panel' }),
+    close: () => close(),
+    smooth
+  };
+
+  async function open(id, { push = true, immediate = false, focus = true, source = 'label' } = {}) {
+    const place = getPlace(id);
+    if (!place) return;
+    if (state.place === id) {
+      state.panel?.heading.focus({ preventScroll: true });
+      return;
+    }
+    const first = !state.place;
+    stopListening();
+    state.panel?.destroy();
+    state.place = id;
+
+    hero.dataset.view = 'place';
+    hero.dataset.place = id;
+    labels.forEach((label, key) => label.setAttribute('aria-expanded', String(key === id)));
+    move(id, { immediate });
+
+    if (push) {
+      const url = `${location.pathname}${location.search}${HASH_PREFIX}${id}`;
+      if (first) {
+        history.pushState({ courtyard: id }, '', url);
+        state.pushed = true;
+      } else history.replaceState({ courtyard: id }, '', url);
+    }
+
+    const token = ++state.renderToken;
+    panel.hidden = false;
+    panel.dataset.state = 'opening';
+    const rendered = await renderPanel(panel, id, ctx, state.panel);
+    if (token !== state.renderToken) return;
+    state.panel = rendered;
+    // On the next frame, so the entrance transition runs from 'opening' —
+    // with a timer behind it, since a backgrounded tab may not paint frames.
+    const settle = () => {
+      if (token === state.renderToken) panel.dataset.state = 'open';
+    };
+    requestAnimationFrame(settle);
+    setTimeout(settle, 60);
+    reveal();
+    if (focus) rendered.heading.focus({ preventScroll: true });
+    track('courtyard_place_opened', { place: id, from: source });
+  }
+
+  function close({ push = true, focus = true } = {}) {
+    if (!state.place) return;
+    const id = state.place;
+    state.place = null;
+    state.renderToken += 1;
+    stopListening();
+    state.panel?.destroy();
+    state.panel = null;
+
+    hero.dataset.view = 'overview';
+    delete hero.dataset.place;
+    labels.forEach((label) => label.setAttribute('aria-expanded', 'false'));
+    move(null);
+
+    panel.dataset.state = 'closing';
+    const token = state.renderToken;
+    setTimeout(() => {
+      if (token !== state.renderToken) return;
+      panel.hidden = true;
+      clear(panel);
+      delete panel.dataset.state;
+    }, smooth() ? 320 : 0);
+
+    if (push) {
+      if (state.pushed && history.state && history.state.courtyard) history.back();
+      else history.replaceState(null, '', `${location.pathname}${location.search}`);
+    }
+    state.pushed = false;
+    if (focus) labels.get(id)?.focus({ preventScroll: true });
+  }
+
+  /* Camera (or still) to a place. With reduced motion the view changes in
+     one cut, with no travel; the panel still opens beside it. */
+  function move(id, { immediate = false } = {}) {
+    presentation.show(id, { immediate: immediate || !smooth(), sheet: sheet() });
+  }
+
+  /* On a phone the place opens over the lower half of the stage, so bring
+     the whole stage into view; on a wide screen, only if it isn't already. */
+  function reveal() {
+    const nav = document.querySelector('.site-nav');
+    const navH = nav && getComputedStyle(nav).position === 'sticky' ? nav.getBoundingClientRect().height : 0;
+    const box = stage.getBoundingClientRect();
+    const fits = box.top >= navH - 2 && box.bottom <= window.innerHeight + 2;
+    if (!sheet() && fits) return;
+    const top = box.top + window.scrollY - navH;
+    if (Math.abs(window.scrollY - top) > 4) window.scrollTo({ top, behavior: smooth() ? 'smooth' : 'auto' });
+  }
+
+  /* ---- Wiring ---------------------------------------------------------------- */
+  labels.forEach((label, id) => {
+    label.setAttribute('aria-expanded', 'false');
+    label.setAttribute('aria-controls', 'place-panel');
+    label.addEventListener('click', (event) => {
+      // Let modified clicks open the lesson itself in a new tab.
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      open(id, { source: 'label' });
+    });
+    label.addEventListener('pointerenter', () => presentation.hover(id));
+    label.addEventListener('pointerleave', () => presentation.hover(null));
+    label.addEventListener('focus', () => presentation.hover(id));
+    label.addEventListener('blur', () => presentation.hover(null));
+  });
+
+  hero.querySelectorAll('[data-courtyard-open]').forEach((link) =>
+    link.addEventListener('click', (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      open(link.dataset.courtyardOpen, { source: 'hero' });
+    })
+  );
+
+  stageBack?.addEventListener('click', () => close());
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !state.place || event.defaultPrevented) return;
+    if (event.target.closest?.('.zee-panel, .nav-drawer')) return;
+    close();
+  });
+
+  window.addEventListener('popstate', () => {
+    const place = placeFromHash();
+    const inside = panel.contains(document.activeElement);
+    // Back to the courtyard (no hash): focus returns to the place's label.
+    // A link out of the panel to another section (#book, #about): the
+    // browser has already put the reader there, so focus stays where it went.
+    const toCourtyard = !location.hash;
+    if (place && place.id !== state.place) open(place.id, { push: false, focus: inside });
+    else if (!place && state.place) close({ push: false, focus: inside && toCourtyard });
+  });
+
+  /* ---- Motion ----------------------------------------------------------------- */
+  function renderMotionButton() {
+    if (!motionButton) return;
+    const on = state.motion;
+    clear(motionButton).append(icon(on ? 'pause' : 'play', { size: 16 }));
+    const label = t(on ? 'courtyard.pauseMotion' : 'courtyard.playMotion');
+    motionButton.setAttribute('aria-label', label);
+    motionButton.title = label;
+    motionButton.hidden = hero.dataset.mode !== 'scene' || reducedQuery.matches;
+  }
+  motionButton?.addEventListener('click', () => {
+    state.motion = !state.motion;
+    try {
+      localStorage.setItem(MOTION_KEY, state.motion ? 'on' : 'off');
+    } catch {
+      /* private mode: the choice lasts for this page only */
+    }
+    presentation.setMotion(state.motion);
+    renderMotionButton();
+  });
+  reducedQuery.addEventListener('change', () => {
+    state.motion = !reducedQuery.matches && readMotion();
+    presentation.setMotion(state.motion);
+    renderMotionButton();
+  });
+  renderMotionButton();
+
+  /* ---- Layout changes ----------------------------------------------------------- */
+  window.matchMedia(framingQuery).addEventListener('change', () => {
+    state.framing = currentFraming();
+    presentation.setFraming(state.framing);
+    presentation.show(state.place, { immediate: true, sheet: sheet() });
+  });
+  stackedQuery.addEventListener('change', () => presentation.show(state.place, { immediate: true, sheet: sheet() }));
+  new ResizeObserver(() => measure()).observe(stage);
+
+  document.addEventListener('hkeeli:langchange', async () => {
+    measure();
+    presentation.layout?.();
+    renderMotionButton();
+    if (state.place) {
+      const token = ++state.renderToken;
+      const previous = state.panel;
+      const rendered = await renderPanel(panel, state.place, ctx, previous);
+      if (token !== state.renderToken) return;
+      previous?.destroy();
+      state.panel = rendered;
+      panel.dataset.state = 'open';
+    }
+  });
+
+  /* ---- Arriving on index.html#visit-<place> --------------------------------------- */
+  const arrived = placeFromHash();
+  if (arrived) {
+    history.replaceState({ courtyard: arrived.id }, '', location.href);
+    state.pushed = false;
+    open(arrived.id, { push: false, immediate: true, focus: false, source: 'link' });
+  }
+
+  /* ---- The 3D scene, when the page has settled and the device is able ------------- */
+  const forced = new URLSearchParams(location.search).get('courtyard');
+  const gl = forced === '3d' ? { ok: true } : probeWebGL();
+  const tier = forced === 'still' ? null : chooseTier(gl.renderer);
+  hero.dataset.renderer = tier && gl.ok ? 'pending' : `still${gl.reason ? `:${gl.reason}` : ''}`;
+  if (tier && gl.ok) {
+    const start = () => loadScene(tier).catch((error) => {
+      console.warn('[courtyard] 3D scene unavailable, keeping the still image', error);
+      hero.dataset.renderer = 'still:error';
+    });
+    if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 1200 });
+    else setTimeout(start, 300);
+  }
+
+  async function loadScene(quality) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'courtyard-canvas';
+    canvas.setAttribute('aria-hidden', 'true');
+    picture.after(canvas);
+    const { createScenePresentation } = await import('./scene/presentation.js');
+    const scene = await createScenePresentation({
+      stage,
+      canvas,
+      placeLabel,
+      quality,
+      framing: state.framing,
+      motion: state.motion,
+      debug: new URLSearchParams(location.search).has('courtyard-debug'),
+      onLost: () => {
+        // The GPU went away: the still takes over exactly where we were.
+        hero.dataset.mode = 'still';
+        hero.dataset.renderer = 'still:lost';
+        presentation = createPosterPresentation({ stage, picture, placeLabel, framing: state.framing, sheet });
+        presentation.show(state.place, { immediate: true, sheet: sheet() });
+        renderMotionButton();
+        setTimeout(() => canvas.remove(), 600);
+      }
+    });
+    const poster = presentation;
+    scene.show(state.place, { immediate: true, sheet: sheet() });
+    presentation = scene;
+    poster.destroy();
+    scene.start();
+    hero.dataset.mode = 'scene';
+    hero.dataset.renderer = `scene:${quality.name}`;
+    renderMotionButton();
+    if (new URLSearchParams(location.search).has('courtyard-debug')) window.__hkeeliCourtyard = scene;
+  }
+
+  return { open, close };
+}
+
+function readMotion() {
+  try {
+    return localStorage.getItem(MOTION_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
